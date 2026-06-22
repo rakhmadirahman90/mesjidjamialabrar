@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
 import { MosqueProfile, PrayerTime, Hadith, KajianSchedule, QurbanMember, QurbanTransaction, FinancialReport, AktivitasItem } from '../types';
 import { MOCK_PROFILE, MOCK_DONORS } from '../data/mockData';
+import { db } from './firebase';
+import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 // Custom interfaces for new admin features
 export interface HomeSlider {
@@ -283,6 +285,161 @@ export class LocalDb {
     }
   }
 
+  private static async syncListToFirestore(collectionName: string, items: any[]) {
+    try {
+      const snap = await getDocs(collection(db, collectionName));
+      const incomingIds = new Set(items.map(item => String(item.id)));
+      for (const d of snap.docs) {
+        if (!incomingIds.has(d.id)) {
+          await deleteDoc(doc(db, collectionName, d.id));
+        }
+      }
+      for (const item of items) {
+        await setDoc(doc(db, collectionName, String(item.id)), item);
+      }
+    } catch (e) {
+      console.error(`Error syncing list to ${collectionName}:`, e);
+    }
+  }
+
+  static async syncWithFirestore() {
+    console.log("Syncing with Firestore database...");
+    try {
+      await Promise.all([
+        // 1. Profile
+        getDocs(collection(db, "al_abrar_profile")).then(async (snap) => {
+          if (snap.empty) {
+            await setDoc(doc(db, "al_abrar_profile", "mosque"), DEFAULT_PROFILE);
+          } else {
+            const data = snap.docs[0].data() as MosqueProfile;
+            this.set('profile', data);
+          }
+        }),
+
+        // 2. Prayer Times
+        getDocs(collection(db, "al_abrar_prayer_times")).then(async (snap) => {
+          if (snap.empty) {
+            for (const t of DEFAULT_PRAYER_TIMES) {
+              await setDoc(doc(db, "al_abrar_prayer_times", String(t.id)), t);
+            }
+          } else {
+            const times = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('prayer_times', times);
+          }
+        }),
+
+        // 3. Sliders
+        getDocs(collection(db, "al_abrar_sliders")).then(async (snap) => {
+          if (snap.empty) {
+            for (const s of DEFAULT_SLIDERS) {
+              await setDoc(doc(db, "al_abrar_sliders", String(s.id)), s);
+            }
+          } else {
+            const sliders = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('sliders', sliders);
+          }
+        }),
+
+        // 4. Hadiths
+        getDocs(collection(db, "al_abrar_hadiths")).then(async (snap) => {
+          if (snap.empty) {
+            for (const h of DEFAULT_HADITHS) {
+              await setDoc(doc(db, "al_abrar_hadiths", String(h.id)), h);
+            }
+          } else {
+            const hadiths = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('hadiths', hadiths);
+          }
+        }),
+
+        // 5. Kajian
+        getDocs(collection(db, "al_abrar_kajian")).then(async (snap) => {
+          if (snap.empty) {
+            for (const k of DEFAULT_KAJIAN) {
+              await setDoc(doc(db, "al_abrar_kajian", String(k.id)), k);
+            }
+          } else {
+            const kajian = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('kajian', kajian);
+          }
+        }),
+
+        // 6. Livestream
+        getDocs(collection(db, "al_abrar_livestream")).then(async (snap) => {
+          if (snap.empty) {
+            await setDoc(doc(db, "al_abrar_livestream", "youtube"), DEFAULT_LIVESTREAM);
+          } else {
+            const data = snap.docs[0].data() as LivestreamConfig;
+            this.set('livestream', data);
+          }
+        }),
+
+        // 7. Audio Config
+        getDocs(collection(db, "al_abrar_audio")).then(async (snap) => {
+          if (snap.empty) {
+            await setDoc(doc(db, "al_abrar_audio", "settings"), DEFAULT_AUDIO);
+          } else {
+            const data = snap.docs[0].data() as AudioConfig;
+            this.set('audio_config', data);
+          }
+        }),
+
+        // 8. Qurban Members
+        getDocs(collection(db, "al_abrar_qurban_members")).then(async (snap) => {
+          if (snap.empty) {
+            for (const m of DEFAULT_QURBAN_MEMBERS) {
+              await setDoc(doc(db, "al_abrar_qurban_members", String(m.id)), m);
+            }
+          } else {
+            const members = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('qurban_members', members);
+          }
+        }),
+
+        // 9. Qurban Transactions
+        getDocs(collection(db, "al_abrar_qurban_transactions")).then(async (snap) => {
+          if (snap.empty) {
+            for (const t of DEFAULT_QURBAN_TRANSACTIONS) {
+              await setDoc(doc(db, "al_abrar_qurban_transactions", String(t.id)), t);
+            }
+          } else {
+            const txs = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('qurban_transactions', txs);
+          }
+        }),
+
+        // 10. Financials
+        getDocs(collection(db, "al_abrar_financials")).then(async (snap) => {
+          if (snap.empty) {
+            for (const f of DEFAULT_FINANCIALS) {
+              await setDoc(doc(db, "al_abrar_financials", String(f.id)), f);
+            }
+          } else {
+            const financials = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('financials', financials);
+          }
+        }),
+
+        // 11. Activities
+        getDocs(collection(db, "al_abrar_activities")).then(async (snap) => {
+          if (snap.empty) {
+            for (const act of DEFAULT_ACTIVITIES) {
+              await setDoc(doc(db, "al_abrar_activities", String(act.id)), act);
+            }
+          } else {
+            const activities = snap.docs.map(d => d.data()).sort((a: any, b: any) => a.id - b.id);
+            this.set('activities', activities);
+          }
+        })
+      ]);
+
+      console.log("Firestore successfully synced to local storage.");
+      window.dispatchEvent(new CustomEvent('db-update', { detail: { key: 'all' } }));
+    } catch (err) {
+      console.error("Firestore sync error:", err);
+    }
+  }
+
   // Getters
   static getProfile(): MosqueProfile {
     return this.get<MosqueProfile>('profile', DEFAULT_PROFILE);
@@ -327,13 +484,13 @@ export class LocalDb {
   // Setters
   static saveProfile(profile: MosqueProfile) {
     this.set('profile', profile);
-    // Best effort Supabase save
+    setDoc(doc(db, "al_abrar_profile", "mosque"), profile).catch(e => console.error(e));
     supabase.from('mosque_profile').upsert(profile).then();
   }
 
   static savePrayerTimes(times: typeof DEFAULT_PRAYER_TIMES) {
     this.set('prayer_times', times);
-    // Best effort Supabase save
+    this.syncListToFirestore("al_abrar_prayer_times", times);
     times.forEach(t => {
       supabase.from('prayer_times').upsert({ id: t.id, name: t.name, time: `${t.time}:00` }).then();
     });
@@ -341,11 +498,12 @@ export class LocalDb {
 
   static saveSliders(sliders: HomeSlider[]) {
     this.set('sliders', sliders);
+    this.syncListToFirestore("al_abrar_sliders", sliders);
   }
 
   static saveHadiths(hadiths: Hadith[]) {
     this.set('hadiths', hadiths);
-    // Best effort Supabase save
+    this.syncListToFirestore("al_abrar_hadiths", hadiths);
     hadiths.forEach(h => {
       supabase.from('hadiths').upsert(h).then();
     });
@@ -353,7 +511,7 @@ export class LocalDb {
 
   static saveKajian(kajian: KajianSchedule[]) {
     this.set('kajian', kajian);
-    // Best effort Supabase save
+    this.syncListToFirestore("al_abrar_kajian", kajian);
     kajian.forEach(k => {
       supabase.from('kajian_schedules').upsert(k).then();
     });
@@ -361,14 +519,17 @@ export class LocalDb {
 
   static saveLivestream(config: LivestreamConfig) {
     this.set('livestream', config);
+    setDoc(doc(db, "al_abrar_livestream", "youtube"), config).catch(e => console.error(e));
   }
 
   static saveAudioConfig(config: AudioConfig) {
     this.set('audio_config', config);
+    setDoc(doc(db, "al_abrar_audio", "settings"), config).catch(e => console.error(e));
   }
 
   static saveQurbanMembers(members: QurbanMember[]) {
     this.set('qurban_members', members);
+    this.syncListToFirestore("al_abrar_qurban_members", members);
     members.forEach(m => {
       supabase.from('qurban_members').upsert({ id: m.id, name: m.name, phone: m.phone, target_amount: m.target_amount, type: m.type }).then();
     });
@@ -376,6 +537,7 @@ export class LocalDb {
 
   static saveQurbanTransactions(txs: QurbanTransaction[]) {
     this.set('qurban_transactions', txs);
+    this.syncListToFirestore("al_abrar_qurban_transactions", txs);
     txs.forEach(t => {
       supabase.from('qurban_transactions').upsert(t).then();
     });
@@ -383,6 +545,7 @@ export class LocalDb {
 
   static saveFinancials(financials: FinancialReport[]) {
     this.set('financials', financials);
+    this.syncListToFirestore("al_abrar_financials", financials);
     financials.forEach(f => {
       supabase.from('financial_reports').upsert(f).then();
     });
@@ -413,6 +576,7 @@ export class LocalDb {
 
   static saveActivities(activities: AktivitasItem[]) {
     this.set('activities', activities);
+    this.syncListToFirestore("al_abrar_activities", activities);
     activities.forEach(act => {
       supabase.from('activities').upsert(act).then();
     });

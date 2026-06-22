@@ -1,0 +1,185 @@
+{
+  "entities": {
+    "profile": {
+      "title": "Profile",
+      "description": "Mosque corporate profile and details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "history": { "type": "string" },
+        "vision": { "type": "string" },
+        "mission": { "type": "array" },
+        "capacity": { "type": "number" },
+        "established_year": { "type": "number" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" }
+      }
+    },
+    "prayer_time": {
+      "title": "PrayerTime",
+      "description": "Daily shalat times",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "name": { "type": "string" },
+        "time": { "type": "string" },
+        "rakaat": { "type": "number" }
+      }
+    },
+    "slider": {
+      "title": "HomeSlider",
+      "description": "Main home slider item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "image": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "hadith": {
+      "title": "Hadith",
+      "description": "Selected holy Hadith of the day",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "text_arab": { "type": "string" },
+        "translation": { "type": "string" },
+        "source": { "type": "string" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "kajian": {
+      "title": "Kajian",
+      "description": "Islamic study schedules",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "title": { "type": "string" },
+        "speaker": { "type": "string" },
+        "location": { "type": "string" },
+        "start_time": { "type": "string" },
+        "category": { "type": "string" },
+        "recurrence": { "type": "string" }
+      }
+    },
+    "livestream": {
+      "title": "Livestream",
+      "description": "YouTube video streaming config",
+      "type": "object",
+      "properties": {
+        "videoId": { "type": "string" },
+        "title": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      }
+    },
+    "audio_config": {
+      "title": "AudioConfig",
+      "description": "Settings for audio player channels",
+      "type": "object",
+      "properties": {
+        "quranUrl": { "type": "string" },
+        "songUrl": { "type": "string" },
+        "azanUrl": { "type": "string" },
+        "isMuted": { "type": "boolean" },
+        "quranVolume": { "type": "number" },
+        "songVolume": { "type": "number" },
+        "azanVolume": { "type": "number" }
+      }
+    },
+    "qurban_member": {
+      "title": "QurbanMember",
+      "description": "Member saving up for qurban",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "target_amount": { "type": "number" },
+        "type": { "type": "string" }
+      }
+    },
+    "qurban_transaction": {
+      "title": "QurbanTransaction",
+      "description": "Payment installment entries for qurban savings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "member_id": { "type": "number" },
+        "amount": { "type": "number" },
+        "transaction_date": { "type": "string" }
+      }
+    },
+    "financial_report": {
+      "title": "FinancialReport",
+      "description": "Income and expenditures entries",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "type": { "type": "string" },
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "transaction_date": { "type": "string" }
+      }
+    },
+    "activities": {
+      "title": "ActivityItem",
+      "description": "Regular special programs at the mosque",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "description": { "type": "string" },
+        "schedule": { "type": "string" },
+        "beneficiary": { "type": "string" },
+        "badge": { "type": "string" },
+        "image": { "type": "string" },
+        "colorGradient": { "type": "string" },
+        "iconColor": { "type": "string" },
+        "borderColor": { "type": "string" },
+        "iconName": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/al_abrar/config": {
+      "schema": "object",
+      "description": "Contains single documents for mosque profile, livestream config, and audio setup"
+    },
+    "/al_abrar/data/prayer_times/{id}": {
+      "schema": "prayer_time",
+      "description": "Collection of prayer times documents"
+    },
+    "/al_abrar/data/sliders/{id}": {
+      "schema": "slider",
+      "description": "Collection of sliders documents"
+    },
+    "/al_abrar/data/hadiths/{id}": {
+      "schema": "hadith",
+      "description": "Collection of selective hadiths documents"
+    },
+    "/al_abrar/data/kajian/{id}": {
+      "schema": "kajian",
+      "description": "Collection of kajian lecture items"
+    },
+    "/al_abrar/data/qurban_members/{id}": {
+      "schema": "qurban_member",
+      "description": "Collection of qurban participants"
+    },
+    "/al_abrar/data/qurban_transactions/{id}": {
+      "schema": "qurban_transaction",
+      "description": "Collection of qurban transaction entries"
+    },
+    "/al_abrar/data/financials/{id}": {
+      "schema": "financial_report",
+      "description": "Collection of public bookkeeping items"
+    },
+    "/al_abrar/data/activities/{id}": {
+      "schema": "activities",
+      "description": "Collection of mosque activity modules"
+    }
+  }
+}

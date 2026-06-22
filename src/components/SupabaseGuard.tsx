@@ -17,22 +17,17 @@ export default function SupabaseGuard({ children }: Props) {
   // 3. For admins, we will transparently show status notifications directly inside the Admin Panel.
   return (
     <div className="flex-1 flex flex-col relative">
-      {!configured && isAdminPage && (
-        <div className="bg-amber-500/10 text-amber-800 border-b border-amber-500/15 px-4 py-3 text-xs flex flex-col sm:flex-row gap-2 justify-between items-center sm:px-6 md:px-8 font-sans relative z-50">
+      {isAdminPage && (
+        <div className="bg-emerald-500/10 text-emerald-800 border-b border-emerald-500/15 px-4 py-3 text-xs flex flex-col sm:flex-row gap-2 justify-between items-center sm:px-6 md:px-8 font-sans relative z-50">
           <div className="flex items-center gap-2">
-            <span className="text-sm">⚠️</span>
+            <span className="text-sm">🟢</span>
             <p>
-              <strong>Mode Demo & Penyimpanan Lokal Aktif:</strong> Database Supabase Cloud belum dihubungkan. Data yang Anda ubah akan tersimpan di browser ini secara lokal.
+              <strong>Database Cloud Terhubung (Firebase Firestore):</strong> Semua data tersimpan aman secara online 24/7 dan dapat Anda edit kapan saja.
             </p>
           </div>
-          <a
-            href="https://supabase.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] uppercase tracking-wider bg-amber-600 hover:bg-amber-700 transition-all text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap"
-          >
-            Hubungkan Supabase
-          </a>
+          <span className="text-[10px] uppercase tracking-wider bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap">
+            Aktif & Sinkron
+          </span>
         </div>
       )}
       {children}

@@ -61,7 +61,14 @@ function AnimatedRoutes() {
   );
 }
 
+import { useEffect } from 'react';
+import { LocalDb } from './lib/localStorageDb';
+
 export default function App() {
+  useEffect(() => {
+    LocalDb.syncWithFirestore();
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="min-h-screen flex flex-col bg-white">
