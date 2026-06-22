@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
-import { Transaction } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Transaction, PermanentDonor } from '../types';
 import { TrendingUp, TrendingDown, Wallet, PlusCircle, ClipboardCheck, Users, Search, Trash2, Edit2, X, Save } from 'lucide-react';
-
-interface PermanentDonor {
-  no: number;
-  name: string;
-  amount: number;
-  monthlyPayments: { [month: string]: boolean };
-}
+import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 
 export default function KeuanganMasjid({ 
   isAdmin, 
@@ -19,56 +13,7 @@ export default function KeuanganMasjid({
   onShowLogin: () => void;
 }) {
   // Database transactions state locally backed up in local storage - Exact Match of Sheets 1 & 2
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('abrar_financial_transactions');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.length > 10) return parsed; // If custom transactions exist, use them
-      } catch (e) {
-        // use default
-      }
-    }
-    const defaultTx: Transaction[] = [
-      // === SHEET 2: PEKAN 12 JUNI - 19 JUNI 2026 ===
-      { id: 'tx_s2_exp4', date: '2026-06-19', category: 'Lainnya', type: 'kredit', amount: 4500000, notes: 'Biaya Konsumsi Malam Syuhada + Ceramah', registeredBy: 'SADIK' },
-      { id: 'tx_s2_exp3', date: '2026-06-19', category: 'Lainnya', type: 'kredit', amount: 449000, notes: 'Pengiraan Air: Mineral Gelas 3 Dos, & Clara 20 Dos', registeredBy: 'SADIK' },
-      { id: 'tx_s2_exp2', date: '2026-06-19', category: 'Lainnya', type: 'kredit', amount: 100000, notes: 'Pembuatan Baliho Malam Syuhada', registeredBy: 'SADIK' },
-      { id: 'tx_s2_exp1', date: '2026-06-19', category: 'Santunan Anak Yatim', type: 'kredit', amount: 1700000, notes: 'Biaya Pembinaan Ibadah Pekan 12 s/d 19 Juni 2026', registeredBy: 'SADIK' },
-      { id: 'tx_s2_don5', date: '2026-06-12', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: Sajera (No. 15) untuk Bulan Juni (6)', registeredBy: 'SADIK' },
-      { id: 'tx_s2_don4', date: '2026-06-12', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: Nurdin (No. 14) untuk Bulan Juni (6)', registeredBy: 'SADIK' },
-      { id: 'tx_s2_don3', date: '2026-06-12', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: Hj. Jusni (No. 12) untuk Bulan Juni (6)', registeredBy: 'SADIK' },
-      { id: 'tx_s2_don2', date: '2026-06-12', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: Alm. Dr. H. Abd. Wahid Thahir (No. 11) untuk Bulan Juni (6)', registeredBy: 'SADIK' },
-      { id: 'tx_s2_don1', date: '2026-06-12', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: Drs. H. Syamsul Kiber AT (No. 4) untuk Bulan Juni (6)', registeredBy: 'SADIK' },
-      { id: 'tx_s2_amp6', date: '2026-06-19', category: 'Donasi Insidental', type: 'debit', amount: 2438000, notes: 'Isi Celengan Malam Syuhada (Kategori Amplop)', registeredBy: 'SADIK' },
-      { id: 'tx_s2_amp5', date: '2026-06-19', category: 'Donasi Insidental', type: 'debit', amount: 10000, notes: 'Amplop Tanpa Nama V', registeredBy: 'SADIK' },
-      { id: 'tx_s2_amp4', date: '2026-06-19', category: 'Donasi Insidental', type: 'debit', amount: 50000, notes: 'Amplop Tanpa Nama IV', registeredBy: 'SADIK' },
-      { id: 'tx_s2_amp3', date: '2026-06-19', category: 'Donasi Insidental', type: 'debit', amount: 50000, notes: 'Amplop Tanpa Nama III', registeredBy: 'SADIK' },
-      { id: 'tx_s2_amp2', date: '2026-06-19', category: 'Donasi Insidental', type: 'debit', amount: 20000, notes: 'Amplop Kependudukan atas nama Kadir', registeredBy: 'SADIK' },
-      { id: 'tx_s2_amp1', date: '2026-06-19', category: 'Donasi Insidental', type: 'debit', amount: 200000, notes: 'Amplop Kependudukan atas nama Ansei', registeredBy: 'SADIK' },
-      { id: 'tx_s2_har1', date: '2026-06-19', category: 'Kotak Jumat', type: 'debit', amount: 967000, notes: 'Kotak Amal Harian Masjid (Periode 12 s/d 19 Juni 2026)', registeredBy: 'SADIK' },
-      { id: 'tx_s2_jum1', date: '2026-06-12', category: 'Kotak Jumat', type: 'debit', amount: 1044000, notes: 'Kotak Amal Shalat Jumat tanggal 12 Juni 2026', registeredBy: 'SADIK' },
-
-      // === SHEET 1: PEKAN 5 JUNI - 12 JUNI 2026 ===
-      { id: 'tx_s1_exp3', date: '2026-06-12', category: 'Lainnya', type: 'kredit', amount: 350000, notes: 'Biaya Pelaksanaan Yasinan Kebersamaan Rutin', registeredBy: 'SADIK' },
-      { id: 'tx_s1_exp2', date: '2026-06-12', category: 'Santunan Anak Yatim', type: 'kredit', amount: 100000, notes: 'Sumbangan Sosial / Santunan kepada Keluarga Jamaah', registeredBy: 'SADIK' },
-      { id: 'tx_s1_exp1', date: '2026-06-12', category: 'Lainnya', type: 'kredit', amount: 1700000, notes: 'Biaya Pembinaan Hubungan Keagamaan / Ibadah Masjid', registeredBy: 'SADIK' },
-      { id: 'tx_s1_don6', date: '2026-06-05', category: 'Donasi Insidental', type: 'debit', amount: 50000, notes: 'Donatur Tetap: Sayyed Sunardjo (No. 26) untuk Bulan April (4)', registeredBy: 'SADIK' },
-      { id: 'tx_s1_don5', date: '2026-06-05', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: H. Amir Sabana (No. 10) untuk Bulan Juli (7)', registeredBy: 'SADIK' },
-      { id: 'tx_s1_don4', date: '2026-06-05', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: Hamba Allah (No. 7) untuk Bulan Juni (6)', registeredBy: 'SADIK' },
-      { id: 'tx_s1_don3', date: '2026-06-05', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: H. Yodi Haya (No. 32) untuk Bulan September & Oktober (9, 10)', registeredBy: 'SADIK' },
-      { id: 'tx_s1_don2', date: '2026-06-05', category: 'Donasi Insidental', type: 'debit', amount: 100000, notes: 'Donatur Tetap: Ny. Hj. Ani Danilhaya (No. 30) untuk Bulan September & Oktober (9, 10)', registeredBy: 'SADIK' },
-      { id: 'tx_s1_don1', date: '2026-06-05', category: 'Donasi Insidental', type: 'debit', amount: 375000, notes: 'Donatur Tetap: Bahar Dareng (No. 22) untuk Bulan April, Mei, & Juni (Lunas)', registeredBy: 'SADIK' },
-      { id: 'tx_s1_amp1', date: '2026-06-12', category: 'Donasi Insidental', type: 'debit', amount: 50000, notes: 'Infaq Amplop - Tanpa Nama', registeredBy: 'SADIK' },
-      { id: 'tx_s1_har1', date: '2026-06-12', category: 'Kotak Jumat', type: 'debit', amount: 918000, notes: 'Kotak Amal Harian Masjid (Periode 5 s/d 12 Juni 2026)', registeredBy: 'SADIK' },
-      { id: 'tx_s1_jum1', date: '2026-06-05', category: 'Kotak Jumat', type: 'debit', amount: 1210000, notes: 'Kotak Amal Shalat Jumat tanggal 5 Juni 2026', registeredBy: 'SADIK' },
-
-      // === SALDO AWAL (5 JUNI 2026) ===
-      { id: 'tx_s1_init', date: '2026-06-05', category: 'Lainnya', type: 'debit', amount: 14711000, notes: 'Saldo Awal Buku Kas Utama per tanggal 5 Juni 2026', registeredBy: 'SADIK' }
-    ];
-    localStorage.setItem('abrar_financial_transactions', JSON.stringify(defaultTx));
-    return defaultTx;
-  });
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   // Active view layout tab switch
   const [activeSubTab, setActiveSubTab] = useState<'kas_utama' | 'donatur_tetap'>('kas_utama');
@@ -76,69 +21,30 @@ export default function KeuanganMasjid({
   // Search and filter for permanent donors
   const [searchDonorQuery, setSearchDonorQuery] = useState('');
 
-  // Permanent Donors list (Second Image)
-  const [permanentDonors, setPermanentDonors] = useState<PermanentDonor[]>(() => {
-    const saved = localStorage.getItem('abrar_permanent_donors');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        // continue
-      }
-    }
-    const months = ['Jan', 'Peb', 'Maret', 'April', 'Mei', 'Jun', 'Jul', 'Agust', 'Sept', 'Okt', 'Nop', 'Des'];
-    
-    const rawDonors = [
-      { no: 1, name: 'H/K', amount: 100000, paidCount: 6 },
-      { no: 2, name: 'Hj. ATIRAH', amount: 50000, paidCount: 6 },
-      { no: 3, name: 'Drs. ABD. RAHMAN SULO', amount: 50000, paidCount: 6 },
-      { no: 4, name: 'Drs. H. AT. SYAMSUL EIBER', amount: 100000, paidCount: 6 },
-      { no: 5, name: 'Hj. NORMA', amount: 50000, paidCount: 6 },
-      { no: 6, name: 'MUSTAFA LAIDDA', amount: 50000, paidCount: 5 },
-      { no: 7, name: 'HAMBA ALLAH', amount: 100000, paidCount: 6 },
-      { no: 8, name: 'ALMR. Drs. SYAMSUDDIN. P', amount: 50000, paidCount: 6 },
-      { no: 9, name: 'AZIS', amount: 50000, paidCount: 6 },
-      { no: 10, name: 'H. AMIR SABANA', amount: 100000, paidCount: 7 },
-      { no: 11, name: 'DR. H. ABD. WAHID THAHIR', amount: 100000, paidCount: 6 },
-      { no: 12, name: 'Hj. JUSNI', amount: 100000, paidCount: 6 },
-      { no: 13, name: 'HAMBA ALLAH', amount: 100000, paidCount: 6 },
-      { no: 14, name: 'NURDIN', amount: 100000, paidCount: 6 },
-      { no: 15, name: 'SAJERA', amount: 100000, paidCount: 6 },
-      { no: 16, name: 'FADIL AH JULIA NINGSIH', amount: 50000, paidCount: 6 },
-      { no: 17, name: 'MUHAMMAD ALKAUTSAR', amount: 50000, paidCount: 6 },
-      { no: 18, name: 'DARWIS RESSA & NYONYA', amount: 100000, paidCount: 12 },
-      { no: 19, name: 'BURHAN', amount: 100000, paidCount: 0 }, // Crossed out / blank
-      { no: 20, name: 'HAFIZHA', amount: 100000, paidCount: 12 },
-      { no: 21, name: 'NUR ASMAN ASKAN', amount: 100000, paidCount: 11 },
-      { no: 22, name: 'BAHAR DARENG', amount: 125000, paidCount: 6 },
-      { no: 23, name: 'Hj. KARIAH', amount: 50000, paidCount: 6 },
-      { no: 24, name: 'ABDULLAH JALIL', amount: 50000, paidCount: 5 },
-      { no: 25, name: 'Drs. H. MUH. SABIR', amount: 100000, paidCount: 7 },
-      { no: 26, name: 'SAYYED SUNARDJO', amount: 50000, paidCount: 6 },
-      { no: 27, name: 'H. MUH. TAUFIK. T', amount: 100000, paidCount: 7 },
-      { no: 28, name: 'SYAMSIR N', amount: 50000, paidCount: 6 },
-      { no: 29, name: 'ANISAH', amount: 50000, paidCount: 6 },
-      { id: 'don_30', no: 30, name: 'Ny. HJ. ANI DANILHAYA', amount: 50000, paidCount: 10 },
-      { id: 'don_31', no: 31, name: 'Hj. HASNAH ABBAS', amount: 100000, paidCount: 8 },
-      { id: 'don_32', no: 32, name: 'H. YODI HAYA', amount: 50000, paidCount: 10 },
-      { id: 'don_33', no: 33, name: 'DR. ARQAM MAJID', amount: 50000, paidCount: 8 }
-    ];
+  // Donor Editing State
+  const [editingDonorId, setEditingDonorId] = useState<number | null>(null);
+  const [editDonorForm, setEditDonorForm] = useState<Partial<PermanentDonor>>({});
+  const [showAddDonorForm, setShowAddDonorForm] = useState(false);
+  const [newDonorForm, setNewDonorForm] = useState({ name: '', amount: 100000 });
 
-    const initialDonors: PermanentDonor[] = rawDonors.map(d => {
-      const pm: { [m: string]: boolean } = {};
-      months.forEach((m, idx) => {
-        pm[m] = idx < d.paidCount;
-      });
-      return {
-        no: d.no,
-        name: d.name,
-        amount: d.amount,
-        monthlyPayments: pm
-      };
-    });
-    localStorage.setItem('abrar_permanent_donors', JSON.stringify(initialDonors));
-    return initialDonors;
-  });
+  // Permanent Donors list (Second Image)
+  const [permanentDonors, setPermanentDonors] = useState<PermanentDonor[]>([]);
+
+  // Firebase sync
+  useEffect(() => {
+    const unsubTx = subscribeToCollection<Transaction>('financial_transactions', (data) => {
+      setTransactions(data);
+    }, 'date', 'desc');
+
+    const unsubDonors = subscribeToCollection<PermanentDonor>('permanent_donors', (data) => {
+      setPermanentDonors(data);
+    }, 'no', 'asc');
+
+    return () => {
+      unsubTx();
+      unsubDonors();
+    };
+  }, []);
 
   // Filters
   const [filterType, setFilterType] = useState<'all' | 'debit' | 'kredit'>('all');
@@ -178,17 +84,16 @@ export default function KeuanganMasjid({
 
     const amt = parseInt(txAmount, 10);
     if (isNaN(amt) || amt <= 0) {
-      alert('Masukkan nominal jumlah uang yang valid!');
+      onAddLog('Validasi Gagal', 'Masukkan nominal jumlah uang yang valid!', 'alert');
       return;
     }
 
     if (!txNotes.trim()) {
-      alert('Catatan transaksi harus diisi agar laporan transparan!');
+      onAddLog('Validasi Gagal', 'Catatan transaksi harus diisi agar laporan transparan!', 'alert');
       return;
     }
 
-    const newTx: Transaction = {
-      id: 'tx_' + Date.now(),
+    const newTx = {
       date: new Date().toISOString().substring(0, 10),
       category: txCategory,
       type: txType,
@@ -197,9 +102,7 @@ export default function KeuanganMasjid({
       registeredBy: 'Admin Al Abrar'
     };
 
-    const updated = [newTx, ...transactions];
-    setTransactions(updated);
-    localStorage.setItem('abrar_financial_transactions', JSON.stringify(updated));
+    addDocument('financial_transactions', newTx);
 
     // trigger system logs reporting
     onAddLog(
@@ -211,7 +114,6 @@ export default function KeuanganMasjid({
     // Reset Form fields
     setTxAmount('');
     setTxNotes('');
-    alert('✅ Sukses! Transaksi kas masjid berhasil dicatatkan.');
   };
 
   const handleRemoveTransaction = (id: string, notes: string) => {
@@ -220,10 +122,11 @@ export default function KeuanganMasjid({
       return;
     }
     if (confirm(`Hapus transaksi "${notes}"?`)) {
-      const updated = transactions.filter(t => t.id !== id);
-      setTransactions(updated);
-      localStorage.setItem('abrar_financial_transactions', JSON.stringify(updated));
-      onAddLog('Transaksi Dihapus', `Catatan transaksi "${notes}" telah dihapus.`, 'alert');
+      const txToDelete = transactions.find(t => t.id === id);
+      if (txToDelete && txToDelete.id) {
+        deleteDocument('financial_transactions', txToDelete.id);
+        onAddLog('Transaksi Dihapus', `Catatan transaksi "${notes}" telah dihapus.`, 'alert');
+      }
     }
   };
 
@@ -233,34 +136,77 @@ export default function KeuanganMasjid({
   };
 
   const saveEditTx = () => {
-    const updated = transactions.map(t => t.id === editingTxId ? { ...t, ...editTxForm } as Transaction : t);
-    setTransactions(updated);
-    localStorage.setItem('abrar_financial_transactions', JSON.stringify(updated));
-    onAddLog('Transaksi Diperbarui', `Catatan Kas "${editTxForm.notes}" telah diperbarui.`, 'info');
+    if (editingTxId) {
+       const existingtx = transactions.find(t => t.id === editingTxId);
+       if (existingtx && existingtx.id) {
+         updateDocument('financial_transactions', existingtx.id, editTxForm);
+         onAddLog('Transaksi Diperbarui', `Catatan Kas "${editTxForm.notes}" telah diperbarui.`, 'success');
+       }
+    }
     setEditingTxId(null);
     setEditTxForm({});
-    alert('Data transaksi berhasil diperbarui.');
   };
 
   const handleTogglePayment = (donorNo: number, month: string) => {
     if (!isAdmin) {
-      alert('🔐 Status pembayaran donatur tetap hanya dapat diubah oleh Admin Pelaksana (Silakan Masuk)!');
+      onAddLog('Akses Ditolak', 'Status pembayaran donatur tetap hanya dapat diubah oleh Admin!', 'alert');
       return;
     }
-    const updated = permanentDonors.map(d => {
-      if (d.no === donorNo) {
-        const pm = { ...d.monthlyPayments, [month]: !d.monthlyPayments[month] };
-        return { ...d, monthlyPayments: pm };
+    const donor = permanentDonors.find(d => d.no === donorNo);
+    if (donor && donor.id) {
+       const pm = { ...donor.monthlyPayments, [month]: !donor.monthlyPayments[month] };
+       updateDocument('permanent_donors', donor.id, { monthlyPayments: pm });
+       onAddLog(
+        'Donatur Tetap Diperbarui',
+        `Telah diubah status pembayaran bulan ${month} untuk tabel Donatur Tetap No. ${donorNo}.`,
+        'info'
+      );
+    }
+  };
+
+  const handleAddDonor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAdmin) return;
+    if (!newDonorForm.name.trim()) return;
+
+    const months = ['Jan', 'Peb', 'Maret', 'April', 'Mei', 'Jun', 'Jul', 'Agust', 'Sept', 'Okt', 'Nop', 'Des'];
+    const pm: { [m: string]: boolean } = {};
+    months.forEach(m => pm[m] = false);
+
+    const nextNo = permanentDonors.length > 0 ? Math.max(...permanentDonors.map(d => d.no)) + 1 : 1;
+    const newDonor = {
+      no: nextNo,
+      name: newDonorForm.name.trim(),
+      amount: newDonorForm.amount,
+      monthlyPayments: pm
+    };
+
+    addDocument('permanent_donors', newDonor);
+    onAddLog('Donatur Baru Terdaftar', `Donatur "${newDonor.name}" berhasil ditambahkan ke daftar tetap.`, 'success');
+    setNewDonorForm({ name: '', amount: 100000 });
+    setShowAddDonorForm(false);
+  };
+
+  const handleRemoveDonor = (no: number, name: string) => {
+    if (!isAdmin) return;
+    if (confirm(`Hapus donatur "${name}" dari daftar tetap?`)) {
+      const dToDelete = permanentDonors.find(d => d.no === no);
+      if (dToDelete && dToDelete.id) {
+        deleteDocument('permanent_donors', dToDelete.id);
+        onAddLog('Donatur Dihapus', `Data donatur "${name}" telah dihapus.`, 'alert');
       }
-      return d;
-    });
-    setPermanentDonors(updated);
-    localStorage.setItem('abrar_permanent_donors', JSON.stringify(updated));
-    onAddLog(
-      'Donatur Tetap Diperbarui',
-      `Telah diubah status pembayaran bulan ${month} untuk tabel Donatur Tetap No. ${donorNo}.`,
-      'info'
-    );
+    }
+  };
+
+  const saveDonorEdit = () => {
+    if (!editDonorForm.name) return;
+    const dToEdit = permanentDonors.find(d => d.no === editingDonorId);
+    if (dToEdit && dToEdit.id) {
+      updateDocument('permanent_donors', dToEdit.id, editDonorForm);
+      onAddLog('Profil Donatur Diperbarui', `Informasi donatur "${editDonorForm.name}" telah diupdate.`, 'info');
+    }
+    setEditingDonorId(null);
+    setEditDonorForm({});
   };
 
   const filteredTransactions = transactions.filter(t => {
@@ -433,17 +379,62 @@ export default function KeuanganMasjid({
                 </div>
 
                 {/* Filter and Search Box */}
-                <div className="relative w-full md:w-80">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Cari nama atau nomor donatur tetap..."
-                    value={searchDonorQuery}
-                    onChange={(e) => setSearchDonorQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 hover:bg-slate-100/65 border border-slate-200/90 rounded-xl outline-none focus:bg-white focus:border-slate-400 transition"
-                  />
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  {isAdmin && (
+                    <button 
+                      onClick={() => setShowAddDonorForm(true)}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-lg shadow-emerald-900/10 flex items-center gap-2 shrink-0 transition"
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      Tambah Donatur
+                    </button>
+                  )}
+                  <div className="relative w-full md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Cari nama atau nomor..."
+                      value={searchDonorQuery}
+                      onChange={(e) => setSearchDonorQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 hover:bg-slate-100/65 border border-slate-200/90 rounded-xl outline-none focus:bg-white focus:border-slate-400 transition"
+                    />
+                  </div>
                 </div>
               </div>
+
+              {/* Add Donor Form (Modal-like Inline) */}
+              {showAddDonorForm && isAdmin && (
+                <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl animate-fade-in relative">
+                  <button onClick={() => setShowAddDonorForm(false)} className="absolute top-4 right-4 text-emerald-400 hover:text-emerald-700"><X className="h-4 w-4"/></button>
+                  <h4 className="font-black text-xs text-emerald-800 uppercase mb-3 flex items-center gap-2">
+                    <PlusCircle className="h-4 w-4"/> Tambah Donatur Tetap Baru
+                  </h4>
+                  <form onSubmit={handleAddDonor} className="flex flex-wrap gap-4 items-end">
+                    <div className="flex-1 min-w-[200px] space-y-1">
+                      <label className="text-[10px] font-bold text-emerald-700 uppercase">Nama Lengkap</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={newDonorForm.name}
+                        onChange={e => setNewDonorForm({...newDonorForm, name: e.target.value})}
+                        placeholder="Contoh: H. Ahmad Yani"
+                        className="w-full p-2.5 bg-white border border-emerald-200 rounded-xl text-xs outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="w-44 space-y-1">
+                      <label className="text-[10px] font-bold text-emerald-700 uppercase">Nominal Rutin (Rp)</label>
+                      <input 
+                        type="number" 
+                        required
+                        value={newDonorForm.amount}
+                        onChange={e => setNewDonorForm({...newDonorForm, amount: parseInt(e.target.value)})}
+                        className="w-full p-2.5 bg-white border border-emerald-200 rounded-xl text-xs outline-none focus:border-emerald-500 font-mono"
+                      />
+                    </div>
+                    <button className="px-6 py-2.5 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-700 transition">Daftarkan</button>
+                  </form>
+                </div>
+              )}
 
               {/* Informative tips */}
               <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-2xl text-left flex items-start gap-3">
@@ -480,25 +471,63 @@ export default function KeuanganMasjid({
                           <tr key={d.no} className="hover:bg-slate-50 transition-colors group">
                             <td className="py-3 px-2 font-mono font-bold text-slate-400 border border-slate-100">{d.no}</td>
                             <td className="py-3 px-4 text-left border border-slate-100">
-                              <span className="block font-black text-slate-800 text-sm group-hover:text-emerald-700 transition-colors uppercase">{d.name}</span>
-                              <span className="text-[9px] text-slate-400 font-bold font-mono tracking-tighter">ID: D-021-{d.no.toString().padStart(3, '0')}</span>
+                              {editingDonorId === d.no ? (
+                                <input 
+                                  value={editDonorForm.name || ''}
+                                  onChange={e => setEditDonorForm({...editDonorForm, name: e.target.value})}
+                                  className="w-full border p-1 rounded font-black text-xs"
+                                />
+                              ) : (
+                                <>
+                                  <span className="block font-black text-slate-800 text-sm group-hover:text-emerald-700 transition-colors uppercase">{d.name}</span>
+                                  <span className="text-[9px] text-slate-400 font-bold font-mono tracking-tighter">ID: D-{d.no.toString().padStart(3, '0')}</span>
+                                </>
+                              )}
                             </td>
                             <td className="py-3 px-3 text-right font-mono font-bold text-slate-500 border border-slate-100">
-                              Rp {d.amount.toLocaleString('id-ID')}
+                              {editingDonorId === d.no ? (
+                                <input 
+                                  type="number"
+                                  value={editDonorForm.amount || 0}
+                                  onChange={e => setEditDonorForm({...editDonorForm, amount: parseInt(e.target.value)})}
+                                  className="w-24 text-right border p-1 rounded"
+                                />
+                              ) : (
+                                <>Rp {d.amount.toLocaleString('id-ID')}</>
+                              )}
                             </td>
-                            <td className="py-3 px-3 border border-slate-100">
-                              <div className="flex flex-col items-center gap-1">
-                                <div className="flex items-center gap-1">
-                                  <span className="font-mono font-black text-[10px] text-slate-700">{paidCount} / 12</span>
-                                  {paidCount === 12 && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full flex items-center justify-center text-[6px] text-slate-900 ring-2 ring-amber-100">★</div>}
+                            <td className="py-3 px-3 text-right border border-slate-100">
+                              {editingDonorId === d.no ? (
+                                <div className="flex gap-2 justify-center">
+                                  <button onClick={saveDonorEdit} className="p-1.5 bg-emerald-600 text-white rounded-lg"><Save className="h-3.5 w-3.5"/></button>
+                                  <button onClick={() => setEditingDonorId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg"><X className="h-3.5 w-3.5"/></button>
                                 </div>
-                                <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                                  <div 
-                                    className={`h-full transition-all duration-1000 ${paidCount === 12 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-amber-400'}`}
-                                    style={{ width: `${progressPercent}%` }}
-                                  ></div>
+                              ) : (
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="flex items-center gap-1">
+                                    <span className="font-mono font-black text-[10px] text-slate-700">{paidCount} / 12</span>
+                                    {paidCount === 12 && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full flex items-center justify-center text-[6px] text-slate-900 ring-2 ring-amber-100">★</div>}
+                                    {isAdmin && (
+                                      <div className="flex items-center gap-1.5 ml-2 opacity-0 group-hover:opacity-100 transition">
+                                        <button onClick={() => {setEditingDonorId(d.no); setEditDonorForm(d);}} className="text-emerald-600"><Edit2 className="h-3 w-3"/></button>
+                                        <button onClick={() => handleRemoveDonor(d.no, d.name)} className="text-rose-500"><Trash2 className="h-3 w-3"/></button>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                                    <div 
+                                      className={`h-full transition-all duration-1000 ${paidCount === 12 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-amber-400'}`}
+                                      style={{ width: `${progressPercent}%` }}
+                                    ></div>
+                                  </div>
                                 </div>
-                              </div>
+                              )}
+                            </td>
+                            <td className="py-3 px-3 text-right bg-slate-50/30 border border-slate-100">
+                              <span className="block font-mono font-black text-emerald-800 text-xs">
+                                Rp {(paidCount * d.amount).toLocaleString('id-ID')}
+                              </span>
+                              <span className="text-[8px] text-slate-400 uppercase font-black tracking-tighter">TOTAL TERKUMPUL</span>
                             </td>
                             <td className="py-3 px-3 text-right border border-slate-100">
                               <span className="block font-mono font-black text-slate-900">

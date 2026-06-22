@@ -9,10 +9,13 @@ import {
   Heart,
   TrendingUp,
   Package,
-  Users
+  Users,
+  Calendar,
+  Info
 } from 'lucide-react';
 
 import MosqueProfile from './components/MosqueProfile';
+import AboutApp from './components/AboutApp';
 import DonationOpen from './components/DonationOpen';
 import KeuanganMasjid from './components/KeuanganMasjid';
 import InventarisMasjid from './components/InventarisMasjid';
@@ -20,21 +23,29 @@ import ManajemenJamaah from './components/ManajemenJamaah';
 import ImageSlider from './components/ImageSlider';
 import JadwalHub from './components/JadwalHub';
 import MasjidDashboard from './components/MasjidDashboard';
-import { PrayerTime, NotificationLog, SlideItem } from './types';
-import { DEFAULT_SLIDES } from './data/defaultSlides';
+import ProfessionalToasts from './components/ProfessionalToasts';
+import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, DonationCampaign } from './types';
+import { 
+  DEFAULT_SLIDES,
+  DEFAULT_KAJIAN,
+  DEFAULT_JUMAT,
+  DEFAULT_CAMPAIGNS,
+  DEFAULT_PRAYERS,
+  DUMMY_TRANSACTIONS,
+  DUMMY_PERMANENT_DONORS,
+  DUMMY_ASSETS,
+  DUMMY_CONGREGANTS,
+  DUMMY_DONORS
+} from './data/dummyData';
+import { 
+  subscribeToCollection, 
+  subscribeToDocument, 
+  upsertDocument, 
+  addDocument, 
+  deleteDocument,
+  clearCollection
+} from './lib/db';
 
-// Default prayer times for Parepare, South Sulawesi (or standard Al Abrar Unit 021)
-const DEFAULT_PRAYERS: PrayerTime[] = [
-  { id: 'imsak', name: 'Imsak', time: '04:35', icon: '🌙', description: 'Batas akhir makan sahur sebelum fajar' },
-  { id: 'shubuh', name: 'Shubuh', time: '04:45', icon: '🌅', description: 'Awal waktu shalat fajar' },
-  { id: 'syuruk', name: 'Syuruk/Terbit', time: '06:04', icon: '☀️', description: 'Waktu matahari terbit (batas dhuha)' },
-  { id: 'dzuhur', name: 'Dzuhur', time: '12:05', icon: '☀️', description: 'Shalat tengah hari ketika matahari tergelincir' },
-  { id: 'ashar', name: 'Ashar', time: '15:28', icon: '⛅', description: 'Shalat sore hari menjelang terbenamnya matahari' },
-  { id: 'maghrib', name: 'Maghrib', time: '18:07', icon: '🌇', description: 'Shalat petang bertepatan saat matahari tenggelam' },
-  { id: 'isya', name: 'Isya', time: '19:21', icon: '🌌', description: 'Shalat malam hari' }
-];
-
-// Audio settings (Publicly available non-copyrighted high quality audio streams)
 const AUDIO_SOURCES = {
   chime: 'local_synthesis',
   gong: 'local_synthesis',
@@ -114,17 +125,7 @@ const playSynthesizedTone = (type: 'chime' | 'gong', volume: number) => {
 
 export default function App() {
   // Database / Local Storage Persistence
-  const [prayers, setPrayers] = useState<PrayerTime[]>(() => {
-    const saved = localStorage.getItem('abrar_prayer_schedule');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return DEFAULT_PRAYERS;
-      }
-    }
-    return DEFAULT_PRAYERS;
-  });
+  const [prayers, setPrayers] = useState<PrayerTime[]>(DEFAULT_PRAYERS);
 
   // Sound selection
   const [selectedAudio, setSelectedAudio] = useState<keyof typeof AUDIO_SOURCES>('chime');
@@ -135,69 +136,133 @@ export default function App() {
   // States
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
-  const [logs, setLogs] = useState<NotificationLog[]>(() => {
-    const saved = localStorage.getItem('abrar_notification_logs');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [{
-      id: 'init',
-      timestamp: new Date().toLocaleTimeString('id-ID'),
-      title: 'Sistem Diaktifkan',
-      message: 'Pemantauan jadwal shalat Al Abrar berjalan lancar di browser Anda.',
-      type: 'system'
-    }];
-  });
+  const [logs, setLogs] = useState<NotificationLog[]>([]);
 
   // Editor states
   const [editingPrayer, setEditingPrayer] = useState<PrayerTime | null>(null);
   const [editTimeValue, setEditTimeValue] = useState('');
   const [showConfigInfo, setShowConfigInfo] = useState(true);
   const [testNotificationTimeLeft, setTestNotificationTimeLeft] = useState<number | null>(null);
+  const [activeToasts, setActiveToasts] = useState<NotificationLog[]>([]);
 
-  const [slides, setSlides] = useState<SlideItem[]>(() => {
-    const saved = localStorage.getItem('abrar_mosque_slides');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return DEFAULT_SLIDES;
-      }
-    }
-    return DEFAULT_SLIDES;
-  });
+  const [slides, setSlides] = useState<SlideItem[]>([]);
+  const [kajian, setKajian] = useState<KajianEntry[]>([]);
+  const [jumat, setJumat] = useState<JumatEntry[]>([]);
+  const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
 
   // High-Level Integrated Navigation Hub Tab selection
-  const [activeTab, setActiveTab] = useState<'beranda' | 'profil' | 'donasi' | 'keuangan' | 'inventaris' | 'jamaah'>('beranda');
+  const [activeTab, setActiveTab] = useState<'beranda'|'profil'|'jadwal'|'donasi'|'keuangan'|'inventaris'|'jamaah'|'tentang'|'admin'>('beranda');
 
   // Admin Mode States
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     return localStorage.getItem('abrar_is_admin') === 'true';
   });
-  const [adminPin, setAdminPin] = useState<string>(() => {
-    return localStorage.getItem('abrar_admin_pin') || '123456';
-  });
-  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [adminPin, setAdminPin] = useState<string>('123456');
   const [enteredPin, setEnteredPin] = useState<string>('');
   const [loginError, setLoginError] = useState<string>('');
   const [showPinChange, setShowPinChange] = useState<boolean>(false);
   const [newPinValue, setNewPinValue] = useState<string>('');
-  const [announcement, setAnnouncement] = useState<string>(() => {
-    return localStorage.getItem('abrar_announcement') || 'Selamat Datang di Masjid Jami Al Abrar Lapadde, Parepare. Mari laksanakan Shalat Berjamaah tepat waktu di Shaff terdepan.';
-  });
-  const [announcementInput, setAnnouncementInput] = useState<string>(() => {
-    return localStorage.getItem('abrar_announcement') || 'Selamat Datang di Masjid Jami Al Abrar Lapadde, Parepare. Mari laksanakan Shalat Berjamaah tepat waktu di Shaff terdepan.';
-  });
+  const [announcement, setAnnouncement] = useState<string>('Selamat Datang di Masjid Jami Al Abrar Lapadde, Parepare. Mari laksanakan Shalat Berjamaah tepat waktu di Shaff terdepan.');
+  const [announcementInput, setAnnouncementInput] = useState<string>('');
+
+  // Firebase Real-time listeners
+  useEffect(() => {
+    const unsubConfig = subscribeToDocument<{ announcement: string, adminPin: string, prayers: PrayerTime[] }>('settings', 'config', (data) => {
+      if (data) {
+        if (data.announcement) {
+          setAnnouncement(data.announcement);
+          setAnnouncementInput(data.announcement);
+        }
+        if (data.adminPin) setAdminPin(data.adminPin);
+        if (data.prayers) setPrayers(data.prayers);
+      } else {
+        // Seed initial config
+        upsertDocument('settings', 'config', {
+          announcement: announcement,
+          adminPin: adminPin,
+          prayers: DEFAULT_PRAYERS
+        });
+      }
+    });
+
+    const unsubLogs = subscribeToCollection<NotificationLog>('activity_logs', (data) => {
+      setLogs(data);
+    }, 'timestamp', 'desc');
+
+    const unsubSlides = subscribeToCollection<SlideItem>('slides', (data) => {
+      if (data.length > 0) {
+        setSlides(data);
+      } else {
+        // Seed slides
+        DEFAULT_SLIDES.forEach(s => addDocument('slides', s));
+      }
+    }, 'order', 'asc');
+
+    const unsubKajian = subscribeToCollection<KajianEntry>('kajian_schedule', (data) => {
+      if (data.length > 0) setKajian(data);
+      else DEFAULT_KAJIAN.forEach(k => addDocument('kajian_schedule', k));
+    });
+
+    const unsubJumat = subscribeToCollection<JumatEntry>('jumat_schedule', (data) => {
+      if (data.length > 0) setJumat(data);
+      else DEFAULT_JUMAT.forEach(j => addDocument('jumat_schedule', j));
+    });
+
+    const unsubCampaigns = subscribeToCollection<DonationCampaign>('campaigns', (data) => {
+      if (data.length > 0) setCampaigns(data);
+      else DEFAULT_CAMPAIGNS.forEach(c => addDocument('campaigns', c));
+    });
+
+    // Additional dummy data seeding checks
+    const unsubTx = subscribeToCollection('financial_transactions', (data) => {
+      if (data.length === 0) {
+        DUMMY_TRANSACTIONS.forEach(t => addDocument('financial_transactions', t));
+      }
+    });
+
+    const unsubDonors = subscribeToCollection('permanent_donors', (data) => {
+      if (data.length === 0) {
+        DUMMY_PERMANENT_DONORS.forEach(d => addDocument('permanent_donors', d));
+      }
+    });
+
+    const unsubAssets = subscribeToCollection('mosque_assets', (data) => {
+      if (data.length === 0) {
+        DUMMY_ASSETS.forEach(a => addDocument('mosque_assets', a));
+      }
+    });
+
+    const unsubCon = subscribeToCollection('mosque_congregants', (data) => {
+      if (data.length === 0) {
+        DUMMY_CONGREGANTS.forEach(c => addDocument('mosque_congregants', c));
+      }
+    });
+
+    const unsubCampDonors = subscribeToCollection('donors', (data) => {
+      if (data.length === 0) {
+        DUMMY_DONORS.forEach(d => addDocument('donors', d));
+      }
+    });
+
+    return () => {
+      unsubConfig();
+      unsubLogs();
+      unsubSlides();
+      unsubKajian();
+      unsubJumat();
+      unsubCampaigns();
+      unsubTx();
+      unsubDonors();
+      unsubAssets();
+      unsubCon();
+      unsubCampDonors();
+    };
+  }, []);
 
   const handleAdminLogin = (pinStr: string) => {
     if (pinStr.trim() === adminPin) {
       setIsAdmin(true);
       localStorage.setItem('abrar_is_admin', 'true');
-      setShowLoginModal(false);
       setEnteredPin('');
       setLoginError('');
       addLog('Akses Admin Dibuka', 'Sesi admin aktif berhasil diverifikasi menggunakan PIN.', 'success');
@@ -214,11 +279,11 @@ export default function App() {
 
   const handlePinChange = (newPin: string) => {
     if (newPin.trim().length < 4) {
-      alert('PIN harus terdiri dari minimal 4 digit!');
+      addLog('Gagal', 'PIN harus terdiri dari minimal 4 digit!', 'alert');
       return;
     }
     setAdminPin(newPin);
-    localStorage.setItem('abrar_admin_pin', newPin);
+    upsertDocument('settings', 'config', { adminPin: newPin });
     setShowPinChange(false);
     setNewPinValue('');
     addLog('PIN Admin Diubah', 'Kunci PIN keamanan admin berhasil diperbarui.', 'success');
@@ -227,11 +292,11 @@ export default function App() {
   const handleUpdateAnnouncement = (text: string) => {
     const cleanText = text.trim();
     if (!cleanText) {
-      alert('Teks pengumuman tidak boleh kosong!');
+      addLog('Gagal', 'Teks pengumuman tidak boleh kosong!', 'alert');
       return;
     }
     setAnnouncement(cleanText);
-    localStorage.setItem('abrar_announcement', cleanText);
+    upsertDocument('settings', 'config', { announcement: cleanText });
     addLog('Pengumuman Masjid Diperbarui', `Informasi baru dipublikasikan: "${cleanText}"`, 'info');
   };
 
@@ -258,15 +323,15 @@ export default function App() {
   // Sync prayers to local storage
   const savePrayersToDb = (updatedPrayers: PrayerTime[]) => {
     setPrayers(updatedPrayers);
-    localStorage.setItem('abrar_prayer_schedule', JSON.stringify(updatedPrayers));
-    addLog('Database Diperbarui', 'Jadwal shalat baru telah disimpan ke database lokal.', 'info');
+    upsertDocument('settings', 'config', { prayers: updatedPrayers });
+    addLog('Database Diperbarui', 'Jadwal shalat baru telah disimpan ke database cloud.', 'info');
   };
 
   // Reset to default schedule
   const handleResetDefaults = () => {
     if (!isAdmin) {
-      setLoginError('');
-      setShowLoginModal(true);
+      addLog('Akses Ditolak', 'Silakan masuk ke menu Kontrol Admin terlebih dahulu.', 'alert');
+      setActiveTab('admin');
       return;
     }
     if (confirm('Apakah Anda yakin ingin mengembalikan semua jadwal shalat ke setelan default Parepare?')) {
@@ -365,17 +430,27 @@ export default function App() {
       prayerId,
       isCustomTest
     };
-    setLogs(prev => {
-      const updated = [newLog, ...prev].slice(0, 50); // Keep last 50
-      localStorage.setItem('abrar_notification_logs', JSON.stringify(updated));
-      return updated;
-    });
+    
+    // Save to Firestore
+    addDocument('activity_logs', newLog);
+    
+    // Add to active toasts for professional floating feedback
+    setActiveToasts(prev => [newLog, ...prev]);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      removeToast(newLog.id);
+    }, 5000);
+  };
+
+  const removeToast = (id: string) => {
+    setActiveToasts(prev => prev.filter(t => t.id !== id));
   };
 
   // Request browser notification permission
   const requestNotificationPermission = async () => {
     if (!('Notification' in window)) {
-      alert('Browser Anda tidak mendukung Web Notifications API.');
+      addLog('Gagal', 'Browser Anda tidak mendukung Web Notifications API.', 'alert');
       return;
     }
     
@@ -572,8 +647,8 @@ export default function App() {
   // Handle single prayer edit start
   const startEditing = (p: PrayerTime) => {
     if (!isAdmin) {
-      setLoginError('');
-      setShowLoginModal(true);
+      addLog('Akses Ditolak', 'Silakan masuk ke menu Kontrol Admin terlebih dahulu.', 'alert');
+      setActiveTab('admin');
       return;
     }
     setEditingPrayer(p);
@@ -587,7 +662,7 @@ export default function App() {
     // Simple validation "HH:MM"
     const regex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!regex.test(editTimeValue)) {
-      alert('Format waktu tidak valid! Gunakan format HH:MM.');
+      addLog('Gagal', 'Format waktu tidak valid! Gunakan format HH:MM.', 'alert');
       return;
     }
 
@@ -601,6 +676,13 @@ export default function App() {
     savePrayersToDb(updated);
     addLog('Update Waktu Shalat', `Lokal database diperbarui untuk ${editingPrayer.name}: ${editTimeValue} WITA`, 'success', editingPrayer.id);
     setEditingPrayer(null);
+  };
+
+  const deleteLog = (id: string) => {
+    const logToDelete = logs.find(l => l.id === id);
+    if (logToDelete && (logToDelete as any).id) {
+       deleteDocument('activity_logs', (logToDelete as any).id);
+    }
   };
 
   return (
@@ -617,66 +699,40 @@ export default function App() {
               🕌
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <h1 className="text-sm sm:text-2xl font-black tracking-tight whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-50 to-emerald-200">
-                  AL ABRAR
-                  <span className="hidden sm:inline"> JAMI PAREPARE</span>
+              <div className="flex flex-col">
+                <span className="text-[9px] sm:text-[10px] font-bold text-emerald-400/80 uppercase tracking-[0.25em] leading-none mb-1">Pusat Ibadah</span>
+                <h1 className="text-base sm:text-2xl font-black tracking-tight whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-50 to-emerald-200 leading-none">
+                  Masjid Al Abrar
+                  <span className="hidden sm:inline text-white/30 ml-2 font-bold uppercase tracking-normal">Parepare</span>
                 </h1>
-                <span className="text-[8px] sm:text-[10px] bg-amber-400 text-slate-900 px-1.5 py-0.5 rounded sm:rounded-md font-black uppercase tracking-wider shrink-0">UNIT 021</span>
               </div>
-              <p className="text-emerald-400/70 text-[8px] sm:text-xs font-bold uppercase tracking-widest leading-none mt-1 hidden sm:block">Sistem Cerdas Terintegrasi</p>
-              <p className="text-emerald-400/70 text-[8px] font-bold uppercase tracking-widest leading-none mt-0.5 sm:hidden">Cerdas • Terintegrasi</p>
+              <p className="text-emerald-400/50 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest leading-none mt-1.5 hidden sm:block">Sistem Cerdas Terintegrasi</p>
             </div>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3 bg-white/5 backdrop-blur-xl px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-3xl border border-white/5 shadow-inner">
+            <div className="flex items-center gap-2 sm:gap-3 bg-white/5 backdrop-blur-xl px-2 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-3xl border border-white/5 shadow-inner">
               <div className="hidden md:block">
                 <Clock className="h-4 w-4 text-amber-400" />
               </div>
-              <div className="flex flex-col items-end sm:items-start">
-                <span className="text-[7px] sm:text-[9px] font-black text-amber-400 uppercase tracking-[0.1em] sm:tracking-[0.2em] leading-none mb-0.5">
+              <div className="flex flex-col items-center sm:items-start shrink-0">
+                <span className="text-[8px] sm:text-[9px] font-black text-amber-400 uppercase tracking-widest leading-none mb-1">
                   {currentTime.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}
                 </span>
-                <span className="text-xs sm:text-lg font-black font-mono tracking-tighter text-white leading-none flex items-baseline">
+                <span className="text-sm sm:text-lg font-black font-mono tracking-tighter text-white leading-none flex items-baseline">
                   {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                  <span className="text-[8px] sm:text-xs opacity-40 ml-0.5 font-normal">: {currentTime.toLocaleTimeString('id-ID', { second: '2-digit' })}</span>
-                  <span className="text-[8px] ml-1 opacity-60 font-bold text-amber-200 hidden sm:inline">WITA</span>
+                  <span className="text-[9px] sm:text-xs opacity-40 ml-0.5 font-normal">: {currentTime.toLocaleTimeString('id-ID', { second: '2-digit' })}</span>
+                  <span className="text-[9px] ml-1 opacity-60 font-bold text-amber-200 hidden sm:inline">WITA</span>
                 </span>
               </div>
             </div>
-
-            {isAdmin ? (
-              <div className="flex items-center gap-1 sm:gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 px-2 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-[8px] sm:text-xs font-black shadow-lg shadow-amber-900/20">
-                <span className="hidden md:inline">ADMIN</span>
-                <button
-                  onClick={handleAdminLogout}
-                  className="hover:bg-amber-400/20 text-white px-2 py-0.5 sm:py-1 rounded-lg sm:rounded-xl transition duration-150 border border-white/5"
-                >
-                  <span className="sm:hidden">OUT</span>
-                  <span className="hidden sm:inline">Keluar</span>
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setLoginError('');
-                  setShowLoginModal(true);
-                }}
-                className="flex items-center justify-center p-2 sm:px-4 sm:py-3 bg-white text-slate-950 rounded-xl sm:rounded-2xl text-[9px] sm:text-xs font-black border border-white shadow-xl hover:bg-emerald-50 transition active:scale-95 shrink-0"
-                title="Login Admin"
-              >
-                <Settings className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline uppercase">Akses</span>
-              </button>
-            )}
           </div>
         </div>
       </header>
 
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6" id="main_content">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-24 sm:pb-32" id="main_content">
         
         {/* Banner Running Text / Pengumuman */}
         <div className="bg-emerald-950 border border-emerald-800/80 rounded-2xl py-3 px-4 flex items-center gap-3 overflow-hidden shadow-inner font-sans">
@@ -691,25 +747,28 @@ export default function App() {
         </div>
 
         {/* Dynamic Navigation Tab Hub */}
-        <div className="bg-white/90 backdrop-blur-md rounded-[2.5rem] p-1.5 border border-slate-200 shadow-xl shadow-slate-200/40 flex items-center sticky top-2 sm:top-4 z-40 overflow-hidden" id="navigation_menu_tabs">
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-[2.5rem] p-1 sm:p-1.5 border border-slate-200 shadow-xl shadow-slate-200/20 flex items-center sticky top-2 sm:top-4 z-40 overflow-hidden" id="navigation_menu_tabs">
           <div className="flex overflow-x-auto no-scrollbar gap-1 flex-1 px-1 py-0.5">
             {[
-              { id: 'beranda', label: 'Beranda', icon: <Home className="h-4 w-4" /> },
-              { id: 'profil', label: 'Profil', icon: <Building className="h-4 w-4" /> },
+              { id: 'beranda', label: 'Home', icon: <Home className="h-4 w-4" /> },
+              { id: 'profil', label: 'Masjid', icon: <Building className="h-4 w-4" /> },
+              { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-4 w-4" /> },
               { id: 'donasi', label: 'Donasi', icon: <Heart className="h-4 w-4" /> },
-              { id: 'keuangan', label: 'Keuangan', icon: <TrendingUp className="h-4 w-4" /> },
-              { id: 'inventaris', label: 'Inventaris', icon: <Package className="h-4 w-4" /> },
+              { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-4 w-4" /> },
+              { id: 'inventaris', label: 'Aset', icon: <Package className="h-4 w-4" /> },
               { id: 'jamaah', label: 'Jamaah', icon: <Users className="h-4 w-4" /> },
+              { id: 'admin', label: 'Admin', icon: <Settings className="h-4 w-4" /> },
+              { id: 'tentang', label: 'Info', icon: <Info className="h-4 w-4" /> },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2.5 px-6 sm:px-7 py-2.5 sm:py-3 rounded-full text-xs font-black transition-all duration-500 outline-none relative whitespace-nowrap shrink-0 overflow-hidden ${
+                  className={`flex items-center gap-2 px-4 sm:px-7 py-2 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-black transition-all duration-300 outline-none relative whitespace-nowrap shrink-0 overflow-hidden ${
                     isActive 
-                      ? 'text-white shadow-2xl translate-y-[-1px]'
-                      : 'text-slate-500 hover:text-slate-950 hover:bg-slate-50/80 transition-colors'
+                      ? 'text-white shadow-lg translate-y-[-1px]'
+                      : 'text-slate-500 hover:text-slate-950 hover:bg-slate-50 transition-colors'
                   }`}
                 >
                   <span className="relative z-10 flex items-center gap-2.5">
@@ -730,137 +789,6 @@ export default function App() {
         </div>
 
 
-        {/* Dashboard Kendali Admin */}
-        {isAdmin && (
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl shadow-2xl p-6 sm:p-8 relative overflow-hidden border-t-4 border-amber-400" id="admin_control_panel">
-            <div className="absolute right-0 top-0 opacity-5 text-8xl font-sans select-none translate-y-2 -translate-x-4 font-black pointer-events-none text-amber-300">
-              ADMIN
-            </div>
-            
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-2xl">
-                <Settings className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-lg tracking-wide text-amber-300">ADMIN CONTROL CENTER</h3>
-                <p className="text-slate-300 text-xs mt-0.5">Pusat kendali operasional digital penyiaran Masjid Jami Al Abrar Unit 021.</p>
-              </div>
-            </div>
-
-            <hr className="border-slate-800 mb-6" />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              
-              {/* Box 1: Announcement Broadcasting */}
-              <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="font-bold text-xs text-amber-300 uppercase tracking-widest flex items-center gap-2">
-                  <span>📢</span> Broadcasting Pengumuman
-                </h4>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  Update teks pengumuman berjalan (running text) yang tampil pada layar utama jamaah secara realtime.
-                </p>
-                <div className="space-y-2">
-                  <textarea
-                    rows={2}
-                    placeholder="Contoh: Pengajian rutin ba'da maghrib malam ini..."
-                    value={announcementInput}
-                    onChange={(e) => setAnnouncementInput(e.target.value)}
-                    className="w-full p-2.5 bg-slate-900 text-slate-100 placeholder-slate-500 rounded-xl text-xs border border-slate-805 focus:border-amber-400 outline-none"
-                  />
-                  <div className="flex gap-2 justify-end">
-                    <button
-                      onClick={() => handleUpdateAnnouncement(announcementInput)}
-                      className="px-4 py-2 bg-amber-400 hover:bg-amber-500 font-bold text-slate-950 rounded-lg text-xs transition duration-150"
-                    >
-                      Kirim & Simpan
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Box 2: Quick System Utilities */}
-              <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="font-bold text-xs text-amber-300 uppercase tracking-widest flex items-center gap-2">
-                  <span>⚙️</span> Utilitas Operasional
-                </h4>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  Gunakan perkakas darurat di bawah ini untuk reset ulang sistem penyiaran jika dibutuhkan.
-                </p>
-                
-                <div className="space-y-2 pt-2">
-                  <button
-                    onClick={handleResetDefaults}
-                    className="w-full py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-400/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2"
-                  >
-                    <RefreshCw className="h-3.5 w-3.5" />
-                    Reset Schedule Ke Parepare
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      if (confirm('Bersihkan seluruh log transaksional sistem?')) {
-                        setLogs([]);
-                        localStorage.removeItem('abrar_notification_logs');
-                        addLog('Log Dibersihkan', 'Admin membersihkan seluruh riwayat log aktivitas.', 'system');
-                      }
-                    }}
-                    className="w-full py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2"
-                  >
-                    🗑️ Bersihkan Semua Log
-                  </button>
-                </div>
-              </div>
-
-              {/* Box 3: Security & PIN Management */}
-              <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800 space-y-3 flex flex-col justify-between">
-                <div>
-                  <h4 className="font-bold text-xs text-amber-300 uppercase tracking-widest flex items-center gap-2">
-                    <span>🔑</span> Keamanan PIN Admin
-                  </h4>
-                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                    Ubah PIN akses masuk Admin Anda jika keamanan dirasa terkompromi. PIN bawaan: <strong className="text-amber-300 font-mono">123456</strong>.
-                  </p>
-                </div>
-
-                <div className="space-y-2 pt-1">
-                  {showPinChange ? (
-                    <div className="space-y-2">
-                      <input
-                        type="password"
-                        placeholder="PIN Baru (min. 4 angka)"
-                        value={newPinValue}
-                        onChange={(e) => setNewPinValue(e.target.value)}
-                        className="w-full p-2 bg-slate-900 text-slate-100 placeholder-slate-500 rounded-xl text-xs border border-slate-850 focus:border-amber-400 outline-none font-mono text-center tracking-widest"
-                      />
-                      <div className="flex gap-1.5 justify-end">
-                        <button
-                          onClick={() => handlePinChange(newPinValue)}
-                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 font-semibold rounded-lg text-[10px] text-white transition"
-                        >
-                          Simpan
-                        </button>
-                        <button
-                          onClick={() => setShowPinChange(false)}
-                          className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg text-[10px] transition"
-                        >
-                          Batal
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowPinChange(true)}
-                      className="w-full py-2.5 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2"
-                    >
-                      🔒 Ubah PIN Akses
-                    </button>
-                  )}
-                </div>
-              </div>
-
-            </div>
-          </div>
-        )}
         
         <AnimatePresence mode="wait">
           <motion.div
@@ -880,68 +808,85 @@ export default function App() {
                 <MasjidDashboard 
                   prayers={prayers}
                   nextDetails={nextDetails}
-                  logs={logs}
                   isAdmin={isAdmin}
                   onNavigate={setActiveTab}
-                  onShowLogin={() => {
-                    setLoginError('');
-                    setShowLoginModal(true);
-                  }}
+                  onShowLogin={() => setActiveTab('admin')}
                 />
-
-                {/* Detailed Notification & Schedule Control Section */}
-                <div className="mt-16 pt-12 border-t border-slate-200" id="config_center">
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">Pusat Konfigurasi & Penjadwalan</h2>
-                    <p className="text-xs text-slate-500 font-medium tracking-wide mt-1">Konfigurasi mendalam sistem cerdas: Waktu shalat, alert audio, dan integritas data.</p>
-                  </div>
-                  <JadwalHub 
-                    prayers={prayers}
-                    nextDetails={nextDetails}
-                    logs={logs}
-                    notificationPermission={notificationPermission}
-                    selectedAudio={selectedAudio}
-                    isMuted={isMuted}
-                    volume={volume}
-                    isAudioPlaying={isAudioPlaying}
-                    testNotificationTimeLeft={testNotificationTimeLeft}
-                    showConfigInfo={showConfigInfo}
-                    editingPrayer={editingPrayer}
-                    editTimeValue={editTimeValue}
-                    onSetShowConfigInfo={setShowConfigInfo}
-                    onTriggerQuickTest={triggerQuickTest}
-                    onRequestNotificationPermission={requestNotificationPermission}
-                    onSetSelectedAudio={setSelectedAudio}
-                    onSetIsMuted={setIsMuted}
-                    onSetVolume={setVolume}
-                    onToggleSoundPlay={toggleSoundPlay}
-                    onResetDefaults={handleResetDefaults}
-                    onStartEditing={startEditing}
-                    onSetEditTimeValue={setEditTimeValue}
-                    onSavePrayerEdit={savePrayerEdit}
-                    onCancelEdit={() => setEditingPrayer(null)}
-                    onClearLogs={() => {
-                      setLogs([]);
-                      localStorage.removeItem('abrar_notification_logs');
-                    }}
-                    onNavigate={(tab) => setActiveTab(tab as any)}
-                    isAdmin={isAdmin}
-                    slides={slides}
-                    onUpdateSlides={setSlides}
-                    onAddLog={addLog}
-                  />
-                </div>
               </div>
             )}
 
-            {activeTab === 'profil' && <MosqueProfile />}
+            {activeTab === 'profil' && <MosqueProfile isAdmin={isAdmin} onAddLog={addLog} />}
+
+            {activeTab === 'tentang' && <AboutApp />}
+
+            {activeTab === 'jadwal' && (
+              <div className="animate-fade-in space-y-6">
+                <div className="mb-4 text-left px-2">
+                  <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 font-bold text-[10px] uppercase tracking-widest rounded-full mb-2">Penjadwalan</span>
+                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">Jadwal & Agenda Ibadah</h2>
+                  <p className="text-xs text-slate-500 font-medium tracking-wide mt-1">Konfigurasi waktu shalat, pengingat otomatis, dan riwayat aktivitas sistem.</p>
+                </div>
+                <JadwalHub 
+                  prayers={prayers}
+                  nextDetails={nextDetails}
+                  logs={logs}
+                  notificationPermission={notificationPermission}
+                  selectedAudio={selectedAudio}
+                  isMuted={isMuted}
+                  volume={volume}
+                  isAudioPlaying={isAudioPlaying}
+                  testNotificationTimeLeft={testNotificationTimeLeft}
+                  showConfigInfo={showConfigInfo}
+                  editingPrayer={editingPrayer}
+                  editTimeValue={editTimeValue}
+                  onSetShowConfigInfo={setShowConfigInfo}
+                  onTriggerQuickTest={triggerQuickTest}
+                  onRequestNotificationPermission={requestNotificationPermission}
+                  onSetSelectedAudio={setSelectedAudio}
+                  onSetIsMuted={setIsMuted}
+                  onSetVolume={setVolume}
+                  onToggleSoundPlay={toggleSoundPlay}
+                  onResetDefaults={handleResetDefaults}
+                  onStartEditing={startEditing}
+                  onSetEditTimeValue={setEditTimeValue}
+                  onSavePrayerEdit={savePrayerEdit}
+                  onCancelEdit={() => setEditingPrayer(null)}
+                  onClearLogs={() => {
+                    const ids = logs.map(l => (l as any).id).filter(Boolean);
+                    clearCollection('activity_logs', ids);
+                  }}
+                  onNavigate={(tab) => setActiveTab(tab as any)}
+                  onDeleteLog={deleteLog}
+                  isAdmin={isAdmin}
+                  slides={slides}
+                  onUpdateSlides={async () => {
+                    // Logic to update slides handled by subcomponents
+                  }}
+                  onAddLog={addLog}
+                  kajian={kajian}
+                  onUpdateKajian={() => {
+                    // Bulk update if needed
+                  }}
+                  jumat={jumat}
+                  onUpdateJumat={() => {
+                    // Bulk update if needed
+                  }}
+                />
+              </div>
+            )}
             
             {activeTab === 'donasi' && (
               <DonationOpen 
+                isAdmin={isAdmin}
+                campaigns={campaigns}
+                onUpdateCampaigns={() => {
+                  // Handled by subcomponent usually
+                }}
                 onDonationSuccess={(title, msg, _amount) => {
                   addLog(title, msg, 'success');
                   triggerAudioPlayback();
                 }} 
+                onAddLog={addLog}
               />
             )}
 
@@ -949,10 +894,7 @@ export default function App() {
               <KeuanganMasjid 
                 isAdmin={isAdmin} 
                 onAddLog={addLog} 
-                onShowLogin={() => {
-                  setLoginError('');
-                  setShowLoginModal(true);
-                }} 
+                onShowLogin={() => setActiveTab('admin')} 
               />
             )}
 
@@ -960,10 +902,7 @@ export default function App() {
               <InventarisMasjid 
                 isAdmin={isAdmin} 
                 onAddLog={addLog} 
-                onShowLogin={() => {
-                  setLoginError('');
-                  setShowLoginModal(true);
-                }} 
+                onShowLogin={() => setActiveTab('admin')} 
               />
             )}
 
@@ -971,11 +910,189 @@ export default function App() {
               <ManajemenJamaah 
                 isAdmin={isAdmin}
                 onAddLog={addLog} 
-                onShowLogin={() => {
-                  setLoginError('');
-                  setShowLoginModal(true);
-                }}
+                onShowLogin={() => setActiveTab('admin')}
               />
+            )}
+
+            {activeTab === 'admin' && (
+              <div className="animate-fade-in space-y-6">
+                {!isAdmin ? (
+                  <div className="bg-white rounded-3xl p-6 sm:p-12 shadow-2xl border border-slate-100 flex flex-col items-center text-center max-w-lg mx-auto space-y-6">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-3xl sm:text-4xl shadow-inner animate-pulse">
+                      🔐
+                    </div>
+                    <div className="space-y-2 px-2">
+                       <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Portal Kendali Admin</h2>
+                       <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">
+                         Otentikasi diperlukan untuk mengakses pusat kendali sistem masjid.
+                       </p>
+                    </div>
+                    
+                    <div className="w-full max-w-xs space-y-4">
+                      <div className="space-y-3">
+                        <input
+                          type="password"
+                          placeholder="••••"
+                          maxLength={10}
+                          value={enteredPin}
+                          onChange={(e) => {
+                            setEnteredPin(e.target.value);
+                            setLoginError('');
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleAdminLogin(enteredPin);
+                          }}
+                          className="w-full text-center tracking-[0.5em] font-mono text-2xl py-4 bg-slate-50 border-2 border-slate-100 focus:border-emerald-500 focus:bg-white rounded-2xl outline-none transition-all shadow-sm"
+                          autoFocus
+                        />
+                        {loginError && (
+                          <div className="text-[10px] sm:text-xs text-rose-600 font-bold bg-rose-50 py-2.5 px-4 rounded-xl border border-rose-100 animate-shake flex items-center gap-2 justify-center">
+                            <span>⚠️</span> {loginError}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <button
+                        onClick={() => handleAdminLogin(enteredPin)}
+                        className="w-full py-4 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-slate-900/20 transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                      >
+                        <Settings className="h-4 w-4 group-hover:rotate-90 transition-transform duration-500" />
+                        Buka Akses Kontrol
+                      </button>
+                      
+                      <p className="text-xs text-slate-400">
+                        Lupa PIN? Silakan hubungi pengelola IT Masjid.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl shadow-2xl p-6 sm:p-10 relative overflow-hidden border-t-8 border-amber-400" id="admin_control_tab">
+                    <div className="absolute right-0 top-0 opacity-5 text-9xl font-sans select-none translate-y-4 -translate-x-8 font-black pointer-events-none text-amber-300">
+                      ADMIN
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 relative z-10">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 sm:p-4 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-2xl sm:rounded-3xl shadow-lg">
+                          <Settings className="h-6 w-6 sm:h-8 sm:w-8" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-black text-xl sm:text-2xl tracking-tight text-white flex items-center gap-2">
+                            ADMIN HUB
+                            <span className="bg-amber-400 text-slate-950 text-[8px] sm:text-[10px] px-2 py-0.5 rounded-full font-black uppercase">LIVE</span>
+                          </h3>
+                          <p className="text-slate-400 text-xs sm:text-sm mt-0.5 font-medium">Pusat kendali Masjid Jami Al Abrar.</p>
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={handleAdminLogout}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white font-black text-xs rounded-2xl shadow-xl shadow-rose-950/40 transition active:scale-95"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                        Keluar & Kunci
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
+                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-amber-400/30 transition duration-300 group">
+                        <div className="w-10 h-10 bg-amber-400/10 rounded-xl flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
+                          📢
+                        </div>
+                        <div className="space-y-2 text-left">
+                          <h4 className="font-black text-[10px] sm:text-[11px] text-amber-400 uppercase tracking-widest text-left">Broadcast Pengumuman</h4>
+                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
+                            Update running text yang tampil secara realtime pada display utama masjid.
+                          </p>
+                        </div>
+                        <div className="space-y-3 pt-2">
+                          <textarea
+                            rows={2}
+                            placeholder="Tulis pengumuman baru..."
+                            value={announcementInput}
+                            onChange={(e) => setAnnouncementInput(e.target.value)}
+                            className="w-full p-3 bg-slate-900/80 text-slate-100 placeholder-slate-600 rounded-2xl text-[11px] border border-slate-800 focus:border-amber-400 outline-none transition"
+                          />
+                          <button
+                            onClick={() => handleUpdateAnnouncement(announcementInput)}
+                            className="w-full py-2.5 bg-amber-400 hover:bg-amber-500 active:bg-amber-600 font-black text-slate-950 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-amber-400/10"
+                          >
+                            Update Sekarang
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-emerald-400/30 transition duration-300 group">
+                        <div className="w-10 h-10 bg-emerald-400/10 rounded-xl flex items-center justify-center text-emerald-300 group-hover:scale-110 transition">
+                          🛠️
+                        </div>
+                        <div className="space-y-2 text-left">
+                          <h4 className="font-black text-[10px] sm:text-[11px] text-emerald-400 uppercase tracking-widest text-left">Utilitas Sistem</h4>
+                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
+                            Aksi cepat untuk mereset data atau membersihkan logs aktivitas historis.
+                          </p>
+                        </div>
+                        <div className="space-y-2 pt-2">
+                          <button
+                            onClick={handleResetDefaults}
+                            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
+                          >
+                            Reset Jadwal Sholat
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm('Bersihkan LOG aktivitas?')) {
+                                setLogs([]);
+                                localStorage.removeItem('abrar_notification_logs');
+                                addLog('Log Dibersihkan', 'Admin membersihkan log aktivitas.', 'system');
+                              }
+                            }}
+                            className="w-full py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
+                          >
+                            Bersihkan System Logs
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-blue-400/30 transition duration-300 group">
+                        <div className="w-10 h-10 bg-blue-400/10 rounded-xl flex items-center justify-center text-blue-300 group-hover:scale-110 transition">
+                          🔐
+                        </div>
+                        <div className="space-y-2 text-left">
+                          <h4 className="font-black text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-widest text-left">Keamanan Akses</h4>
+                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
+                            Ganti PIN otorisasi Admin untuk menjaga kerahasiaan akses kontrol sistem.
+                          </p>
+                        </div>
+                        <div className="pt-2">
+                          {showPinChange ? (
+                            <div className="space-y-2">
+                              <input
+                                type="password"
+                                placeholder="PIN Baru"
+                                value={newPinValue}
+                                onChange={(e) => setNewPinValue(e.target.value)}
+                                className="w-full p-2.5 bg-slate-900 text-slate-100 rounded-xl text-xs border border-slate-800 focus:border-blue-400 outline-none font-mono text-center"
+                              />
+                              <div className="flex gap-2">
+                                <button onClick={() => handlePinChange(newPinValue)} className="flex-1 py-1.5 bg-blue-600 rounded-lg text-[10px] font-bold">Simpan</button>
+                                <button onClick={() => setShowPinChange(false)} className="flex-1 py-1.5 bg-slate-800 rounded-lg text-[10px] font-bold text-slate-400">Batal</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setShowPinChange(true)}
+                              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition active:scale-95"
+                            >
+                              Ganti PIN Otorisasi
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
@@ -983,83 +1100,14 @@ export default function App() {
       </main>
 
       {/* Footer Area */}
-      <footer className="bg-emerald-950 text-emerald-250 border-t border-emerald-900 py-6 px-4" id="footer_section">
+      <footer className="fixed bottom-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md text-emerald-250 border-t border-emerald-900/50 py-4 px-4 z-40" id="footer_section">
         <div className="max-w-7xl mx-auto flex items-center justify-center">
-          <p className="text-emerald-400/80 text-[11px] font-bold tracking-wider uppercase">@2026 Mesjid Jami Al Abrar Parepare</p>
+          <p className="text-emerald-400/80 text-[10px] font-bold tracking-[0.2em] uppercase">@2026 Mesjid Jami Al Abrar Parepare</p>
         </div>
       </footer>
 
-      {/* Login Portal Admin Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl border border-slate-150 transform transition duration-200 scale-100 flex flex-col items-center text-center space-y-4">
-            
-            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-3xl shadow">
-              🔐
-            </div>
-            
-            <div className="space-y-1">
-              <h4 className="text-lg font-black text-slate-800 tracking-wide">Akses Terkunci</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Silakan masukkan PIN Otorisasi Admin Masjid Al Abrar untuk melanjutkan konfigurasi.
-              </p>
-            </div>
-
-            <div className="w-full space-y-2">
-              <input
-                type="password"
-                placeholder="• • • • • •"
-                maxLength={10}
-                value={enteredPin}
-                onChange={(e) => {
-                  setEnteredPin(e.target.value);
-                  setLoginError('');
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleAdminLogin(enteredPin);
-                  }
-                }}
-                className="w-full text-center tracking-widest font-mono text-xl py-3 bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl outline-none"
-                autoFocus
-              />
-              
-              {loginError && (
-                <p className="text-[10px] text-red-600 font-bold bg-red-50 py-1 px-3.5 rounded-lg border border-red-100">
-                  ⚠️ {loginError}
-                </p>
-              )}
-              
-              <p className="text-[10px] text-slate-400">
-                PIN Bawaan Pabrikan: <span className="font-bold underline text-emerald-800">123456</span>
-              </p>
-            </div>
-
-            <div className="w-full grid grid-cols-2 gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowLoginModal(false);
-                  setEnteredPin('');
-                  setLoginError('');
-                }}
-                className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition"
-              >
-                Kembali
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => handleAdminLogin(enteredPin)}
-                className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition"
-              >
-                Konfirmasi
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
+      {/* Professional Floating Notifications */}
+      <ProfessionalToasts logs={activeToasts} onRemove={removeToast} />
     </div>
   );
 }

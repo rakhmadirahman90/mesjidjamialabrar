@@ -1,0 +1,59 @@
+{
+  "collections": {
+    "mosque_profile": {
+      "history": "string",
+      "vision": "string",
+      "mission": "array",
+      "facilities": "array",
+      "structure": "array"
+    },
+    "slides": {
+      "title": "string",
+      "description": "string",
+      "image": "string",
+      "isActive": "boolean",
+      "order": "number"
+    },
+    "campaigns": {
+      "title": "string",
+      "target": "number",
+      "raised": "number",
+      "description": "string"
+    },
+    "donor_logs": {
+      "name": "string",
+      "amount": "number",
+      "timestamp": "string",
+      "message": "string",
+      "campaignId": "string"
+    },
+    "kajian_schedule": {
+      "day": "string",
+      "time": "string",
+      "title": "string",
+      "lecturer": "string",
+      "theme": "string",
+      "category": "string"
+    },
+    "jumat_schedule": {
+      "date": "string",
+      "khatib": "string",
+      "imam": "string",
+      "muazin": "string",
+      "month": "string"
+    },
+    "activity_logs": {
+      "title": "string",
+      "message": "string",
+      "type": "string",
+      "timestamp": "string"
+    },
+    "prayer_settings": {
+      "name": "string",
+      "time": "string",
+      "icon": "string",
+      "description": "string",
+      "order": "number"
+    }
+  }
+}

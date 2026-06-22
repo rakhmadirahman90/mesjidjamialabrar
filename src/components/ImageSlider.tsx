@@ -122,9 +122,9 @@ export default function ImageSlider({
           
           {/* Top Line Action Header */}
           <div className="flex items-center justify-between">
-            <span className={`px-3 py-1 flex items-center gap-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest ${activeSlide.badgeColor} uppercase text-left`}>
-              {IconMap[activeSlide.badgeIcon] || <Info className="h-3.5 w-3.5" />}
-              <span>{activeSlide.badge}</span>
+            <span className={`px-3 py-1 flex items-center gap-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest ${activeSlide.badgeColor || 'bg-slate-500/20 text-slate-350 border border-slate-500/30'} uppercase text-left`}>
+              {IconMap[activeSlide.badgeIcon || 'Info'] || <Info className="h-3.5 w-3.5" />}
+              <span>{activeSlide.badge || 'Informasi'}</span>
             </span>
 
             {/* Live Autoplay play/pause controller */}
@@ -139,7 +139,7 @@ export default function ImageSlider({
 
           {/* Middle Body Layout */}
           <div className="space-y-4 max-w-2xl mt-auto pb-4">
-            <span className={`block text-[10px] font-black tracking-widest uppercase font-mono ${activeSlide.accentColor}`}>
+            <span className={`block text-[10px] font-black tracking-widest uppercase font-mono ${activeSlide.accentColor || 'text-slate-400'}`}>
               {activeSlide.subtitle}
             </span>
             
@@ -163,19 +163,21 @@ export default function ImageSlider({
 
             {/* Multi-action interactive button layout */}
             <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
-              <button
-                onClick={() => setShowTourModal(activeSlide)}
-                className="px-5 py-2.5 rounded-xl bg-white text-slate-950 hover:bg-slate-100 font-extrabold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow"
-              >
-                🔍 Mulai Tur Virtual
-              </button>
+              {activeSlide.detailedStory && (
+                <button
+                  onClick={() => setShowTourModal(activeSlide)}
+                  className="px-5 py-2.5 rounded-xl bg-white text-slate-950 hover:bg-slate-100 font-extrabold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow"
+                >
+                  🔍 Mulai Tur Virtual
+                </button>
+              )}
               
               {activeSlide.actionTab && (
                 <button
                   onClick={() => onNavigate(activeSlide.actionTab!)}
                   className="px-5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-white hover:text-white font-extrabold text-xs transition border border-slate-700/80 active:scale-95 flex items-center justify-center gap-1.5"
                 >
-                  <span>{activeSlide.actionText}</span>
+                  <span>{activeSlide.actionText || 'Buka Selengkapnya'}</span>
                   <ArrowRight className="h-3 w-3" />
                 </button>
               )}
@@ -273,10 +275,10 @@ export default function ImageSlider({
                 
                 {/* Paragraph Descriptions */}
                 <div className="space-y-4">
-                  <h4 className="font-display font-extrabold text-sm text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                   <h4 className="font-display font-extrabold text-sm text-slate-800 uppercase tracking-wide flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-emerald-600" /> Profil Eksklusif Al Abrar
                   </h4>
-                  {showTourModal.detailedStory.paragraphs.map((p, idx) => (
+                  {showTourModal.detailedStory?.paragraphs.map((p, idx) => (
                     <p key={idx} className="text-slate-600 text-xs leading-relaxed">
                       {p}
                     </p>
@@ -291,7 +293,7 @@ export default function ImageSlider({
                     <Calendar className="h-4 w-4 text-emerald-600" /> Detail Sistem & Informasi Teknis
                   </h4>
                   <div className="grid grid-cols-2 gap-3.5">
-                    {showTourModal.detailedStory.quickSpecs.map((spec, sIdx) => (
+                    {showTourModal.detailedStory?.quickSpecs.map((spec, sIdx) => (
                       <div key={sIdx} className="bg-slate-50 border border-slate-100 p-3 rounded-2xl">
                         <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
                           {spec.label}

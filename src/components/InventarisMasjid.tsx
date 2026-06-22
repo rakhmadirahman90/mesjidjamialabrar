@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MosqueAsset } from '../types';
 import { Package, PlusCircle, Search, Tag, ShieldCheck, Edit2, Trash2, Save, X } from 'lucide-react';
+import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 
 export default function InventarisMasjid({ 
   isAdmin, 
@@ -11,24 +12,14 @@ export default function InventarisMasjid({
   onAddLog: (title: string, msg: string, type: 'info' | 'success' | 'alert' | 'system') => void;
   onShowLogin: () => void;
 }) {
-  const [assets, setAssets] = useState<MosqueAsset[]>(() => {
-    const saved = localStorage.getItem('abrar_mosque_assets');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        // use default
-      }
-    }
-    return [
-      { id: 'ast1', name: 'Karpet Shalat Turki Tebal Hijau Premium', category: 'Alat Shalat', quantity: 24, unit: 'Gulung', condition: 'Sangat Baik', location: 'Ruang Shalat Utama Lt.1', registeredBy: 'Abdul Rahman, S.Pd.I' },
-      { id: 'ast2', name: 'Air Conditioner Daikin 2 PK', category: 'Elektronik & Pendingin', quantity: 6, unit: 'Unit', condition: 'Baik', location: 'Ruang Shalat Utama Lt.1', registeredBy: 'Ir. H. Muhammad Ramli' },
-      { id: 'ast3', name: 'Al-Quran Terjemahan Al-Hamil Hardcover', category: 'Kitab Suci / Al-Quran', quantity: 120, unit: 'Kitab', condition: 'Sangat Baik', location: 'Rak Dinding Pilar Masjid', registeredBy: 'Ustadz Nur Hadi, Lc' },
-      { id: 'ast4', name: 'Vacuum Cleaner Krisbow Wet & Dry', category: 'Kebersihan', quantity: 2, unit: 'Unit', condition: 'Rusak Ringan', location: 'Gudang Inventaris Belakang', registeredBy: 'Drs. H. Syamsuddin' },
-      { id: 'ast5', name: 'Power Amplifier TOA & Sound Mixer 12 Ch', category: 'Sound System', quantity: 1, unit: 'Set', condition: 'Sangat Baik', location: 'Meja Kendali Utama Lt.1', registeredBy: 'Abdul Rahman, S.Pd.I' },
-      { id: 'ast6', name: 'Mimbar Ceramah Kayu Jati Ukiran Jepara', category: 'Mebel & Lemari', quantity: 1, unit: 'Buah', condition: 'Sangat Baik', location: 'Mihrab Pengimaman', registeredBy: 'Drs. H. Syamsuddin' }
-    ];
-  });
+  const [assets, setAssets] = useState<MosqueAsset[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeToCollection<MosqueAsset>('mosque_assets', (data) => {
+      setAssets(data);
+    }, 'name', 'asc');
+    return () => unsub();
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'Alat Shalat' | 'Sound System' | 'Elektronik & Pendingin' | 'Kebersihan' | 'Kitab Suci / Al-Quran' | 'Mebel & Lemari'>('all');
@@ -53,23 +44,22 @@ export default function InventarisMasjid({
     }
 
     if (!inputName.trim()) {
-      alert('Nama barang harus diisi!');
+      onAddLog('Gagal', 'Nama barang harus diisi!', 'alert');
       return;
     }
 
     const qtyVal = parseInt(inputQty, 10);
     if (isNaN(qtyVal) || qtyVal <= 0) {
-      alert('Masukkan jumlah kuantitas barang yang valid!');
+      onAddLog('Gagal', 'Masukkan jumlah kuantitas barang yang valid!', 'alert');
       return;
     }
 
     if (!inputLocation.trim()) {
-      alert('Lokasi penyimpanan barang harus diisi!');
+      onAddLog('Gagal', 'Lokasi penyimpanan barang harus diisi!', 'alert');
       return;
     }
 
-    const newAsset: MosqueAsset = {
-      id: 'ast_' + Date.now(),
+    const newAsset = {
       name: inputName.trim(),
       category: inputCategory,
       quantity: qtyVal,
@@ -79,9 +69,7 @@ export default function InventarisMasjid({
       registeredBy: 'Admin Al Abrar'
     };
 
-    const updated = [newAsset, ...assets];
-    setAssets(updated);
-    localStorage.setItem('abrar_mosque_assets', JSON.stringify(updated));
+    addDocument('mosque_assets', newAsset);
 
     // trigger system logs reporting
     onAddLog(
@@ -94,7 +82,6 @@ export default function InventarisMasjid({
     setInputName('');
     setInputQty('');
     setInputLocation('');
-    alert('🎉 Sukses! Barang baru tercatat dalam sistem database inventaris.');
   };
 
   const handleUpdateCondition = (id: string, nextCond: 'Sangat Baik' | 'Baik' | 'Rusak Ringan' | 'Rusak Berat') => {
@@ -102,18 +89,11 @@ export default function InventarisMasjid({
       onShowLogin();
       return;
     }
-
-    const updated = assets.map(a => {
-      if (a.id === id) {
-        return { ...a, condition: nextCond };
-      }
-      return a;
-    });
-
-    setAssets(updated);
-    localStorage.setItem('abrar_mosque_assets', JSON.stringify(updated));
-    onAddLog('Kondisi Aset Berubah', `Status inventaris barang ID ${id} diubah menjadi: "${nextCond}"`, 'info');
-    alert('Kondisi barang berhasil diperbarui!');
+    const asset = assets.find(a => a.id === id);
+    if (asset && asset.id) {
+       updateDocument('mosque_assets', asset.id, { condition: nextCond });
+       onAddLog('Kandisi Aset Berubah', `Status inventaris barang "${asset.name}" diubah menjadi: "${nextCond}"`, 'success');
+    }
   };
 
   const handleRemoveAsset = (id: string, name: string) => {
@@ -123,11 +103,11 @@ export default function InventarisMasjid({
     }
 
     if (confirm(`Apakah Anda yakin ingin menghapus barang "${name}" dari inventaris?`)) {
-      const updated = assets.filter(a => a.id !== id);
-      setAssets(updated);
-      localStorage.setItem('abrar_mosque_assets', JSON.stringify(updated));
-      onAddLog('Aset Dihapus', `Barang "${name}" dikeluarkan dari inventaris masjid.`, 'alert');
-      alert('Barang berhasil dikeluarkan.');
+      const asset = assets.find(a => a.id === id);
+      if (asset && asset.id) {
+        deleteDocument('mosque_assets', asset.id);
+        onAddLog('Aset Dihapus', `Barang "${name}" dikeluarkan dari inventaris masjid.`, 'success');
+      }
     }
   };
 
@@ -138,16 +118,20 @@ export default function InventarisMasjid({
 
   const saveEditAsset = () => {
     if (!editAssetForm.name || !editAssetForm.location) {
-      alert('Nama dan Lokasi wajib diisi!');
+      onAddLog('Gagal', 'Nama dan Lokasi wajib diisi!', 'alert');
       return;
     }
-    const updated = assets.map(a => a.id === editingAssetId ? { ...a, ...editAssetForm } as MosqueAsset : a);
-    setAssets(updated);
-    localStorage.setItem('abrar_mosque_assets', JSON.stringify(updated));
-    onAddLog('Data Aset Diubah', `Informasi inventaris "${editAssetForm.name}" telah diperbarui.`, 'info');
+
+    if (editingAssetId) {
+       const existingAsset = assets.find(a => a.id === editingAssetId);
+       if (existingAsset && existingAsset.id) {
+         updateDocument('mosque_assets', existingAsset.id, editAssetForm);
+         onAddLog('Data Aset Diubah', `Informasi inventaris "${editAssetForm.name}" telah diperbarui.`, 'success');
+       }
+    }
+
     setEditingAssetId(null);
     setEditAssetForm({});
-    alert('Informasi barang berhasil diperbarui.');
   };
 
   // filter
@@ -169,7 +153,7 @@ export default function InventarisMasjid({
             <h3 className="font-extrabold text-base text-slate-800 flex items-center gap-2">
               <Package className="h-5 w-5 text-emerald-700" /> Database Inventaris & Sarana Fisik
             </h3>
-            <p className="text-slate-400 text-xs">Arsip barang inventaris Masjid Jami Al Abrar Unit 021.</p>
+            <p className="text-slate-400 text-xs">Arsip barang inventaris Masjid Jami Al Abrar.</p>
           </div>
 
           <div className="relative w-full md:w-80">

@@ -14,10 +14,14 @@ import {
   VolumeX, 
   Settings, 
   Calendar,
-  Layout
+  Layout,
+  Plus,
+  Trash2,
+  X,
 } from 'lucide-react';
-import { PrayerTime, NotificationLog, SlideItem } from '../types';
+import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry } from '../types';
 import SliderManager from './SliderManager';
+import { addDocument, updateDocument, deleteDocument } from '../lib/db';
 
 interface JadwalHubProps {
   prayers: PrayerTime[];
@@ -48,8 +52,13 @@ interface JadwalHubProps {
   onNavigate: (tab: string) => void;
   isAdmin?: boolean;
   slides?: SlideItem[];
-  onUpdateSlides?: (slides: SlideItem[]) => void;
+  onUpdateSlides?: () => void;
   onAddLog: (title: string, msg: string, type: any) => void;
+  kajian: KajianEntry[];
+  onUpdateKajian: () => void;
+  jumat: JumatEntry[];
+  onUpdateJumat: () => void;
+  onDeleteLog: (id: string) => void;
 }
 
 export default function JadwalHub({
@@ -81,59 +90,163 @@ export default function JadwalHub({
   onNavigate,
   isAdmin,
   slides,
-  onUpdateSlides,
-  onAddLog
+  onAddLog,
+  kajian,
+  jumat,
+  onDeleteLog
 }: JadwalHubProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider'>('sholat');
+  const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
+
+  // Admin CRUD states for Kajian and Jumat
+  const [editingKajian, setEditingKajian] = useState<KajianEntry | null>(null);
+  const [kajianForm, setKajianForm] = useState<Partial<KajianEntry>>({});
+  const [editingJumat, setEditingJumat] = useState<JumatEntry | null>(null);
+  const [jumatForm, setJumatForm] = useState<Partial<JumatEntry>>({});
+
+  const handleEditKajian = (k: KajianEntry) => {
+    setEditingKajian(k);
+    setKajianForm(k);
+  };
+
+  const handleAddKajian = () => {
+    const newKajian: KajianEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      day: '',
+      time: '',
+      title: '',
+      lecturer: '',
+      theme: '',
+      category: 'Lainnya'
+    };
+    setEditingKajian(newKajian);
+    setKajianForm(newKajian);
+  };
+
+  const saveKajian = () => {
+    if (!kajianForm.title || !kajianForm.lecturer) {
+      onAddLog('Gagal', 'Judul dan Pemateri wajib diisi!', 'alert');
+      return;
+    }
+    
+    if (editingKajian && editingKajian.id) {
+       const existingKajian = kajian.find(k => k.id === editingKajian.id);
+       if (existingKajian && existingKajian.id) {
+         updateDocument('kajian_schedule', existingKajian.id, kajianForm);
+         onAddLog('Kajian Diperbarui', `Jadwal ${kajianForm.title} berhasil diperbarui.`, 'success');
+       }
+    } else {
+       addDocument('kajian_schedule', kajianForm);
+       onAddLog('Kajian Ditambah', `Jadwal ${kajianForm.title} berhasil ditambahkan.`, 'success');
+    }
+    setEditingKajian(null);
+  };
+
+  const deleteKajian = (id: string) => {
+    if (confirm('Hapus jadwal kajian ini?')) {
+      const kToDelete = kajian.find(k => k.id === id);
+      if (kToDelete && kToDelete.id) {
+        deleteDocument('kajian_schedule', kToDelete.id);
+        onAddLog('Kajian Dihapus', 'Jadwal kajian berhasil dihapus.', 'alert');
+      }
+    }
+  };
+
+  const handleEditJumat = (j: JumatEntry) => {
+    setEditingJumat(j);
+    setJumatForm(j);
+  };
+
+  const handleAddJumat = () => {
+    const newJumat: JumatEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      date: '',
+      khatib: '',
+      imam: '',
+      muazin: '',
+      month: jumat.length > 0 ? jumat[jumat.length - 1].month : ''
+    };
+    setEditingJumat(newJumat);
+    setJumatForm(newJumat);
+  };
+
+  const saveJumat = () => {
+    if (!jumatForm.date || !jumatForm.khatib) {
+      onAddLog('Gagal', 'Tanggal dan Khatib wajib diisi!', 'alert');
+      return;
+    }
+    
+    if (editingJumat && editingJumat.id) {
+       const existingJumat = jumat.find(j => j.id === editingJumat.id);
+       if (existingJumat && existingJumat.id) {
+         updateDocument('jumat_schedule', existingJumat.id, jumatForm);
+         onAddLog('Jadwal Jumat Diperbarui', `Jadwal tanggal ${jumatForm.date} berhasil diperbarui.`, 'success');
+       }
+    } else {
+       addDocument('jumat_schedule', jumatForm);
+       onAddLog('Jadwal Jumat Ditambah', `Jadwal tanggal ${jumatForm.date} berhasil ditambahkan.`, 'success');
+    }
+    setEditingJumat(null);
+  };
+
+  const deleteJumat = (id: string) => {
+    if (confirm('Hapus jadwal jumat ini?')) {
+      const jToDelete = jumat.find(j => j.id === id);
+      if (jToDelete && jToDelete.id) {
+        deleteDocument('jumat_schedule', jToDelete.id);
+        onAddLog('Jadwal Jumat Dihapus', 'Jadwal jumat berhasil dihapus.', 'alert');
+      }
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in" id="jadwal_hub_container">
       
       {/* Sub-Navigation Tabs */}
-      <div className="flex flex-wrap bg-slate-100 p-1.5 rounded-2xl w-full max-w-4xl mx-auto md:mx-0">
+      <div className="flex flex-wrap bg-slate-100 p-1 rounded-xl sm:rounded-2xl w-full max-w-4xl mx-auto md:mx-0">
         <button
           onClick={() => setActiveSubTab('sholat')}
-          className={`flex-1 min-w-[120px] py-3 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
             activeSubTab === 'sholat'
               ? 'bg-white text-slate-900 shadow border border-slate-200/40'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Clock className={`h-4 w-4 ${activeSubTab === 'sholat' ? 'text-emerald-600' : ''}`} />
-          <span>Jadwal Sholat</span>
+          <Clock className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'sholat' ? 'text-emerald-600' : ''}`} />
+          <span>Sholat</span>
         </button>
         <button
           onClick={() => setActiveSubTab('kajian')}
-          className={`flex-1 min-w-[120px] py-3 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
             activeSubTab === 'kajian'
               ? 'bg-white text-slate-900 shadow border border-slate-200/40'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <BookOpen className={`h-4 w-4 ${activeSubTab === 'kajian' ? 'text-amber-600' : ''}`} />
-          <span>Jadwal Kajian</span>
+          <BookOpen className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'kajian' ? 'text-amber-600' : ''}`} />
+          <span>Kajian</span>
         </button>
         <button
           onClick={() => setActiveSubTab('jumat')}
-          className={`flex-1 min-w-[120px] py-3 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
             activeSubTab === 'jumat'
               ? 'bg-white text-slate-900 shadow border border-slate-200/40'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Users className={`h-4 w-4 ${activeSubTab === 'jumat' ? 'text-blue-600' : ''}`} />
-          <span>Jadwal Jumat</span>
+          <Users className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'jumat' ? 'text-blue-600' : ''}`} />
+          <span>Jumat</span>
         </button>
         <button
           onClick={() => setActiveSubTab('ramadan')}
-          className={`flex-1 min-w-[120px] py-3 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
             activeSubTab === 'ramadan'
               ? 'bg-white text-slate-900 shadow border border-slate-200/40'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Star className={`h-4 w-4 ${activeSubTab === 'ramadan' ? 'text-rose-600' : ''}`} />
-          <span>Ramadan 1447H</span>
+          <Star className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'ramadan' ? 'text-rose-600' : ''}`} />
+          <span className="hidden sm:inline">Ramadan 1447H</span>
+          <span className="sm:hidden">Ramadan</span>
         </button>
 
         {isAdmin && (
@@ -147,6 +260,20 @@ export default function JadwalHub({
           >
             <Layout className={`h-4 w-4 ${activeSubTab === 'slider' ? 'text-emerald-600' : ''}`} />
             <span>Kelola Slider</span>
+          </button>
+        )}
+
+        {isAdmin && (
+          <button
+            onClick={() => setActiveSubTab('log')}
+            className={`flex-1 min-w-[120px] py-3 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeSubTab === 'log'
+                ? 'bg-white text-slate-900 shadow border border-slate-200/40'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <History className={`h-4 w-4 ${activeSubTab === 'log' ? 'text-emerald-600' : ''}`} />
+            <span>Riwayat Log</span>
           </button>
         )}
       </div>
@@ -212,21 +339,23 @@ export default function JadwalHub({
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-emerald-950/40 backdrop-blur-md p-4 rounded-2xl border border-emerald-700">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">📣</span>
-                    <p className="text-[10px] text-emerald-300">Gunakan simulator instan ini untuk memicu alarm 10 menit sebelum waktu simulasi.</p>
+                {isAdmin && (
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-emerald-950/40 backdrop-blur-md p-4 rounded-2xl border border-emerald-700">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📣</span>
+                      <p className="text-[10px] text-emerald-300">Gunakan simulator instan ini untuk memicu alarm 10 menit sebelum waktu simulasi.</p>
+                    </div>
+                    <button
+                      onClick={onTriggerQuickTest}
+                      disabled={testNotificationTimeLeft !== null}
+                      className="sm:ml-auto px-5 py-2 w-full sm:w-auto bg-amber-400 hover:bg-amber-500 disabled:bg-amber-400/40 text-emerald-950 font-black rounded-xl shadow text-[11px] uppercase transition active:scale-95 whitespace-nowrap"
+                    >
+                      {testNotificationTimeLeft !== null 
+                        ? `Menguji (${testNotificationTimeLeft}s)...`
+                        : '🔥 Uji Notifikasi (5 Detik)'}
+                    </button>
                   </div>
-                  <button
-                    onClick={onTriggerQuickTest}
-                    disabled={testNotificationTimeLeft !== null}
-                    className="sm:ml-auto px-5 py-2 w-full sm:w-auto bg-amber-400 hover:bg-amber-500 disabled:bg-amber-400/40 text-emerald-950 font-black rounded-xl shadow text-[11px] uppercase transition active:scale-95 whitespace-nowrap"
-                  >
-                    {testNotificationTimeLeft !== null 
-                      ? `Menguji (${testNotificationTimeLeft}s)...`
-                      : '🔥 Uji Notifikasi (5 Detik)'}
-                  </button>
-                </div>
+                )}
               </div>
             </div>
 
@@ -283,9 +412,11 @@ export default function JadwalHub({
                 <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2.5">
                   <Database className="h-5 w-5 text-emerald-600" /> Jadwal Waktu Shalat
                 </h3>
-                <button onClick={onResetDefaults} className="text-[10px] text-amber-700 bg-amber-50 font-black px-3 py-1.5 rounded-xl border border-amber-200 transition flex items-center gap-1.5">
-                  <RefreshCw className="h-3 w-3" /> RESET DEFAULT
-                </button>
+                {isAdmin && (
+                  <button onClick={onResetDefaults} className="text-[10px] text-amber-700 bg-amber-50 font-black px-3 py-1.5 rounded-xl border border-amber-200 transition flex items-center gap-1.5">
+                    <RefreshCw className="h-3 w-3" /> RESET DEFAULT
+                  </button>
+                )}
               </div>
               <div className="overflow-x-auto -mx-6 px-6">
               <table className="w-full text-left border-collapse min-w-[550px]">
@@ -294,7 +425,7 @@ export default function JadwalHub({
                       <th className="py-3 px-3">Nama Shalat</th>
                       <th className="py-3 px-3">Waktu</th>
                       <th className="py-3 px-3">Peringatan (-10m)</th>
-                      <th className="py-3 px-3 text-right">Aksi</th>
+                      {isAdmin && <th className="py-3 px-3 text-right">Aksi</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -324,16 +455,18 @@ export default function JadwalHub({
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> {alertTime}
                             </span>
                           </td>
-                          <td className="py-4 px-3 text-right">
-                            {isEditingThis ? (
-                              <div className="flex items-center justify-end gap-1.5">
-                                <button onClick={onSavePrayerEdit} className="p-1 px-3 bg-emerald-600 text-white rounded-lg text-xs font-black">SIMPAN</button>
-                                <button onClick={onCancelEdit} className="p-1 px-3 bg-slate-100 text-slate-600 rounded-lg text-xs font-black">BATAL</button>
-                              </div>
-                            ) : (
-                              <button onClick={() => onStartEditing(prayer)} className="text-[10px] text-emerald-700 bg-emerald-50 font-black px-3 py-1.5 rounded-lg border border-emerald-100 transition">EDIT</button>
-                            )}
-                          </td>
+                          {isAdmin && (
+                            <td className="py-4 px-3 text-right">
+                              {isEditingThis ? (
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button onClick={onSavePrayerEdit} className="p-1 px-3 bg-emerald-600 text-white rounded-lg text-xs font-black">SIMPAN</button>
+                                  <button onClick={onCancelEdit} className="p-1 px-3 bg-slate-100 text-slate-600 rounded-lg text-xs font-black">BATAL</button>
+                                </div>
+                              ) : (
+                                <button onClick={() => onStartEditing(prayer)} className="text-[10px] text-emerald-700 bg-emerald-50 font-black px-3 py-1.5 rounded-lg border border-emerald-100 transition">EDIT</button>
+                              )}
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
@@ -347,7 +480,7 @@ export default function JadwalHub({
                 <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
                   <History className="h-5 w-5 text-emerald-600" /> Riwayat
                 </h3>
-                <button onClick={onClearLogs} className="text-[10px] font-black text-slate-400 hover:text-red-500">BERSIHKAN</button>
+                {isAdmin && <button onClick={onClearLogs} className="text-[10px] font-black text-slate-400 hover:text-red-500">BERSIHKAN</button>}
               </div>
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
                 {logs.length === 0 ? (
@@ -371,118 +504,145 @@ export default function JadwalHub({
       )}
 
       {activeSubTab === 'kajian' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
-          <div className="bg-white rounded-3xl p-8 border border-slate-150 shadow-sm space-y-6">
-            <div className="space-y-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-amber-500/10 text-amber-700 border border-amber-500/20">
-                BA'DA SUBUH & AHAD
-              </span>
-              <h3 className="text-xl font-display font-black text-slate-800 tracking-tight leading-none uppercase">Kajian Rutin & Tabligh</h3>
-              <p className="text-slate-400 text-xs">Jadwal pembinaan iman khusus di waktu subuh dan pagi hari Ahad.</p>
+        <div className="space-y-6">
+          {isAdmin && (
+            <div className="flex justify-end">
+              <button 
+                onClick={handleAddKajian}
+                className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
+              >
+                <Plus className="h-4 w-4 text-emerald-400" /> Tambah Jadwal Kajian
+              </button>
             </div>
-            <div className="space-y-4">
-              {[
-                { day: 'Ahad', time: '05:30 WITA', title: 'Tafsir Al-Munir', lecturer: 'Ustadz Dr. H. Muh. Natsir, M.Pd.', theme: 'Tafsir Tematik' },
-                { day: 'Senin', time: '05:15 WITA', title: 'Kultum Subuh', lecturer: 'Ustadz Drs. Abd. Hakim Latief', theme: 'Akhlakul Karimah' },
-                { day: 'Setiap Hari', time: '05:15 WITA', title: 'Tadarus Bersama', lecturer: 'Pengurus Masjid', theme: 'Tahsin & Tilawah' }
-              ].map((item, idx) => (
-                <div key={idx} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm">
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-amber-200">
-                    <span className="text-[10px] font-black text-amber-700 uppercase">{item.day}</span>
-                  </div>
-                  <div className="space-y-1 text-left">
-                    <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
-                    <p className="text-xs font-bold text-emerald-700">{item.lecturer}</p>
-                    <div className="flex items-center gap-3 pt-1">
-                      <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> {item.time}
-                      </span>
-                      <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">{item.theme}</span>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in text-left">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-6 border-t-4 border-amber-400">
+              <div className="space-y-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-amber-500/10 text-amber-700 border border-amber-500/20">
+                  BA'DA SUBUH & PAGI
+                </span>
+                <h3 className="text-xl font-display font-black text-slate-800 tracking-tight leading-none uppercase text-left">Kajian Rutin & Tabligh</h3>
+                <p className="text-slate-400 text-xs text-left">Jadwal pembinaan iman khusus di waktu subuh dan pagi hari.</p>
+              </div>
+              <div className="space-y-4">
+                {kajian.filter(k => k.category === 'Ba\'da Subuh').map((item) => (
+                  <div key={item.id} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative">
+                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-amber-200">
+                      <span className="text-[10px] font-black text-amber-700 uppercase">{item.day}</span>
                     </div>
+                    <div className="space-y-1 flex-1">
+                      <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
+                      <p className="text-xs font-bold text-emerald-700">{item.lecturer}</p>
+                      <div className="flex items-center gap-3 pt-1">
+                        <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
+                          <Clock className="h-3 w-3" /> {item.time} WITA
+                        </span>
+                        <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">{item.theme}</span>
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleEditKajian(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                        <button onClick={() => deleteKajian(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="bg-white rounded-3xl p-8 border border-slate-150 shadow-sm space-y-6">
-            <div className="space-y-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
-                BA'DA MAGHRIB
-              </span>
-              <h3 className="text-xl font-display font-black text-slate-800 tracking-tight leading-none uppercase">Kajian Kitab & Fiqh</h3>
-              <p className="text-slate-400 text-xs">Pendalaman ilmu syariat di antara waktu Maghrib dan Isya.</p>
-            </div>
-            <div className="space-y-4">
-              {[
-                { day: 'Selasa', time: '18:30 WITA', title: 'Hadits Arbain An-Nawawi', lecturer: 'Ustadz Nur Hadi, Lc.', theme: 'Hadits' },
-                { day: 'Kamis', time: '18:30 WITA', title: 'Fiqh Ibadah Praktis', lecturer: 'Ustadz Drs. Abd. Hakim Latief', theme: 'Fiqh' },
-                { day: 'Malam Jumat', time: '18:30 WITA', title: 'Yasinan & Dzikir Bersama', lecturer: 'Jamaah Masjid', theme: 'Spiritualitas' }
-              ].map((item, idx) => (
-                <div key={idx} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-emerald-200">
-                    <span className="text-[10px] font-black text-emerald-700 uppercase">{item.day}</span>
-                  </div>
-                  <div className="space-y-1 text-left">
-                    <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
-                    <p className="text-xs font-bold text-amber-700">{item.lecturer}</p>
-                    <div className="flex items-center gap-3 pt-1">
-                      <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> {item.time}
-                      </span>
-                      <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{item.theme}</span>
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-6 border-t-4 border-emerald-600">
+              <div className="space-y-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
+                  BA'DA MAGHRIB
+                </span>
+                <h3 className="text-xl font-display font-black text-slate-800 tracking-tight leading-none uppercase text-left">Kajian Kitab & Fiqh</h3>
+                <p className="text-slate-400 text-xs text-left">Pendalaman ilmu syariat di antara waktu Maghrib dan Isya.</p>
+              </div>
+              <div className="space-y-4">
+                {kajian.filter(k => k.category === 'Ba\'da Maghrib' || k.category === 'Lainnya').map((item) => (
+                  <div key={item.id} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-emerald-200">
+                      <span className="text-[10px] font-black text-emerald-700 uppercase">{item.day}</span>
                     </div>
+                    <div className="space-y-1 flex-1">
+                      <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
+                      <p className="text-xs font-bold text-amber-700">{item.lecturer}</p>
+                      <div className="flex items-center gap-3 pt-1">
+                        <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
+                          <Clock className="h-3 w-3" /> {item.time} WITA
+                        </span>
+                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{item.theme || item.category}</span>
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleEditKajian(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                        <button onClick={() => deleteKajian(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {activeSubTab === 'jumat' && (
-        <div className="bg-white rounded-3xl p-8 border border-slate-150 shadow-sm space-y-8 animate-fade-in">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-8 animate-fade-in text-left">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6">
             <div className="space-y-1 text-left">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-blue-500/10 text-blue-700 border border-blue-500/20">
-                Papan Infromasi Pelaksanaan
-              </span>
-              <h3 className="text-2xl font-display font-black text-slate-800 tracking-tight leading-none uppercase">Jadwal Shalat Jumat Bulan Ini</h3>
-              <p className="text-slate-400 text-xs">Daftar petugas khatib dan imam Jumat di Masjid Jami Al-Abrar.</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-blue-500/10 text-blue-700 border border-blue-500/20">
+                  Pusat Informasi
+                </span>
+                {isAdmin && (
+                  <button 
+                    onClick={handleAddJumat}
+                    className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-blue-700 transition"
+                  >
+                    <Plus className="h-4 w-4" /> Tambah
+                  </button>
+                )}
+              </div>
+              <h3 className="text-xl sm:text-2xl font-display font-black text-slate-800 tracking-tight leading-tight uppercase text-left">Petugas Shalat Jumat</h3>
+              <p className="text-slate-400 text-[10px] sm:text-xs text-left">Daftar petugas khatib dan imam Jumat di Masjid Jami Al-Abrar.</p>
             </div>
             <div className="bg-slate-900 text-white px-5 py-3 rounded-2xl flex items-center gap-4">
               <Calendar className="h-6 w-6 text-blue-400" />
               <div className="text-left">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Bulan Aktif</p>
-                <p className="text-sm font-black uppercase">Juni 2026</p>
+                <p className="text-sm font-black uppercase">{jumat.length > 0 ? jumat[0].month : 'Belum Ditentukan'}</p>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { date: '05 Juni 2026', khatib: 'Dr. H. Rusli Maidin, M.Ag', imam: 'Drs. H. Syamsul Kiber AT', muazin: 'Rahman B Umar' },
-              { date: '12 Juni 2026', khatib: 'Ustadz Nur Hadi, Lc', imam: 'Drs. Abd. Hakim Latief', muazin: 'H. Rakhmadi Rahman' },
-              { date: '19 Juni 2026', khatib: 'Dr. H. Arqam Majid', imam: 'Ustadz Dr. H. Muh. Natsir', muazin: 'Muhazil' },
-              { date: '26 Juni 2026', khatib: 'Prof. Dr. Drs. H. Amaluddin, M.Hum', imam: 'Drs. Abd. Hakim Latief', muazin: 'Rahman B Umar' }
-            ].map((j, i) => (
-              <div key={i} className={`p-6 rounded-3xl border transition-all ${i === 3 ? 'bg-blue-600 text-white border-blue-700 shadow-xl shadow-blue-200 -translate-y-2' : 'bg-slate-50 border-slate-100 hover:bg-white'}`}>
-                <p className={`text-[10px] font-black font-mono uppercase tracking-widest mb-3 ${i === 3 ? 'text-blue-200' : 'text-slate-400'}`}>{j.date}</p>
+            {jumat.map((j, i) => (
+              <div key={j.id} className={`p-6 rounded-3xl border transition-all group relative ${i === jumat.length - 1 ? 'bg-blue-600 text-white border-blue-700 shadow-xl shadow-blue-200 lg:-translate-y-2' : 'bg-slate-50 border-slate-100 hover:bg-white'}`}>
+                <p className={`text-[10px] font-black font-mono uppercase tracking-widest mb-3 ${i === jumat.length - 1 ? 'text-blue-200' : 'text-slate-400'}`}>{j.date}</p>
                 <div className="space-y-4 text-left">
                   <div className="space-y-1">
-                    <span className={`block text-[9px] font-black uppercase ${i === 3 ? 'text-blue-100' : 'text-blue-600/80'}`}>Khatib</span>
-                    <p className={`font-black text-sm leading-tight ${i === 3 ? 'text-white' : 'text-slate-900'}`}>{j.khatib}</p>
+                    <span className={`block text-[9px] font-black uppercase ${i === jumat.length - 1 ? 'text-blue-100' : 'text-blue-600/80'}`}>Khatib</span>
+                    <p className={`font-black text-sm leading-tight ${i === jumat.length - 1 ? 'text-white' : 'text-slate-900'}`}>{j.khatib}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className={`block text-[9px] font-black uppercase ${i === 3 ? 'text-blue-100' : 'text-blue-600/80'}`}>Imam</span>
-                    <p className={`font-bold text-xs ${i === 3 ? 'text-white' : 'text-slate-700'}`}>{j.imam}</p>
+                    <span className={`block text-[9px] font-black uppercase ${i === jumat.length - 1 ? 'text-blue-100' : 'text-blue-600/80'}`}>Imam</span>
+                    <p className={`font-bold text-xs ${i === jumat.length - 1 ? 'text-white' : 'text-slate-700'}`}>{j.imam}</p>
                   </div>
                   <div className="pt-2 border-t border-current opacity-20"></div>
                   <div className="flex items-center gap-2">
-                    <div className={`w-1.5 h-1.5 rounded-full ${i === 3 ? 'bg-blue-300' : 'bg-blue-500'}`}></div>
-                    <span className={`text-[10px] font-bold ${i === 3 ? 'text-blue-100' : 'text-slate-500'}`}>Muazin: {j.muazin}</span>
+                    <div className={`w-1.5 h-1.5 rounded-full ${i === jumat.length - 1 ? 'bg-blue-300' : 'bg-blue-500'}`}></div>
+                    <span className={`text-[10px] font-bold ${i === jumat.length - 1 ? 'text-blue-100' : 'text-slate-500'}`}>Muazin: {j.muazin}</span>
                   </div>
                 </div>
+                {isAdmin && (
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => handleEditJumat(j)} className={`p-1 px-2 rounded-lg shadow-sm border text-[10px] font-bold ${i === jumat.length - 1 ? 'bg-white text-blue-600 border-blue-400' : 'bg-white text-slate-400 hover:text-emerald-600 border-slate-100'}`}>EDIT</button>
+                    <button onClick={() => deleteJumat(j.id)} className={`p-1 px-2 rounded-lg shadow-sm border text-[10px] font-bold ${i === jumat.length - 1 ? 'bg-white text-rose-600 border-blue-400' : 'bg-white text-slate-400 hover:text-rose-600 border-slate-100'}`}>HAPUS</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -491,13 +651,13 @@ export default function JadwalHub({
 
       {activeSubTab === 'ramadan' && (
         <div className="space-y-6 animate-fade-in">
-          <div className="bg-slate-950 text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden border-b-4 border-amber-400 shadow-2xl shadow-emerald-950/20">
+          <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-12 relative overflow-hidden border-b-4 border-amber-400 shadow-2xl shadow-emerald-950/20">
             <div className="absolute right-0 top-0 bottom-0 w-64 bg-emerald-500/10 transform skew-x-[30deg] translate-x-20"></div>
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
               <div className="lg:col-span-12 space-y-2 text-center md:text-left">
-                <span className="inline-block px-4 py-1.5 bg-amber-400 text-emerald-950 font-black text-[10px] uppercase tracking-widest rounded-full shadow-lg shadow-amber-400/20">Semarak Ibadah Ramadan</span>
-                <h3 className="text-3xl sm:text-5xl font-display font-black tracking-tight leading-none uppercase">Selamat Datang Ramadan <span className="text-amber-400">1447 H</span></h3>
-                <p className="text-emerald-300/80 text-sm md:text-base font-medium max-w-2xl">Mari persiapkan diri di bulan mulia dengan semangat ibadah dan berderma di Masjid Al-Abrar.</p>
+                <span className="inline-block px-4 py-1 bg-amber-400 text-emerald-950 font-black text-[10px] uppercase tracking-widest rounded-full shadow-lg shadow-amber-400/20">Semarak Ramadan</span>
+                <h3 className="text-2xl sm:text-5xl font-display font-black tracking-tight leading-none uppercase text-center md:text-left">Ramadan <span className="text-amber-400">1447 H</span></h3>
+                <p className="text-emerald-300/80 text-xs sm:text-base font-medium max-w-2xl mx-auto md:mx-0">Mari persiapkan diri di bulan mulia dengan semangat ibadah dan berderma di Masjid Al-Abrar.</p>
               </div>
             </div>
           </div>
@@ -539,16 +699,213 @@ export default function JadwalHub({
         </div>
       )}
 
-      {activeSubTab === 'slider' && isAdmin && slides && onUpdateSlides && (
+      {activeSubTab === 'slider' && isAdmin && slides && (
         <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-xl animate-fade-in text-left">
           <SliderManager 
             slides={slides} 
-            onUpdateSlides={onUpdateSlides} 
             onAddLog={onAddLog}
           />
         </div>
       )}
 
+      {/* Editing Modals for Kajian and Jumat */}
+      {editingKajian && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl flex flex-col space-y-4 text-left">
+            <div className="flex justify-between items-center border-b pb-4">
+              <h4 className="text-lg font-black text-slate-800">Edit Jadwal Kajian</h4>
+              <button onClick={() => setEditingKajian(null)} className="text-slate-400 hover:text-slate-800"><X /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Hari / Waktu</label>
+                <input 
+                  type="text" 
+                  value={kajianForm.day} 
+                  onChange={e => setKajianForm({...kajianForm, day: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  placeholder="e.g. Ahad"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Jam</label>
+                <input 
+                  type="text" 
+                  value={kajianForm.time} 
+                  onChange={e => setKajianForm({...kajianForm, time: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  placeholder="e.g. 05:30"
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Judul Kajian</label>
+                <input 
+                  type="text" 
+                  value={kajianForm.title} 
+                  onChange={e => setKajianForm({...kajianForm, title: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Pemateri</label>
+                <input 
+                  type="text" 
+                  value={kajianForm.lecturer} 
+                  onChange={e => setKajianForm({...kajianForm, lecturer: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Kategori</label>
+                <select 
+                  value={kajianForm.category}
+                  onChange={e => setKajianForm({...kajianForm, category: e.target.value as any})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                >
+                  <option value="Ba'da Subuh">Ba'da Subuh</option>
+                  <option value="Ba'da Maghrib">Ba'da Maghrib</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Tema (Opsional)</label>
+                <input 
+                  type="text" 
+                  value={kajianForm.theme} 
+                  onChange={e => setKajianForm({...kajianForm, theme: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                />
+              </div>
+            </div>
+            <button 
+              onClick={saveKajian}
+              className="w-full py-3 bg-slate-900 text-white font-black rounded-2xl text-xs uppercase"
+            >
+              Simpan Jadwal
+            </button>
+          </div>
+        </div>
+      )}
+
+      {editingJumat && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl flex flex-col space-y-4 text-left">
+            <div className="flex justify-between items-center border-b pb-4">
+              <h4 className="text-lg font-black text-slate-800">Edit Petugas Jumat</h4>
+              <button onClick={() => setEditingJumat(null)} className="text-slate-400 hover:text-slate-800"><X /></button>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Tanggal</label>
+                <input 
+                  type="text" 
+                  value={jumatForm.date} 
+                  onChange={e => setJumatForm({...jumatForm, date: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  placeholder="e.g. 05 Juni 2026"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Khatib</label>
+                <input 
+                  type="text" 
+                  value={jumatForm.khatib} 
+                  onChange={e => setJumatForm({...jumatForm, khatib: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Imam</label>
+                <input 
+                  type="text" 
+                  value={jumatForm.imam} 
+                  onChange={e => setJumatForm({...jumatForm, imam: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Muazin</label>
+                <input 
+                  type="text" 
+                  value={jumatForm.muazin} 
+                  onChange={e => setJumatForm({...jumatForm, muazin: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Bulan (Header)</label>
+                <input 
+                  type="text" 
+                  value={jumatForm.month} 
+                  onChange={e => setJumatForm({...jumatForm, month: e.target.value})}
+                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  placeholder="e.g. Juni 2026"
+                />
+              </div>
+            </div>
+            <button 
+              onClick={saveJumat}
+              className="w-full py-3 bg-slate-900 text-white font-black rounded-2xl text-xs uppercase"
+            >
+              Simpan Petugas
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'log' && isAdmin && (
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-150 shadow-sm animate-fade-in space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6 text-left">
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight">Log Aktivitas Sistem</h3>
+              <p className="text-slate-500 text-xs">Riwayat lengkap notifikasi dan perubahan sistem penyiaran digital.</p>
+            </div>
+            <button 
+              onClick={onClearLogs}
+              className="px-6 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-rose-600 hover:text-white transition flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" /> Bersihkan Seluruh Log
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {logs.length === 0 ? (
+              <div className="py-12 text-center text-slate-400 space-y-2">
+                <History className="h-12 w-12 mx-auto opacity-20" />
+                <p className="text-xs font-bold uppercase tracking-widest">Belum ada riwayat aktivitas</p>
+              </div>
+            ) : (
+              logs.map((log) => (
+                <div 
+                  key={log.id} 
+                  className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-start gap-4 hover:bg-white hover:border-emerald-200 transition group relative text-left"
+                >
+                  <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center text-lg ${
+                    log.type === 'success' ? 'bg-emerald-50 text-emerald-600 font-bold' :
+                    log.type === 'alert' ? 'bg-rose-50 text-rose-600' :
+                    'bg-slate-100 text-slate-400'
+                  }`}>
+                    {log.type === 'success' ? '✓' : log.type === 'alert' ? '!' : '•'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center mb-1">
+                      <h4 className="font-bold text-xs text-slate-900 uppercase tracking-tight">{log.title}</h4>
+                      <span className="text-[10px] font-mono text-slate-400">{log.timestamp}</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">{log.message}</p>
+                  </div>
+                  <button 
+                    onClick={() => onDeleteLog(log.id)}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-rose-500 transition"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

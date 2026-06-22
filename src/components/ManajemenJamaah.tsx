@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Congregant } from '../types';
 import { Users, UserPlus, Search, ShieldCheck, HeartPulse, MapPin, PhoneCall, Trash2, Edit2, X, Save } from 'lucide-react';
+import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 
 export default function ManajemenJamaah({ 
   isAdmin,
@@ -11,23 +12,14 @@ export default function ManajemenJamaah({
   onAddLog: (title: string, msg: string, type: 'info' | 'success' | 'alert' | 'system') => void;
   onShowLogin: () => void;
 }) {
-  const [jamaahList, setJamaahList] = useState<Congregant[]>(() => {
-    const saved = localStorage.getItem('abrar_mosque_congregants');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        // use default
-      }
-    }
-    return [
-      { id: 'jm1', fullName: 'H. Rakhmadi Rahman', phone: '0811-9988-7766', address: 'Jl. Jenderal Sudirman No. 44', rtRw: 'RT 002 / RW 004', familyMembersCount: 4, status: 'Warga Tetap', attendanceStatus: 'Aktif Jamaah', registeredDate: '2026-05-10' },
-      { id: 'jm2', fullName: 'Zulkifli Lapadde', phone: '0852-4433-2211', address: 'Lorong Reformasi Belakang Sekolah', rtRw: 'RT 001 / RW 004', familyMembersCount: 3, status: 'Warga Tetap', attendanceStatus: 'Aktif Jamaah', registeredDate: '2026-05-15' },
-      { id: 'jm3', fullName: 'Ahmad Fadly', phone: '0813-5500-1122', address: 'Ruko Griya Lapadde Indah Blok C', rtRw: 'RT 003 / RW 004', familyMembersCount: 5, status: 'Warga Tetap', attendanceStatus: 'Aktif Jamaah', registeredDate: '2026-05-20' },
-      { id: 'jm4', fullName: 'Amiruddin (Musafir)', phone: '0821-8888-0099', address: 'Kecamatan Bacukiki (Sementara)', rtRw: 'N/A', familyMembersCount: 1, status: 'Musafir', attendanceStatus: 'Jarang', registeredDate: '2026-06-01' },
-      { id: 'jm5', fullName: 'Ibu Fatimah Syam', phone: '0853-1122-8800', address: 'Jl. Sudirman Gg. Melati V No. 3', rtRw: 'RT 002 / RW 004', familyMembersCount: 2, status: 'Warga Tetap', attendanceStatus: 'Sakit', registeredDate: '2026-06-12' }
-    ];
-  });
+  const [jamaahList, setJamaahList] = useState<Congregant[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeToCollection<Congregant>('mosque_congregants', (data) => {
+      setJamaahList(data);
+    }, 'fullName', 'asc');
+    return () => unsub();
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'Warga Tetap' | 'Pendatang' | 'Musafir'>('all');
@@ -50,15 +42,14 @@ export default function ManajemenJamaah({
     e.preventDefault();
 
     if (!fullName.trim() || !phone.trim() || !address.trim()) {
-      alert('Mohon lengkapi Nama Lengkap, Nomor Telepon, dan Alamat Anda untuk verifikasi keanggotaan!');
+      onAddLog('Validasi Gagal', 'Lengkapi Nama, No HP, dan Alamat Anda!', 'alert');
       return;
     }
 
     const amt = parseInt(familyCount, 10);
     const validFamily = isNaN(amt) ? 1 : amt;
 
-    const newCon: Congregant = {
-      id: 'jm_' + Date.now(),
+    const newCon = {
       fullName: fullName.trim(),
       phone: phone.trim(),
       address: address.trim(),
@@ -69,9 +60,7 @@ export default function ManajemenJamaah({
       registeredDate: new Date().toISOString().substring(0, 10)
     };
 
-    const updated = [...jamaahList, newCon];
-    setJamaahList(updated);
-    localStorage.setItem('abrar_mosque_congregants', JSON.stringify(updated));
+    addDocument('mosque_congregants', newCon);
 
     // trigger system logs
     onAddLog(
@@ -85,7 +74,6 @@ export default function ManajemenJamaah({
     setPhone('');
     setAddress('');
     setRtRw('');
-    alert(`💐 Jazakallah Khair! ${fullName}, pendaftaran keanggotaan jamaah Masjid Jami Al Abrar Anda telah berhasil terekam.`);
   };
 
   const handleUpdateAttendance = (id: string, nextAtt: 'Aktif Jamaah' | 'Jarang' | 'Sakit') => {
@@ -93,29 +81,24 @@ export default function ManajemenJamaah({
       onShowLogin();
       return;
     }
-    const updated = jamaahList.map(j => {
-      if (j.id === id) {
-        return { ...j, attendanceStatus: nextAtt };
-      }
-      return j;
-    });
-    setJamaahList(updated);
-    localStorage.setItem('abrar_mosque_congregants', JSON.stringify(updated));
-    onAddLog('Presensi Jamaah Di-update', `Status keakrifan ibadah ID ${id} diubah menjadi "${nextAtt}".`, 'info');
-    alert('Status kehadiran jamaah berhasil diperbarui.');
+    const jamaah = jamaahList.find(j => j.id === id);
+    if (jamaah && jamaah.id) {
+       updateDocument('mosque_congregants', jamaah.id, { attendanceStatus: nextAtt });
+       onAddLog('Presensi Jamaah Di-update', `Status keakrifan ibadah "${jamaah.fullName}" diubah menjadi "${nextAtt}".`, 'success');
+    }
   };
-
+   
   const handleRemoveJamaah = (id: string, name: string) => {
     if (!isAdmin) {
       onShowLogin();
       return;
     }
     if (confirm(`Hapus data jamaah "${name}" secara permanen?`)) {
-      const updated = jamaahList.filter(j => j.id !== id);
-      setJamaahList(updated);
-      localStorage.setItem('abrar_mosque_congregants', JSON.stringify(updated));
-      onAddLog('Jamaah Dihapus', `Data jamaah "${name}" telah dihapus oleh Admin.`, 'alert');
-      alert('Data jamaah berhasil dihapus.');
+      const jamaah = jamaahList.find(j => j.id === id);
+      if (jamaah && jamaah.id) {
+        deleteDocument('mosque_congregants', jamaah.id);
+        onAddLog('Jamaah Dihapus', `Data jamaah "${name}" telah dihapus oleh Admin.`, 'success');
+      }
     }
   };
 
@@ -131,16 +114,18 @@ export default function ManajemenJamaah({
 
   const saveEdit = () => {
     if (!editForm.fullName || !editForm.phone || !editForm.address) {
-      alert('Nama, Telepon, dan Alamat wajib diisi!');
+      onAddLog('Validasi Gagal', 'Nama, Telepon, dan Alamat wajib diisi!', 'alert');
       return;
     }
-    const updated = jamaahList.map(j => j.id === editingId ? { ...j, ...editForm } as Congregant : j);
-    setJamaahList(updated);
-    localStorage.setItem('abrar_mosque_congregants', JSON.stringify(updated));
-    onAddLog('Data Jamaah Diubah', `Profil jamaah "${editForm.fullName}" telah diperbarui.`, 'info');
+    if (editingId) {
+      const existing = jamaahList.find(j => j.id === editingId);
+      if (existing && existing.id) {
+        updateDocument('mosque_congregants', existing.id, editForm);
+        onAddLog('Data Jamaah Diubah', `Profil jamaah "${editForm.fullName}" telah diperbarui.`, 'success');
+      }
+    }
     setEditingId(null);
     setEditForm({});
-    alert('Data jamaah berhasil diperbarui.');
   };
 
   // Math metrics

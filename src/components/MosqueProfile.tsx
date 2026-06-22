@@ -1,9 +1,16 @@
-import { useState } from 'react';
-import { MosqueProfileDetail } from '../types';
-import { Building, MapPin, Award, Calendar } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { MosqueProfileDetail, MosqueStructure } from '../types';
+import { Building, MapPin, Award, Calendar, Edit2, Save, X, Plus, Trash2, Loader2, Image as ImageIcon } from 'lucide-react';
+import { compressImage } from '../lib/imageCompression';
+import { subscribeToDocument, upsertDocument } from '../lib/db';
+
+interface MosqueProfileProps {
+  isAdmin?: boolean;
+  onAddLog?: (title: string, msg: string, type: any) => void;
+}
 
 // Standard high-quality details for Al Abrar
-const AL_ABRAR_PROFILE: MosqueProfileDetail = {
+const DEFAULT_PROFILE: MosqueProfileDetail = {
   history: 'Masjid Jami Al Abrar didirikan pada tahun 1985 sebagai pusat peradaban dan ibadah warga Lapadde, Parepare. Bermula dari bangunan bersahaja, kini Masjid Al Abrar telah berkembang menjadi bangunan megah dua lantai yang mampu menampung lebih dari 1.200 jamaah secara bersamaan dan menjadi model masjid ramah dan bersih di Sulawesi Selatan.',
   vision: 'Terwujudnya Masjid Al Abrar sebagai pusat ibadah yang suci, makmur, mandiri, dan berdaya guna dalam mendidik jamaah yang bertakwa dan berakhlakul karimah.',
   mision: [
@@ -85,27 +92,161 @@ const DETAILED_STRUCTURE = {
 };
 
 // Member card component for the committee board
-function MemberCard({ name, role, imageUrl }: { name: string; role?: string; imageUrl?: string }) {
+function MemberCard({ name, role, imageUrl, onEdit, onDelete, isAdmin }: { name: string; role?: string; imageUrl?: string; onEdit?: () => void; onDelete?: () => void; isAdmin?: boolean }) {
   const avatarUrl = imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
   
   return (
-    <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-white transition shadow-sm group">
+    <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-white transition shadow-sm group relative">
       <img 
         src={avatarUrl} 
         alt={name}
         referrerPolicy="no-referrer"
         className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md group-hover:scale-105 transition shrink-0"
       />
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         {role && <span className="block text-[8px] font-black text-emerald-700 uppercase font-mono tracking-widest mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{role}</span>}
         <h4 className="font-bold text-[11px] text-slate-800 truncate tracking-tight">{name}</h4>
       </div>
+      {isAdmin && onEdit && (
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={onEdit} className="p-1.5 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100"><Edit2 className="h-3 w-3" /></button>
+          {onDelete && <button onClick={onDelete} className="p-1.5 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100"><Trash2 className="h-3 w-3" /></button>}
+        </div>
+      )}
     </div>
   );
 }
 
-export default function MosqueProfile() {
+export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps) {
   const [activeBoard, setActiveBoard] = useState<'idarah' | 'imarah' | 'riayah'>('idarah');
+  const [profile, setProfile] = useState<MosqueProfileDetail>(DEFAULT_PROFILE);
+
+  const [isEditingMain, setIsEditingMain] = useState(false);
+  const [editForm, setEditForm] = useState<MosqueProfileDetail>(profile);
+  const [editingMemberIndex, setEditingMemberIndex] = useState<number | null>(null);
+  const [memberForm, setMemberForm] = useState<Partial<MosqueStructure>>({});
+  const [isCompressing, setIsCompressing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Facility CRUD states
+  const [editingFacilityIndex, setEditingFacilityIndex] = useState<number | null>(null);
+  const [facilityForm, setFacilityForm] = useState<Partial<MosqueProfileDetail['facilities'][0]>>({});
+
+  // Sync with Firestore
+  useEffect(() => {
+    const unsub = subscribeToDocument<MosqueProfileDetail>('settings', 'mosque_profile', (data) => {
+      if (data) {
+        setProfile(data);
+        setEditForm(data);
+      } else {
+        // Seed default
+        upsertDocument('settings', 'mosque_profile', DEFAULT_PROFILE);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const saveProfile = (newProfile: MosqueProfileDetail) => {
+    setProfile(newProfile);
+    upsertDocument('settings', 'mosque_profile', newProfile);
+  };
+
+  const handleSaveMain = () => {
+    saveProfile(editForm);
+    setIsEditingMain(false);
+    onAddLog?.('Profil Diperbarui', 'Informasi sejarah, visi, dan misi masjid berhasil diperbarui.', 'success');
+  };
+
+  const handleEditFacility = (index: number) => {
+    setEditingFacilityIndex(index);
+    setFacilityForm(profile.facilities[index]);
+  };
+
+  const handleAddFacility = () => {
+    setEditingFacilityIndex(-1);
+    setFacilityForm({ name: '', icon: '🕌', status: 'Baik', description: '' });
+  };
+
+  const handleSaveFacility = () => {
+    if (!facilityForm.name || !facilityForm.description) {
+      onAddLog?.('Gagal', 'Nama dan Deskripsi fasilitas wajib diisi.', 'alert');
+      return;
+    }
+    let updatedFacilities = [...profile.facilities];
+    if (editingFacilityIndex === -1) {
+      updatedFacilities.push(facilityForm as MosqueProfileDetail['facilities'][0]);
+      onAddLog?.('Fasilitas Ditambah', `Berhasil menambah fasilitas ${facilityForm.name}.`, 'success');
+    } else if (editingFacilityIndex !== null) {
+      updatedFacilities[editingFacilityIndex] = facilityForm as MosqueProfileDetail['facilities'][0];
+      onAddLog?.('Fasilitas Diperbarui', `Informasi ${facilityForm.name} berhasil diperbarui.`, 'success');
+    }
+    saveProfile({ ...profile, facilities: updatedFacilities });
+    setEditingFacilityIndex(null);
+  };
+
+  const handleDeleteFacility = (index: number) => {
+    if (window.confirm(`Hapus fasilitas ${profile.facilities[index].name}?`)) {
+      const updatedFacilities = profile.facilities.filter((_, i) => i !== index);
+      saveProfile({ ...profile, facilities: updatedFacilities });
+      onAddLog?.('Fasilitas Dihapus', 'Data fasilitas berhasil dihapus.', 'alert');
+    }
+  };
+
+  const handleEditMember = (index: number) => {
+    setEditingMemberIndex(index);
+    setMemberForm(profile.structure[index]);
+  };
+
+  const handleAddMember = () => {
+    setEditingMemberIndex(-1);
+    setMemberForm({ role: '', name: '', phone: '', imageUrl: '' });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      onAddLog?.('Format Gagal', 'Hanya file gambar yang diizinkan.', 'alert');
+      return;
+    }
+    try {
+      setIsCompressing(true);
+      const compressed = await compressImage(file);
+      setMemberForm(prev => ({ ...prev, imageUrl: compressed }));
+    } catch (e) {
+      onAddLog?.('Gagal Kompresi', 'Gagal memproses gambar.', 'alert');
+    } finally {
+      setIsCompressing(false);
+    }
+  };
+
+  const handleSaveMember = () => {
+    if (!memberForm.name || !memberForm.role) {
+      onAddLog?.('Data Gagal', 'Nama dan Jabatan wajib diisi.', 'alert');
+      return;
+    }
+
+    let updatedStructure = [...profile.structure];
+    if (editingMemberIndex === -1) {
+      updatedStructure.push(memberForm as MosqueStructure);
+      onAddLog?.('Anggota Ditambah', `Berhasil menambah ${memberForm.name} ke pengurus inti.`, 'success');
+    } else if (editingMemberIndex !== null) {
+      updatedStructure[editingMemberIndex] = memberForm as MosqueStructure;
+      onAddLog?.('Anggota Diperbarui', `Informasi ${memberForm.name} berhasil diperbarui.`, 'success');
+    }
+
+    saveProfile({ ...profile, structure: updatedStructure });
+    setEditingMemberIndex(null);
+    setMemberForm({});
+  };
+
+  const handleDeleteMember = (index: number) => {
+    if (window.confirm(`Hapus ${profile.structure[index].name} dari pengurus inti?`)) {
+      const updatedStructure = profile.structure.filter((_, i) => i !== index);
+      saveProfile({ ...profile, structure: updatedStructure });
+      onAddLog?.('Anggota Dihapus', 'Data pengurus inti berhasil dihapus.', 'alert');
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in" id="profile_mosque_view">
@@ -123,7 +264,7 @@ export default function MosqueProfile() {
             Masjid Jami <span className="text-amber-400">Al Abrar</span> Lapadde
           </h1>
           <p className="text-emerald-100/90 text-sm sm:text-base leading-relaxed">
-            Unit 021 - Jl. Jenderal Sudirman No. 45, Kel. Lapadde, Kecamatan Ujung, Kota Parepare, Sulawesi Selatan.
+            Jl. Jenderal Sudirman No. 45, Kel. Lapadde, Kecamatan Ujung, Kota Parepare, Sulawesi Selatan.
           </p>
           
           <div className="flex flex-wrap gap-4 pt-2 text-xs">
@@ -147,12 +288,38 @@ export default function MosqueProfile() {
           
           {/* Sejarah Camp */}
           <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-4">
-            <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-              <span className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">🕌</span> Sejarah Singkat Masjid
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed text-justify">
-              {AL_ABRAR_PROFILE.history}
-            </p>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
+                <span className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">🕌</span> Sejarah Singkat Masjid
+              </h3>
+              {isAdmin && !isEditingMain && (
+                <button 
+                  onClick={() => { setIsEditingMain(true); setEditForm(profile); }}
+                  className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-emerald-600 hover:text-white transition shadow-sm"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {isEditingMain ? (
+              <div className="space-y-4 animate-fade-in">
+                <textarea 
+                  value={editForm.history}
+                  onChange={e => setEditForm({...editForm, history: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none h-48"
+                />
+                <div className="flex gap-2 justify-end">
+                  <button onClick={() => setIsEditingMain(false)} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold font-mono">BATAL</button>
+                  <button onClick={handleSaveMain} className="px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg"><Save className="h-3 w-3" /> SIMPAN PERUBAHAN</button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-600 text-sm leading-relaxed text-justify">
+                {profile.history}
+              </p>
+            )}
+            
             <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200/50 flex gap-3.5">
               <div className="text-2xl text-amber-500 shrink-0 select-none">💡</div>
               <p className="text-xs text-amber-900 leading-relaxed">
@@ -170,28 +337,76 @@ export default function MosqueProfile() {
               <p className="text-slate-500 text-xs">Arah perjuangan Takmir Masjid Jami Al Abrar Lapadde.</p>
             </div>
             
-            <div className="bg-gradient-to-r from-emerald-50 to-teal-50/50 rounded-2xl p-5 border border-emerald-100/50">
-              <span className="block text-xs font-bold text-emerald-800/80 uppercase tracking-widest font-mono mb-1.5">VISI UTAMA</span>
-              <p className="text-base font-extrabold text-emerald-950 font-display italic">
-                "{AL_ABRAR_PROFILE.vision}"
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">MISI STRATEGIS</span>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                {AL_ABRAR_PROFILE.mision.map((m, idx) => (
-                  <div key={idx} className="flex gap-2.5 items-start bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                    <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                      {idx + 1}
-                    </span>
-                    <span className="text-xs font-medium text-slate-700 leading-relaxed">
-                      {m}
-                    </span>
-                  </div>
-                ))}
+            {isEditingMain ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Visi Masjid</label>
+                  <input 
+                    type="text" 
+                    value={editForm.vision}
+                    onChange={e => setEditForm({...editForm, vision: e.target.value})}
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Misi Strategis (Baris per Baris)</label>
+                  {editForm.mision.map((m, idx) => (
+                    <div key={idx} className="flex gap-2">
+                       <input 
+                        type="text" 
+                        value={m}
+                        onChange={e => {
+                          const newMissions = [...editForm.mision];
+                          newMissions[idx] = e.target.value;
+                          setEditForm({...editForm, mision: newMissions});
+                        }}
+                        className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
+                      />
+                      <button 
+                        onClick={() => {
+                          const newMissions = editForm.mision.filter((_, i) => i !== idx);
+                          setEditForm({...editForm, mision: newMissions});
+                        }}
+                        className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button 
+                    onClick={() => setEditForm({...editForm, mision: [...editForm.mision, '']})}
+                    className="w-full py-3 border-2 border-dashed border-emerald-100 rounded-2xl text-xs font-black text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition flex items-center justify-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" /> TAMBAH MISI
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50/50 rounded-2xl p-5 border border-emerald-100/50">
+                  <span className="block text-xs font-bold text-emerald-800/80 uppercase tracking-widest font-mono mb-1.5">VISI UTAMA</span>
+                  <p className="text-base font-extrabold text-emerald-950 font-display italic">
+                    "{profile.vision}"
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">MISI STRATEGIS</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {profile.mision.map((m, idx) => (
+                      <div key={idx} className="flex gap-2.5 items-start bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                          {idx + 1}
+                        </span>
+                        <span className="text-xs font-medium text-slate-700 leading-relaxed">
+                          {m}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
         </div>
@@ -201,27 +416,99 @@ export default function MosqueProfile() {
           
           {/* Top Key Positions with Pictures */}
           <div className="bg-white rounded-2xl p-6 border border-slate-150 shadow-sm space-y-5">
-            <h3 className="text-lg font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-              <span className="p-1.5 bg-emerald-50 text-emerald-700 rounded-xl">👥</span> Tokoh Pengurus Inti
-            </h3>
-            
-            <div className="space-y-4">
-              {AL_ABRAR_PROFILE.structure.map((s, idx) => (
-                <div key={idx} className="flex items-center gap-4 p-3 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-white transition shadow-sm group">
-                  <img 
-                    src={s.imageUrl} 
-                    alt={s.name}
-                    referrerPolicy="no-referrer"
-                    className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md group-hover:scale-105 transition"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <span className="block text-[9px] font-black text-emerald-700 uppercase font-mono tracking-widest mb-0.5">{s.role}</span>
-                    <h4 className="font-extrabold text-sm text-slate-900 truncate tracking-tight">{s.name}</h4>
-                    <a href={`tel:${s.phone}`} className="inline-block mt-1 text-[10px] font-bold text-slate-400 font-mono hover:text-emerald-700 transition">
-                      {s.phone}
-                    </a>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
+                <span className="p-1.5 bg-emerald-50 text-emerald-700 rounded-xl">👥</span> Tokoh Pengurus Inti
+              </h3>
+              {isAdmin && (
+                <button 
+                  onClick={handleAddMember}
+                  className="p-2 bg-emerald-100 text-emerald-700 rounded-xl hover:bg-emerald-600 hover:text-white transition shadow-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {editingMemberIndex !== null && (
+              <div className="bg-slate-900 text-white p-6 rounded-3xl space-y-4 animate-scale-up border-b-4 border-amber-400 shadow-2xl relative z-20">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <h4 className="font-black text-xs uppercase tracking-widest text-amber-300">
+                    {editingMemberIndex === -1 ? 'Tambah Pengurus' : 'Edit Pengurus'}
+                  </h4>
+                  <button onClick={() => setEditingMemberIndex(null)} className="text-slate-400 hover:text-white"><X className="h-4 w-4" /></button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex justify-center">
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="relative w-24 h-24 rounded-full border-2 border-dashed border-white/20 overflow-hidden cursor-pointer group hover:border-amber-400 transition"
+                    >
+                      {isCompressing ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                          <Loader2 className="h-6 w-6 text-amber-400 animate-spin" />
+                        </div>
+                      ) : memberForm.imageUrl ? (
+                        <img src={memberForm.imageUrl} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 text-[8px] font-black uppercase text-center p-2">
+                          <ImageIcon className="h-5 w-5 mb-1" />
+                          <span>Ganti Foto</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-[8px] font-black">
+                        UPLOAD
+                      </div>
+                    </div>
+                    <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
+                  </div>
+
+                  <div className="space-y-3">
+                    <input 
+                      type="text" 
+                      placeholder="Nama Lengkap & Gelar" 
+                      value={memberForm.name} 
+                      onChange={e => setMemberForm({...memberForm, name: e.target.value})}
+                      className="w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl text-xs outline-none focus:border-amber-400"
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="Jabatan (e.g. Bendahara)" 
+                      value={memberForm.role} 
+                      onChange={e => setMemberForm({...memberForm, role: e.target.value})}
+                      className="w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl text-xs outline-none focus:border-amber-400"
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="Nomor HP/WA" 
+                      value={memberForm.phone} 
+                      onChange={e => setMemberForm({...memberForm, phone: e.target.value})}
+                      className="w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl text-xs outline-none focus:border-amber-400 font-mono"
+                    />
                   </div>
                 </div>
+
+                <button 
+                  onClick={handleSaveMember}
+                  className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-2xl text-xs transition active:scale-95 shadow-xl shadow-amber-900/20"
+                >
+                  SIMPAN ANGGOTA
+                </button>
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              {profile.structure.map((s, idx) => (
+                <MemberCard 
+                  key={idx} 
+                  name={s.name} 
+                  role={s.role} 
+                  imageUrl={s.imageUrl} 
+                  isAdmin={isAdmin}
+                  onEdit={() => handleEditMember(idx)}
+                  onDelete={() => handleDeleteMember(idx)}
+                />
               ))}
             </div>
           </div>
@@ -481,18 +768,28 @@ export default function MosqueProfile() {
 
       {/* Facilities Grid System */}
       <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-5">
-        <div className="space-y-1">
-          <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-            <span className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">🛠️</span> Sarana & Prasana Masjid
-          </h3>
-          <p className="text-slate-500 text-xs">Sarana fisik penunjang kemudahan ibadah dan kebersihan di Masjid Al Abrar.</p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-1 text-left">
+            <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
+              <span className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">🛠️</span> Sarana & Prasana Masjid
+            </h3>
+            <p className="text-slate-500 text-xs">Sarana fisik penunjang kemudahan ibadah dan kebersihan di Masjid Al Abrar.</p>
+          </div>
+          {isAdmin && (
+            <button 
+              onClick={handleAddFacility}
+              className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
+            >
+              <Plus className="h-4 w-4 text-emerald-400" /> Tambah Fasilitas
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {AL_ABRAR_PROFILE.facilities.map((fac, idx) => (
+          {profile.facilities.map((fac, idx) => (
             <div key={idx} className="p-4 rounded-xl border border-slate-150 bg-slate-50 flex items-start gap-3.5 hover:border-emerald-300 transition duration-150 relative overflow-hidden group">
               <span className="text-3xl bg-white p-2 rounded-xl shadow-sm border border-slate-100 block group-hover:scale-110 transition">{fac.icon}</span>
-              <div className="space-y-1 z-10">
+              <div className="space-y-1 z-10 text-left">
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-xs text-slate-800">{fac.name}</h4>
                   <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
@@ -503,10 +800,76 @@ export default function MosqueProfile() {
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">{fac.description}</p>
               </div>
+              {isAdmin && (
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => handleEditFacility(idx)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                  <button onClick={() => handleDeleteFacility(idx)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
+
+      {/* Editing Modal for Facility */}
+      {editingFacilityIndex !== null && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in text-left">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl flex flex-col space-y-4">
+            <div className="flex justify-between items-center border-b pb-4">
+              <h4 className="text-lg font-black text-slate-800">Edit Fasilitas Masjid</h4>
+              <button onClick={() => setEditingFacilityIndex(null)} className="text-slate-400 hover:text-slate-800"><X /></button>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase">Nama Fasilitas</label>
+                  <input 
+                    type="text" 
+                    value={facilityForm.name} 
+                    onChange={e => setFacilityForm({...facilityForm, name: e.target.value})}
+                    className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-bold"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase">Icon (Emoji)</label>
+                  <input 
+                    type="text" 
+                    value={facilityForm.icon} 
+                    onChange={e => setFacilityForm({...facilityForm, icon: e.target.value})}
+                    className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs"
+                    placeholder="e.g. 🕌"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Status Kondisi</label>
+                <select 
+                  value={facilityForm.status}
+                  onChange={e => setFacilityForm({...facilityForm, status: e.target.value as any})}
+                  className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-bold"
+                >
+                  <option value="Baik">Baik</option>
+                  <option value="Perbaikan">Perbaikan</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Deskripsi</label>
+                <textarea 
+                  value={facilityForm.description} 
+                  onChange={e => setFacilityForm({...facilityForm, description: e.target.value})}
+                  className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs h-24"
+                />
+              </div>
+            </div>
+            <button 
+              onClick={handleSaveFacility}
+              className="w-full py-3 bg-slate-900 text-white font-black rounded-2xl text-xs uppercase shadow-xl"
+            >
+              Simpan Fasilitas
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

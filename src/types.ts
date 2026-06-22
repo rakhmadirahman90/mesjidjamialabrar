@@ -70,6 +70,14 @@ export interface Transaction {
   registeredBy: string;
 }
 
+export interface PermanentDonor {
+  id: string;
+  no: number;
+  name: string;
+  amount: number;
+  monthlyPayments: { [month: string]: boolean };
+}
+
 // 4. Inventaris Masjid Interfaces (Asset Registry)
 export interface MosqueAsset {
   id: string;
@@ -100,17 +108,37 @@ export interface SlideItem {
   id: string;
   title: string;
   subtitle: string;
-  description: string;
   imageUrl: string;
-  badge: string;
-  badgeColor: string;
-  actionText: string;
+  order: number;
+  description?: string;
+  badge?: string;
+  badgeColor?: string;
+  actionText?: string;
   actionTab?: 'beranda' | 'profil' | 'donasi' | 'keuangan' | 'inventaris' | 'jamaah';
-  badgeIcon: string; // Lucide icon name or emoji
-  accentColor: string;
-  detailedStory: {
+  badgeIcon?: string;
+  accentColor?: string;
+  detailedStory?: {
     heading: string;
     paragraphs: string[];
     quickSpecs: { label: string; value: string }[];
   };
+}
+
+export interface KajianEntry {
+  id: string;
+  day: string;
+  time: string;
+  title: string;
+  lecturer: string;
+  theme: string;
+  category: 'Ba\'da Subuh' | 'Ba\'da Maghrib' | 'Lainnya';
+}
+
+export interface JumatEntry {
+  id: string;
+  date: string;
+  khatib: string;
+  imam: string;
+  muazin: string;
+  month: string; // e.g. "Juni 2026"
 }

@@ -11,14 +11,14 @@ import {
   Loader2
 } from 'lucide-react';
 import { compressImage } from '../lib/imageCompression';
+import { addDocument, updateDocument, deleteDocument } from '../lib/db';
 
 interface SliderManagerProps {
   slides: SlideItem[];
-  onUpdateSlides: (slides: SlideItem[]) => void;
   onAddLog: (title: string, msg: string, type: any) => void;
 }
 
-export default function SliderManager({ slides, onUpdateSlides, onAddLog }: SliderManagerProps) {
+export default function SliderManager({ slides, onAddLog }: SliderManagerProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<SlideItem>>({});
   const [isAdding, setIsAdding] = useState(false);
@@ -35,7 +35,7 @@ export default function SliderManager({ slides, onUpdateSlides, onAddLog }: Slid
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Hanya file gambar yang diperbolehkan!');
+      onAddLog('Format File Salah', 'Hanya file gambar (JPG, PNG, WebP) yang diperbolehkan!', 'alert');
       return;
     }
 
@@ -45,7 +45,7 @@ export default function SliderManager({ slides, onUpdateSlides, onAddLog }: Slid
       setEditForm(prev => ({ ...prev, imageUrl: compressedDataUrl }));
     } catch (err) {
       console.error(err);
-      alert('Gagal memproses gambar. Silakan coba lagi.');
+      onAddLog('Gagal Memproses', 'Terjadi kesalahan saat mengompresi gambar. Silakan coba lagi.', 'alert');
     } finally {
       setIsCompressing(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -54,36 +54,40 @@ export default function SliderManager({ slides, onUpdateSlides, onAddLog }: Slid
 
   const handleSave = () => {
     if (!editForm.title || !editForm.imageUrl) {
-      alert('Judul dan Gambar wajib diisi!');
+      onAddLog('Data Kurang', 'Judul dan Gambar visual wajib diisi untuk menyimpan slide!', 'alert');
       return;
     }
 
-    let updatedSlides: SlideItem[];
     if (isAdding) {
-      const newSlide: SlideItem = {
+      const newSlide = {
         ...editForm,
-        id: Date.now().toString(),
-      } as SlideItem;
-      updatedSlides = [...slides, newSlide];
+        order: slides.length + 1,
+        isActive: true
+      };
+      addDocument('slides', newSlide);
       onAddLog('Slider Ditambah', `Konten slider baru "${editForm.title}" telah dipublikasikan.`, 'success');
     } else {
-      updatedSlides = slides.map(s => s.id === editingId ? { ...s, ...editForm } as SlideItem : s);
-      onAddLog('Slider Diperbarui', `Konten slider "${editForm.title}" telah diperbarui.`, 'info');
+      if (editingId) {
+         const slideToUpdate = slides.find(s => s.id === editingId);
+         if (slideToUpdate && slideToUpdate.id) {
+           updateDocument('slides', (slideToUpdate as any).id, editForm);
+           onAddLog('Slider Diperbarui', `Konten slider "${editForm.title}" telah diperbarui.`, 'info');
+         }
+      }
     }
 
-    onUpdateSlides(updatedSlides);
-    localStorage.setItem('abrar_mosque_slides', JSON.stringify(updatedSlides));
     setEditingId(null);
     setEditForm({});
     setIsAdding(false);
   };
 
   const handleDelete = (id: string, title: string) => {
-    if (confirm(`Hapus slide "${title}"?`)) {
-      const updatedSlides = slides.filter(s => s.id !== id);
-      onUpdateSlides(updatedSlides);
-      localStorage.setItem('abrar_mosque_slides', JSON.stringify(updatedSlides));
-      onAddLog('Slider Dihapus', `Konten slider "${title}" telah dihapus.`, 'alert');
+    if (window.confirm(`Hapus slide "${title}"? Tindakan ini tidak dapat dibatalkan.`)) {
+      const slideToDelete = slides.find(s => s.id === id);
+      if (slideToDelete && slideToDelete.id) {
+        deleteDocument('slides', slideToDelete.id);
+        onAddLog('Slider Dihapus', `Konten slider "${title}" telah dihapus secara permanen.`, 'alert');
+      }
     }
   };
 

@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DonationCampaign, Donor } from '../types';
-import { Heart, ShieldCheck, QrCode, CheckCircle } from 'lucide-react';
+import { Heart, ShieldCheck, QrCode, CheckCircle, Plus, X, Trash } from 'lucide-react';
+import { subscribeToCollection, addDocument, updateDocument, deleteDocument, clearCollection } from '../lib/db';
 
-const CAMPAIGNS: DonationCampaign[] = [
-  { id: 'kubah', title: 'Pengecatan & Perbaikan Khotbah Kubah Utama', target: 75000000, raised: 52450000, description: 'Peremajaan warna logam eksterior kubah utama lantai dua Masjid Al Abrar.' },
-  { id: 'operasional', title: 'Biaya Operasional Guru Pondok Pengajian TPA', target: 35000000, raised: 18900000, description: 'Saku bulanan guru mengaji sukarela TPA Masjid Al Abrar untuk 150 santri.' },
-  { id: 'ambulan', title: 'Layanan Pembelian Sparepart & Bensin Ambulan Siaga', target: 15000000, raised: 12200000, description: 'Pengelolaan operasional mobil jenazah & ambulan tanggap bencana gratis.' }
-];
+interface DonationOpenProps {
+  onDonationSuccess: (title: string, msg: string, amount: number) => void;
+  isAdmin?: boolean;
+  campaigns: DonationCampaign[];
+  onUpdateCampaigns: () => void;
+  onAddLog: (title: string, msg: string, type: any) => void;
+}
 
 export default function DonationOpen({ 
-  onDonationSuccess 
-}: { 
-  onDonationSuccess: (title: string, msg: string, amount: number) => void 
-}) {
-  const [campaigns, setCampaigns] = useState<DonationCampaign[]>(CAMPAIGNS);
-  const [selectedCampId, setSelectedCampId] = useState<string>('kubah');
+  onDonationSuccess,
+  isAdmin,
+  campaigns,
+  onAddLog
+}: DonationOpenProps) {
+  const [selectedCampId, setSelectedCampId] = useState<string>(campaigns[0]?.id || '');
+  
+  // Admin states
+  const [editingCampaign, setEditingCampaign] = useState<DonationCampaign | null>(null);
+  const [campaignForm, setCampaignForm] = useState<Partial<DonationCampaign>>({});
   
   // Form states
   const [donorName, setDonorName] = useState<string>('');
@@ -24,22 +31,14 @@ export default function DonationOpen({
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'transfer'>('qris');
   
   // Realtime simulated database donors logs
-  const [donors, setDonors] = useState<Donor[]>(() => {
-    const saved = localStorage.getItem('abrar_donor_logs');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        // default list
-      }
-    }
-    return [
-      { id: 'd1', name: 'H. Rakhmadi Rahman', amount: 500000, timestamp: 'Hari Ini, 14:20 WITA', campaignId: 'kubah', message: 'Semoga menjadi amalan jariyah keluarga kami.', status: 'Diverifikasi' },
-      { id: 'd2', name: 'Hamba Allah', amount: 100000, timestamp: 'Hari Ini, 11:05 WITA', campaignId: 'operasional', message: 'Bismillah berkah guru mengaji', status: 'Diverifikasi' },
-      { id: 'd3', name: 'Zulkifli Lapadde', amount: 50000, timestamp: 'Kemarin, 19:40 WITA', campaignId: 'ambulan', message: 'Sukses operasional mobil ambulan Al Abrar', status: 'Diverifikasi' },
-      { id: 'd4', name: 'H. Syamsuddin', amount: 250000, timestamp: 'Kemarin, 08:15 WITA', campaignId: 'kubah', message: '', status: 'Diverifikasi' }
-    ];
-  });
+  const [donors, setDonors] = useState<Donor[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeToCollection<Donor>('donor_logs', (data) => {
+      setDonors(data);
+    }, 'timestamp', 'desc');
+    return () => unsub();
+  }, []);
 
   const selectedCampaign = campaigns.find(c => c.id === selectedCampId) || campaigns[0];
 
@@ -61,7 +60,6 @@ export default function DonationOpen({
     const finalName = donorName.trim() || 'Hamba Allah';
     
     if (donateAmount <= 0) {
-      alert('Nominal donasi harus lebih dari Rp 0!');
       return;
     }
 
@@ -70,30 +68,24 @@ export default function DonationOpen({
       id: 'donor_' + Date.now(),
       name: finalName,
       amount: donateAmount,
-      timestamp: 'Baru Saja',
+      timestamp: new Date().toISOString(),
       campaignId: selectedCampId,
       message: donorMessage.trim() || undefined,
       status: 'Diverifikasi'
     };
 
-    // Update Campaign Fund Raised
-    const updatedCampaigns = campaigns.map(c => {
-      if (c.id === selectedCampId) {
-        return { ...c, raised: c.raised + donateAmount };
-      }
-      return c;
-    });
+    // Update Campaign Fund Raised in Firestore
+    const campToUpdate = campaigns.find(c => c.id === selectedCampId);
+    if (campToUpdate && campToUpdate.id) {
+       updateDocument('campaigns', campToUpdate.id, { raised: campToUpdate.raised + donateAmount });
+    }
 
-    const updatedDonors = [newDonor, ...donors];
-
-    setCampaigns(updatedCampaigns);
-    setDonors(updatedDonors);
-    localStorage.setItem('abrar_donor_logs', JSON.stringify(updatedDonors));
+    addDocument('donor_logs', newDonor);
 
     // Callback to trigger system play gongs notification and database update if any
     onDonationSuccess(
       `Infaq Baru Masuk!`,
-      `Donasi sebesar Rp ${donateAmount.toLocaleString('id-ID')} diterima dari ${finalName} untuk "${selectedCampaign.title}". Syukran Wa Jazaakumullah Khairan.`,
+      `Donasi sebesar Rp ${donateAmount.toLocaleString('id-ID')} diterima dari ${finalName} untuk "${selectedCampaign?.title || 'Program Masjid'}". Syukran Wa Jazaakumullah Khairan.`,
       donateAmount
     );
 
@@ -102,8 +94,57 @@ export default function DonationOpen({
     setDonorMessage('');
     setCustomAmountText('');
     setDonateAmount(50000);
+  };
+
+  const handleAddCampaign = () => {
+    const newCamp: DonationCampaign = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: '',
+      target: 1000000,
+      raised: 0,
+      description: ''
+    };
+    setEditingCampaign(newCamp);
+    setCampaignForm(newCamp);
+  };
+
+  const handleEditCampaign = (c: DonationCampaign) => {
+    setEditingCampaign(c);
+    setCampaignForm(c);
+  };
+
+  const saveCampaign = () => {
+    if (!campaignForm.title || !campaignForm.target) {
+      onAddLog('Gagal', 'Judul dan Target wajib diisi!', 'alert');
+      return;
+    }
     
-    alert(`💐 Berhasil! Terima kasih ${finalName}, donasi Anda sebesar Rp ${donateAmount.toLocaleString('id-ID')} telah disimpan dan diverifikasi masuk kas masjid Al Abrar secara realtime!`);
+    if (editingCampaign && editingCampaign.id) {
+       updateDocument('campaigns', editingCampaign.id, campaignForm);
+       onAddLog('Program Diperbarui', `Program ${campaignForm.title} berhasil diperbarui.`, 'success');
+    } else {
+       addDocument('campaigns', campaignForm);
+       onAddLog('Program Ditambah', `Program ${campaignForm.title} berhasil ditambahkan.`, 'success');
+    }
+    setEditingCampaign(null);
+  };
+
+  const deleteCampaign = (id: string) => {
+    const campToDelete = campaigns.find(c => c.id === id);
+    if (confirm('Hapus program donasi ini? Data donasi terkumpul akan hilang.')) {
+      if (campToDelete && campToDelete.id) {
+        deleteDocument('campaigns', campToDelete.id);
+        onAddLog('Program Dihapus', 'Program donasi berhasil dihapus.', 'alert');
+      }
+    }
+  };
+
+  const clearDonors = () => {
+    if (confirm('Bersihkan seluruh riwayat donatur?')) {
+      const ids = donors.map(d => d.id).filter(Boolean);
+      clearCollection('donor_logs', ids);
+      onAddLog('Riwayat Dibersihkan', 'Daftar donatur berhasil dikosongkan.', 'system');
+    }
   };
 
   return (
@@ -114,12 +155,22 @@ export default function DonationOpen({
         
         {/* Campaigns selection view info */}
         <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-5">
-          <div className="space-y-1">
-            <span className="text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Campaign Target Aktif</span>
-            <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-1.5 pt-1">
-              <span>💖</span> Pilih Program Donasi Al Abrar
-            </h3>
-            <p className="text-slate-500 text-xs">Pilih program yang ingin Anda dukung dengan sedekah terbaik Anda.</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-1 text-left">
+              <span className="text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Campaign Target Aktif</span>
+              <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-1.5 pt-1">
+                <span>💖</span> Pilih Program Donasi Al Abrar
+              </h3>
+              <p className="text-slate-500 text-xs">Pilih program yang ingin Anda dukung dengan sedekah terbaik Anda.</p>
+            </div>
+            {isAdmin && (
+              <button 
+                onClick={handleAddCampaign}
+                className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
+              >
+                <Plus className="h-4 w-4 text-emerald-400" /> Tambah Program
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -127,45 +178,52 @@ export default function DonationOpen({
               const percent = Math.min(Math.round((c.raised / c.target) * 100), 100);
               const isActive = c.id === selectedCampId;
               return (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedCampId(c.id)}
-                  className={`text-left p-4 rounded-2xl border transition duration-150 relative overflow-hidden flex flex-col justify-between h-52 outline-none ${
-                    isActive 
-                      ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-2 ring-emerald-600/10'
-                      : 'border-slate-150 bg-white hover:border-slate-200'
-                  }`}
-                >
-                  <div className="space-y-1.5 z-10">
-                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                      isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
-                    }`}>
-                      {c.id === 'kubah' ? 'Pembangunan' : c.id === 'operasional' ? 'Sosial & Dakwah' : 'Umum siaga'}
-                    </span>
-                    <h4 className="font-extrabold text-xs text-slate-800 line-clamp-2 leading-relaxed pt-1">{c.title}</h4>
-                    <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{c.description}</p>
-                  </div>
-
-                  <div className="space-y-2 pt-2 z-10">
-                    <div className="flex justify-between items-end text-[10px] font-bold">
-                      <span className="text-slate-400">Terkumpul:</span>
-                      <span className={isActive ? 'text-emerald-700' : 'text-slate-700'}>{percent}%</span>
-                    </div>
-                    
-                    {/* Visual Progress Bar */}
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${isActive ? 'bg-emerald-600' : 'bg-slate-400'}`}
-                        style={{ width: `${percent}%` }}
-                      ></div>
+                <div key={c.id} className="relative group">
+                  <button
+                    onClick={() => setSelectedCampId(c.id)}
+                    className={`w-full text-left p-4 rounded-2xl border transition duration-150 relative overflow-hidden flex flex-col justify-between h-52 outline-none ${
+                      isActive 
+                        ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-2 ring-emerald-600/10'
+                        : 'border-slate-150 bg-white hover:border-slate-200'
+                    }`}
+                  >
+                    <div className="space-y-1.5 z-10">
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
+                        isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {percent === 100 ? 'Target Tercapai' : 'Donasi Aktif'}
+                      </span>
+                      <h4 className="font-extrabold text-xs text-slate-800 line-clamp-2 leading-relaxed pt-1">{c.title}</h4>
+                      <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{c.description}</p>
                     </div>
 
-                    <div className="text-[11px] font-mono font-bold text-slate-800">
-                      Rp {c.raised.toLocaleString('id-ID')}
-                      <span className="text-slate-400 font-normal font-sans text-[9px] block">dari target Rp {c.target.toLocaleString('id-ID')}</span>
+                    <div className="space-y-2 pt-2 z-10">
+                      <div className="flex justify-between items-end text-[10px] font-bold">
+                        <span className="text-slate-400">Terkumpul:</span>
+                        <span className={isActive ? 'text-emerald-700' : 'text-slate-700'}>{percent}%</span>
+                      </div>
+                      
+                      {/* Visual Progress Bar */}
+                      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-500 ${isActive ? 'bg-emerald-600' : 'bg-slate-400'}`}
+                          style={{ width: `${percent}%` }}
+                        ></div>
+                      </div>
+
+                      <div className="text-[11px] font-mono font-bold text-slate-800">
+                        Rp {c.raised.toLocaleString('id-ID')}
+                        <span className="text-slate-400 font-normal font-sans text-[9px] block">dari target Rp {c.target.toLocaleString('id-ID')}</span>
+                      </div>
                     </div>
-                  </div>
-                </button>
+                  </button>
+                  {isAdmin && (
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleEditCampaign(c)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                      <button onClick={() => deleteCampaign(c.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -183,7 +241,7 @@ export default function DonationOpen({
             </div>
           </div>
 
-          <form onSubmit={handleSimulatePayment} className="space-y-5">
+          <form onSubmit={handleSimulatePayment} className="space-y-5 text-left">
             
             {/* Donor Name input */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -263,7 +321,7 @@ export default function DonationOpen({
                 >
                   <div className="flex gap-3 items-center">
                     <span className="text-3xl bg-white p-2 rounded-xl shadow-sm border border-slate-100">📱</span>
-                    <div>
+                    <div className="text-left">
                       <span className="block text-xs font-black text-slate-800">QRIS Instan Otomatis (Scan & Verifikasi)</span>
                       <span className="block text-[10px] text-slate-400">Verifikasi instan tanpa perlu unggah bukti transfer.</span>
                     </div>
@@ -282,7 +340,7 @@ export default function DonationOpen({
                 >
                   <div className="flex gap-3 items-center">
                     <span className="text-3xl bg-white p-2 rounded-xl shadow-sm border border-slate-100">🏦</span>
-                    <div>
+                    <div className="text-left">
                       <span className="block text-xs font-black text-slate-800">Rekening Kas Masjid Al Basyar/Abrar</span>
                       <span className="block text-[10px] text-slate-400">Transfer bank manual BSI No: 7111222339.</span>
                     </div>
@@ -300,7 +358,7 @@ export default function DonationOpen({
                 <span className="block text-lg font-black text-emerald-800 font-mono">
                   Rp {donateAmount.toLocaleString('id-ID')}
                 </span>
-                <span className="block text-[10px] text-slate-500 italic">Penyaluran: {selectedCampaign.title}</span>
+                <span className="block text-[10px] text-slate-500 italic">Penyaluran: {selectedCampaign?.title || 'Memuat...'}</span>
               </div>
               
               <button
@@ -328,7 +386,7 @@ export default function DonationOpen({
               <div className="bg-white px-2 py-0.5 rounded text-[10px] font-extrabold text-red-600 uppercase border border-red-100 tracking-wider inline-block">
                 QRIS NASIONAL
               </div>
-              <h4 className="font-extrabold text-sm tracking-wide">MASJID JAMI AL ABRAR UNIT 021</h4>
+              <h4 className="font-extrabold text-sm tracking-wide">MASJID JAMI AL ABRAR</h4>
               <p className="text-[10px] text-slate-400">Kode Merchant ID: NM-201889-ID99</p>
             </div>
 
@@ -359,13 +417,13 @@ export default function DonationOpen({
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4">
-            <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider font-mono">🏦 REKENING BANK TRANSFER (BSI)</h4>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+            <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider font-mono text-left">🏦 REKENING BANK TRANSFER (BSI)</h4>
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2 text-left">
               <span className="block text-[10px] font-bold text-slate-400">BANK SYARIAH INDONESIA (BSI)</span>
               <span className="block text-lg font-black text-emerald-800 font-mono tracking-wider">711 1222 339</span>
               <span className="block text-xs text-slate-600 font-bold">A/N: Kas Masjid Jami Al Abrar Lapadde</span>
             </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <p className="text-[11px] text-slate-500 leading-relaxed text-left">
               Jika melakukan transfer bank secara manual, harap koordinasikan ke Bendahara Masjid agar dicatat secara langsung.
             </p>
           </div>
@@ -377,25 +435,48 @@ export default function DonationOpen({
             <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider font-mono flex items-center gap-1.5">
               <span>📋</span> Donatur Terbaru
             </h4>
-            <span className="text-[9px] font-bold text-slate-400 bg-slate-100 py-1 px-2.5 rounded-full">Transparan</span>
+            {isAdmin ? (
+              <button 
+                onClick={clearDonors} 
+                className="text-[9px] font-bold text-slate-400 hover:text-rose-600 flex items-center gap-1"
+              >
+                <Trash className="h-3 w-3" /> Bersihkan
+              </button>
+            ) : (
+              <span className="text-[9px] font-bold text-slate-400 bg-slate-100 py-1 px-2.5 rounded-full">Transparan</span>
+            )}
           </div>
 
-          <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-80 overflow-y-auto pr-1 text-left">
             {donors.map(d => (
-              <div key={d.id} className="bg-slate-50 p-3 rounded-xl border border-slate-105 flex flex-col gap-1.5 hover:bg-slate-100/60 transition">
+              <div key={d.id} className="bg-slate-50 p-3 rounded-xl border border-slate-105 flex flex-col gap-1.5 hover:bg-slate-100/60 transition relative group text-left">
                 <div className="flex justify-between items-start text-xs">
                   <div>
-                    <span className="font-bold text-slate-800 block">{d.name}</span>
-                    <span className="text-[9px] font-mono text-slate-400 block">{d.timestamp}</span>
+                    <span className="font-bold text-slate-800 block text-left">{d.name}</span>
+                    <span className="text-[9px] font-mono text-slate-400 block text-left">{d.timestamp}</span>
                   </div>
                   <span className="font-bold font-mono text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-lg text-[10px]">
                     +Rp {d.amount.toLocaleString('id-ID')}
                   </span>
                 </div>
                 {d.message && (
-                  <p className="text-[10px] text-slate-500 bg-white p-1.5 rounded-lg border border-slate-100 italic leading-relaxed">
+                  <p className="text-[10px] text-slate-500 bg-white p-1.5 rounded-lg border border-slate-100 italic leading-relaxed text-left">
                     "{d.message}"
                   </p>
+                )}
+                {isAdmin && (
+                  <button 
+                    onClick={() => {
+                      if (confirm('Hapus log donatur ini?')) {
+                        if (d.id) {
+                          deleteDocument('donor_logs', d.id);
+                        }
+                      }
+                    }}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-rose-500"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 )}
               </div>
             ))}
@@ -403,6 +484,63 @@ export default function DonationOpen({
         </div>
 
       </div>
+
+      {/* Editing Modals for Campaign */}
+      {editingCampaign && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in text-left">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl flex flex-col space-y-4">
+            <div className="flex justify-between items-center border-b pb-4">
+              <h4 className="text-lg font-black text-slate-800">Edit Program Donasi</h4>
+              <button onClick={() => setEditingCampaign(null)} className="text-slate-400 hover:text-slate-800"><X /></button>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Judul Program</label>
+                <input 
+                  type="text" 
+                  value={campaignForm.title} 
+                  onChange={e => setCampaignForm({...campaignForm, title: e.target.value})}
+                  className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-bold"
+                  placeholder="e.g. Perbaikan Kubah"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Target Penyaluran (Rp)</label>
+                <input 
+                  type="number" 
+                  value={campaignForm.target} 
+                  onChange={e => setCampaignForm({...campaignForm, target: parseInt(e.target.value) || 0})}
+                  className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-mono font-bold"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Dana Terkumpul Saat Ini (Rp)</label>
+                <input 
+                  type="number" 
+                  value={campaignForm.raised} 
+                  onChange={e => setCampaignForm({...campaignForm, raised: parseInt(e.target.value) || 0})}
+                  className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-mono font-bold"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase">Deskripsi Singkat</label>
+                <textarea 
+                  value={campaignForm.description} 
+                  onChange={e => setCampaignForm({...campaignForm, description: e.target.value})}
+                  className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs h-24"
+                  placeholder="Jelaskan tujuan program ini..."
+                />
+              </div>
+            </div>
+            <button 
+              onClick={saveCampaign}
+              className="w-full py-3 bg-slate-900 text-white font-black rounded-2xl text-xs uppercase shadow-xl"
+            >
+              Simpan Program
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
