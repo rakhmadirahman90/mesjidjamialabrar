@@ -1,0 +1,6 @@
+{
+  "name": "Mesjid Jami Al Abrar",
+  "description": "Aplikasi manajemen dan informasi Mesjid Jami Al Abrar, mencakup jadwal shalat, kajian, tabungan qurban, transparansi keuangan, dan dashboard admin.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

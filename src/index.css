@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-terracotta: #A54B33;
+  --color-terracotta-dark: #6C2B1B;
+  --color-terracotta-light: #C85C43;
+  --color-gold: #E5B23B;
+  --color-gold-hover: #F2C75B;
+  --color-forest: #124930;
+  --color-cream: #FAF6ED;
+  --color-cream-dark: #EAD8B1;
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-gray-900 font-sans;
+  }
+}
