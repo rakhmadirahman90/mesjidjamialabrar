@@ -1,6 +1,8 @@
 {
-  "name": "Mesjid Jami Al Abrar",
-  "description": "Aplikasi manajemen dan informasi Mesjid Jami Al Abrar, mencakup jadwal shalat, kajian, tabungan qurban, transparansi keuangan, dan dashboard admin.",
+  "name": "Notifikasi Adzan Al Abrar",
+  "description": "Sistem peringatan jadwal shalat dan notifikasi adzan otomatis 10 menit sebelum waktu shalat.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
