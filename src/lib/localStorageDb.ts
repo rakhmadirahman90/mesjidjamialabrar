@@ -194,7 +194,7 @@ const DEFAULT_ACTIVITIES: AktivitasItem[] = [
     schedule: "Senin s/d Jum'at Sore (16:00 - 17:30 WITA)",
     beneficiary: "Anak-Anak / Remaja di lingkungan Lapadde",
     badge: "Pendidikan",
-    image: "https://images.unsplash.com/photo-1609599006353-e629f1d40845?auto=format&fit=crop&q=80&w=800",
+    image: "/input_file_0.png",
     colorGradient: "from-emerald-50 to-teal-50/50",
     iconColor: "text-emerald-700 bg-emerald-100",
     borderColor: "border-emerald-100",
@@ -207,8 +207,8 @@ const DEFAULT_ACTIVITIES: AktivitasItem[] = [
     description: "Menyediakan kamar peristirahatan khusus yang ramah, bersih, dan aman bagi saudara muslim (musafir) yang sedang melakukan perjalanan jauh (safari) melintasi kota Parepare tanpa dipungut biaya sepeser pun.",
     schedule: "Tersedia Setiap Saat (Non-stop)",
     beneficiary: "Musafir lintas daerah / provinsi",
-    badge: "Sosial & Layanan",
-    image: "https://images.unsplash.com/photo-1555854817-cc08c7412d09?auto=format&fit=crop&q=80&w=800",
+    badge: "Social & Layanan",
+    image: "/input_file_1.png",
     colorGradient: "from-amber-50 to-orange-50/50",
     iconColor: "text-amber-700 bg-amber-100",
     borderColor: "border-amber-100",
@@ -222,7 +222,7 @@ const DEFAULT_ACTIVITIES: AktivitasItem[] = [
     schedule: "Setiap Hari (24 Jam Penuh)",
     beneficiary: "Seluruh Jamaah Umum & Masyarakat",
     badge: "Keagamaan",
-    image: "https://images.unsplash.com/photo-1590075865003-e48277adc558?auto=format&fit=crop&q=80&w=800",
+    image: "/input_file_2.png",
     colorGradient: "from-sky-50 to-blue-50/50",
     iconColor: "text-sky-700 bg-sky-100",
     borderColor: "border-sky-105",
@@ -389,7 +389,26 @@ export class LocalDb {
   }
 
   static getActivities(): AktivitasItem[] {
-    return this.get<AktivitasItem[]>('activities', DEFAULT_ACTIVITIES);
+    const list = this.get<AktivitasItem[]>('activities', DEFAULT_ACTIVITIES);
+    let updated = false;
+    const migratedList = list.map(act => {
+      // Migrate images to new uploaded documentation assets dynamically
+      if (act.id === 1 && act.image !== '/input_file_0.png') {
+        act.image = '/input_file_0.png';
+        updated = true;
+      } else if (act.id === 2 && act.image !== '/input_file_1.png') {
+        act.image = '/input_file_1.png';
+        updated = true;
+      } else if (act.id === 3 && act.image !== '/input_file_2.png') {
+        act.image = '/input_file_2.png';
+        updated = true;
+      }
+      return act;
+    });
+    if (updated) {
+      this.saveActivities(migratedList);
+    }
+    return migratedList;
   }
 
   static saveActivities(activities: AktivitasItem[]) {
