@@ -25,6 +25,7 @@ import ImageSlider from './components/ImageSlider';
 import JadwalHub from './components/JadwalHub';
 import MasjidDashboard from './components/MasjidDashboard';
 import ProfessionalToasts from './components/ProfessionalToasts';
+import AudioUploader from './components/AudioUploader';
 import AdminLogin from './components/AdminLogin';
 import QrisUploader from './components/QrisUploader';
 import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign } from './types';
@@ -168,6 +169,17 @@ export default function App() {
   const [newPinValue, setNewPinValue] = useState<string>('');
   const [announcement, setAnnouncement] = useState<string>('Selamat Datang di Masjid Jami Al Abrar Lapadde, Parepare. Mari laksanakan Shalat Berjamaah tepat waktu di Shaff terdepan.');
   const [announcementInput, setAnnouncementInput] = useState<string>('');
+  const [customAdzan, setCustomAdzan] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load custom adzan from Firestore if available
+    const unsubscribe = subscribeToDocument<{ adzanUrl: string }>('settings', 'audio_config', (doc) => {
+        if (doc && doc.adzanUrl) {
+            setCustomAdzan(doc.adzanUrl);
+        }
+    });                
+    return () => unsubscribe();
+  }, []);
 
   // Firebase Real-time listeners
   useEffect(() => {
@@ -446,7 +458,8 @@ export default function App() {
       }
     } else {
       if (audioRef.current) {
-        audioRef.current.src = AUDIO_SOURCES.adzan;
+        audioRef.current.src = customAdzan || AUDIO_SOURCES.adzan;
+        audioRef.current.load(); // Ensure the source is loaded
         audioRef.current.volume = volume;
         audioRef.current.play().then(() => {
           audioRef.current!.onended = () => {
@@ -454,8 +467,11 @@ export default function App() {
           };
         }).catch(err => {
           setIsAudioPlaying(false);
-          console.error("Audio playback interrupted:", err);
-          addLog('Kegagalan Suara', 'Gagal memutar aliran audio eksternal. Kami merekomendasikan menggunakan nada sintetis Chime atau Gong.', 'info');
+          // Only log error if it's not simply an interruption (AbortError)
+          if (err.name !== 'AbortError') {
+            console.error("Audio playback error:", err);
+            addLog('Kegagalan Suara', 'Gagal memutar aliran audio eksternal. Kami merekomendasikan menggunakan nada sintetis Chime atau Gong.', 'info');
+          }
         });
       } else {
         setIsAudioPlaying(false);
@@ -1003,7 +1019,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
                       <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-amber-400/30 transition duration-300 group">
                         <div className="w-10 h-10 bg-amber-400/10 rounded-xl flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
                           📢
@@ -1074,6 +1090,24 @@ export default function App() {
                           </p>
                         </div>
                         <QrisUploader onAddLog={addLog} />
+                      </div>
+
+                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-emerald-400/30 transition duration-300 group">
+                        <div className="w-10 h-10 bg-emerald-400/10 rounded-xl flex items-center justify-center text-emerald-300 group-hover:scale-110 transition">
+                          🎵
+                        </div>
+                        <div className="space-y-2 text-left">
+                          <h4 className="font-black text-[10px] sm:text-[11px] text-emerald-400 uppercase tracking-widest text-left">Suara Notifikasi</h4>
+                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
+                            Ganti file audio Adzan untuk notifikasi waktu shalat.
+                          </p>
+                        </div>
+                        <AudioUploader 
+                          onAddLog={addLog} 
+                          onUpload={(dataUrl: string) => {
+                            upsertDocument('settings', 'audio_config', { adzanUrl: dataUrl });
+                          }}
+                        />
                       </div>
 
                       <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-blue-400/30 transition duration-300 group">

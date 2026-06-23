@@ -122,15 +122,37 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
   const [profile, setProfile] = useState<MosqueProfileDetail>(DEFAULT_PROFILE);
 
   const [isEditingMain, setIsEditingMain] = useState(false);
+  const [editingVision, setEditingVision] = useState(false);
   const [editForm, setEditForm] = useState<MosqueProfileDetail>(profile);
+  const [visionForm, setVisionForm] = useState(profile.vision);
   const [editingMemberIndex, setEditingMemberIndex] = useState<number | null>(null);
   const [memberForm, setMemberForm] = useState<Partial<MosqueStructure>>({});
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mosqueFileInputRef = useRef<HTMLInputElement>(null);
 
   // Facility CRUD states
   const [editingFacilityIndex, setEditingFacilityIndex] = useState<number | null>(null);
   const [facilityForm, setFacilityForm] = useState<Partial<MosqueProfileDetail['facilities'][0]>>({});
+  
+  const handleMosqueImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      onAddLog?.('Format Gagal', 'Hanya file gambar yang diizinkan.', 'alert');
+      return;
+    }
+    try {
+      setIsCompressing(true);
+      const compressed = await compressImage(file);
+      saveProfile({ ...profile, mosqueImageUrl: compressed });
+      onAddLog?.('Foto Diperbarui', 'Foto masjid berhasil diperbarui.', 'success');
+    } catch (e) {
+      onAddLog?.('Gagal Kompresi', 'Gagal memproses gambar.', 'alert');
+    } finally {
+      setIsCompressing(false);
+    }
+  };
 
   // Sync with Firestore
   useEffect(() => {
@@ -253,6 +275,22 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
       
       {/* Editorial Header Banner Card */}
       <div className="bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-3xl p-6 sm:p-10 relative overflow-hidden shadow-xl border-b-4 border-amber-400">
+        <img
+          src={profile.mosqueImageUrl || "https://images.unsplash.com/photo-1591604466107-ec97de577aff?q=80&w=1200&auto=format&fit=crop"}
+          alt="Masjid Al Abrar"
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+        />
+        {isAdmin && (
+          <div className="absolute top-4 right-4 z-20">
+            <button 
+              onClick={() => mosqueFileInputRef.current?.click()}
+              className="p-3 bg-amber-400 text-slate-950 rounded-full hover:bg-amber-300 transition shadow-lg"
+            >
+              <ImageIcon className="h-5 w-5" />
+            </button>
+            <input type="file" ref={mosqueFileInputRef} onChange={handleMosqueImageUpload} className="hidden" accept="image/*" />
+          </div>
+        )}
         <div className="absolute right-0 bottom-0 top-0 w-2/5 opacity-10 select-none hidden md:block" style={{ backgroundImage: `radial-gradient(circle, #fbbf24 1px, transparent 1px)`, backgroundSize: '12px 12px' }}></div>
         
         <div className="max-w-2xl space-y-4 relative z-10">
@@ -383,11 +421,25 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               </div>
             ) : (
               <>
-                <div className="bg-gradient-to-r from-emerald-50 to-teal-50/50 rounded-2xl p-5 border border-emerald-100/50">
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50/50 rounded-2xl p-5 border border-emerald-100/50 group relative">
                   <span className="block text-xs font-bold text-emerald-800/80 uppercase tracking-widest font-mono mb-1.5">VISI UTAMA</span>
-                  <p className="text-base font-extrabold text-emerald-950 font-display italic">
-                    "{profile.vision}"
-                  </p>
+                  {editingVision ? (
+                    <div className="flex flex-wrap gap-2">
+                      <input 
+                        value={visionForm} 
+                        onChange={e => setVisionForm(e.target.value)} 
+                        className="flex-1 min-w-[200px] p-2 border rounded-lg text-sm bg-white shadow-sm"
+                      />
+                      <button onClick={() => { saveProfile({...profile, vision: visionForm}); setEditingVision(false); }} className="p-2 bg-emerald-600 text-white rounded-lg flex-shrink-0"><Save className="h-4 w-4"/></button>
+                    </div>
+                  ) : (
+                    <p className="text-base font-extrabold text-emerald-950 font-display italic">
+                      "{profile.vision}"
+                    </p>
+                  )}
+                  {isAdmin && !editingVision && (
+                    <button onClick={() => { setVisionForm(profile.vision); setEditingVision(true); }} className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition text-slate-500 hover:text-emerald-600"><Edit2 className="h-3 w-3"/></button>
+                  )}
                 </div>
 
                 <div className="space-y-3">

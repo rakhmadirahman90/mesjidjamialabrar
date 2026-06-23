@@ -37,6 +37,7 @@ export interface MosqueProfileDetail {
   mision: string[];
   facilities: MosqueFacility[];
   structure: MosqueStructure[];
+  mosqueImageUrl?: string;
 }
 
 // 2. Donasi Online Interfaces
