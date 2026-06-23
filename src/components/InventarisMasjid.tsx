@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MosqueAsset } from '../types';
 import { Package, PlusCircle, Search, Tag, ShieldCheck, Edit2, Trash2, Save, X } from 'lucide-react';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
+import { parseNumber } from '../lib/utils';
 
 export default function InventarisMasjid({ 
   isAdmin, 
@@ -48,7 +49,7 @@ export default function InventarisMasjid({
       return;
     }
 
-    const qtyVal = parseInt(inputQty, 10);
+    const qtyVal = parseNumber(inputQty);
     if (isNaN(qtyVal) || qtyVal <= 0) {
       onAddLog('Gagal', 'Masukkan jumlah kuantitas barang yang valid!', 'alert');
       return;
@@ -254,7 +255,7 @@ export default function InventarisMasjid({
                               <input 
                                 type="number"
                                 value={editAssetForm.quantity || 1}
-                                onChange={(e) => setEditAssetForm({...editAssetForm, quantity: parseInt(e.target.value)})}
+                                onChange={(e) => setEditAssetForm({...editAssetForm, quantity: parseNumber(e.target.value)})}
                                 className="w-12 border rounded p-1"
                               />
                               <input 

@@ -3,6 +3,7 @@ import { Transaction, PermanentDonor } from '../types';
 import { TrendingUp, TrendingDown, Wallet, PlusCircle, ClipboardCheck, Users, Search, Trash2, Edit2, X, Save } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
+import { parseNumber } from '../lib/utils';
 
 export default function KeuanganMasjid({ 
   isAdmin, 
@@ -83,7 +84,7 @@ export default function KeuanganMasjid({
       return;
     }
 
-    const amt = parseInt(txAmount, 10);
+    const amt = parseNumber(txAmount);
     if (isNaN(amt) || amt <= 0) {
       onAddLog('Validasi Gagal', 'Masukkan nominal jumlah uang yang valid!', 'alert');
       return;
@@ -440,7 +441,7 @@ export default function KeuanganMasjid({
                         type="number" 
                         required
                         value={newDonorForm.amount}
-                        onChange={e => setNewDonorForm({...newDonorForm, amount: parseInt(e.target.value)})}
+                        onChange={e => setNewDonorForm({...newDonorForm, amount: parseNumber(e.target.value)})}
                         className="w-full p-2.5 bg-white border border-emerald-200 rounded-xl text-xs outline-none focus:border-emerald-500 font-mono"
                       />
                     </div>
@@ -502,7 +503,7 @@ export default function KeuanganMasjid({
                                 <input 
                                   type="number"
                                   value={editDonorForm.amount || 0}
-                                  onChange={e => setEditDonorForm({...editDonorForm, amount: parseInt(e.target.value)})}
+                                  onChange={e => setEditDonorForm({...editDonorForm, amount: parseNumber(e.target.value)})}
                                   className="w-24 text-right border p-1 rounded"
                                 />
                               ) : (
@@ -772,7 +773,7 @@ export default function KeuanganMasjid({
                                   <input 
                                     type="number"
                                     value={editTxForm.amount || 0}
-                                    onChange={(e) => setEditTxForm({...editTxForm, amount: parseInt(e.target.value)})}
+                                    onChange={(e) => setEditTxForm({...editTxForm, amount: parseNumber(e.target.value)})}
                                     className="w-24 border rounded p-1 text-right"
                                   />
                                 </div>

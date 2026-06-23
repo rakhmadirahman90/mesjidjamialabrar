@@ -1,7 +1,7 @@
 {
   "name": "Notifikasi Adzan Al Abrar",
   "description": "Sistem peringatan jadwal shalat dan notifikasi adzan otomatis 10 menit sebelum waktu shalat.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

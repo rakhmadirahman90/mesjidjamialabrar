@@ -58,6 +58,7 @@ export interface Donor {
   campaignId: string;
   message?: string;
   status: 'Tertunda' | 'Diverifikasi';
+  receiptImageUrl?: string;
 }
 
 // 3. Keuangan Masjid Interfaces (Mosque Digital Ledger)

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { DonationCampaign, Donor } from '../types';
 import { Heart, ShieldCheck, QrCode, CheckCircle, Plus, X, Trash } from 'lucide-react';
 import { subscribeToCollection, subscribeToDocument, addDocument, updateDocument, deleteDocument, clearCollection } from '../lib/db';
+import { parseNumber } from '../lib/utils';
 import { ConfirmationModal } from './ConfirmationModal';
+import ImageUploader from './ImageUploader';
 
 interface DonationOpenProps {
   onDonationSuccess: (title: string, msg: string, amount: number) => void;
@@ -30,6 +32,7 @@ export default function DonationOpen({
   const [donateAmount, setDonateAmount] = useState<number>(50000);
   const [customAmountText, setCustomAmountText] = useState<string>('');
   const [donorMessage, setDonorMessage] = useState<string>('');
+  const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'transfer'>('qris');
   
   // Realtime simulated database donors logs
@@ -63,7 +66,7 @@ export default function DonationOpen({
 
   const handleCustomAmountChange = (val: string) => {
     setCustomAmountText(val);
-    const num = parseInt(val.replace(/\D/g, ''), 10);
+    const num = parseNumber(val);
     if (!isNaN(num) && num > 0) {
       setDonateAmount(num);
     }
@@ -85,7 +88,8 @@ export default function DonationOpen({
       timestamp: new Date().toISOString(),
       campaignId: selectedCampId,
       message: donorMessage.trim() || undefined,
-      status: 'Diverifikasi'
+      status: 'Diverifikasi',
+      receiptImageUrl: receiptImageUrl || undefined
     };
 
     // Update Campaign Fund Raised in Firestore
@@ -108,6 +112,7 @@ export default function DonationOpen({
     setDonorMessage('');
     setCustomAmountText('');
     setDonateAmount(50000);
+    setReceiptImageUrl(null);
   };
 
   const handleAddCampaign = () => {
@@ -393,6 +398,18 @@ export default function DonationOpen({
                 </button>
 
               </div>
+              
+              {paymentMethod === 'transfer' && (
+                <div className="space-y-2 pt-2 animate-fade-in">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-sans">Unggah Foto Bukti Transfer</label>
+                  <ImageUploader 
+                    onImageUploaded={setReceiptImageUrl}
+                    currentImageUrl={receiptImageUrl || undefined}
+                    onAddLog={onAddLog}
+                  />
+                  <p className="text-[10px] text-slate-400 italic">Pastikan foto bukti transfer terlihat jelas.</p>
+                </div>
+              )}
             </div>
 
             {/* Action Trigger Card */}
@@ -557,7 +574,7 @@ export default function DonationOpen({
                 <input 
                   type="number" 
                   value={campaignForm.target} 
-                  onChange={e => setCampaignForm({...campaignForm, target: parseInt(e.target.value) || 0})}
+                  onChange={e => setCampaignForm({...campaignForm, target: parseNumber(e.target.value)})}
                   className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-mono font-bold"
                 />
               </div>
@@ -566,7 +583,7 @@ export default function DonationOpen({
                 <input 
                   type="number" 
                   value={campaignForm.raised} 
-                  onChange={e => setCampaignForm({...campaignForm, raised: parseInt(e.target.value) || 0})}
+                  onChange={e => setCampaignForm({...campaignForm, raised: parseNumber(e.target.value)})}
                   className="w-full p-2.5 bg-slate-50 border rounded-xl text-xs font-mono font-bold"
                 />
               </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Congregant } from '../types';
 import { Users, UserPlus, Search, ShieldCheck, HeartPulse, MapPin, PhoneCall, Trash2, Edit2, X, Save } from 'lucide-react';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
+import { parseNumber } from '../lib/utils';
 
 export default function ManajemenJamaah({ 
   isAdmin,
@@ -46,7 +47,7 @@ export default function ManajemenJamaah({
       return;
     }
 
-    const amt = parseInt(familyCount, 10);
+    const amt = parseNumber(familyCount);
     const validFamily = isNaN(amt) ? 1 : amt;
 
     const newCon = {
@@ -309,7 +310,7 @@ export default function ManajemenJamaah({
                             <input 
                               type="number"
                               value={editForm.familyMembersCount || 1}
-                              onChange={(e) => setEditForm({...editForm, familyMembersCount: parseInt(e.target.value)})}
+                              onChange={(e) => setEditForm({...editForm, familyMembersCount: parseNumber(e.target.value)})}
                               className="w-16 border rounded p-1"
                             />
                           ) : (
