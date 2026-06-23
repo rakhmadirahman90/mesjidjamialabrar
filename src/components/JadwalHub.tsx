@@ -101,6 +101,7 @@ export default function JadwalHub({
 
   // Admin CRUD states for Kajian and Jumat
   const [editingKajian, setEditingKajian] = useState<KajianEntry | null>(null);
+  const [selectedKajianDetail, setSelectedKajianDetail] = useState<KajianEntry | null>(null);
   const [kajianForm, setKajianForm] = useState<Partial<KajianEntry>>({});
   const [editingJumat, setEditingJumat] = useState<JumatEntry | null>(null);
   const [jumatForm, setJumatForm] = useState<Partial<JumatEntry>>({});
@@ -577,7 +578,7 @@ export default function JadwalHub({
               </div>
               <div className="space-y-4">
                 {kajian.filter(k => k.category === 'Ba\'da Subuh').map((item) => (
-                  <div key={item.id} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative">
+                  <div key={item.id} onClick={() => setSelectedKajianDetail(item)} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative cursor-pointer">
                     <div className="w-12 h-12 bg-amber-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-amber-200">
                       <span className="text-[10px] font-black text-amber-700 uppercase">{item.day}</span>
                     </div>
@@ -592,9 +593,9 @@ export default function JadwalHub({
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-1">
-                        <button onClick={() => handleEditKajian(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
-                        <button onClick={() => deleteKajian(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                      <div className="absolute top-2 right-2 flex gap-1 z-10">
+                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                        <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
                       </div>
                     )}
                   </div>
@@ -612,7 +613,7 @@ export default function JadwalHub({
               </div>
               <div className="space-y-4">
                 {kajian.filter(k => k.category === 'Ba\'da Maghrib' || k.category === 'Lainnya').map((item) => (
-                  <div key={item.id} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative">
+                  <div key={item.id} onClick={() => setSelectedKajianDetail(item)} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative cursor-pointer">
                     <div className="w-12 h-12 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-emerald-200">
                       <span className="text-[10px] font-black text-emerald-700 uppercase">{item.day}</span>
                     </div>
@@ -627,9 +628,9 @@ export default function JadwalHub({
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-1">
-                        <button onClick={() => handleEditKajian(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
-                        <button onClick={() => deleteKajian(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                      <div className="absolute top-2 right-2 flex gap-1 z-10">
+                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                        <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
                       </div>
                     )}
                   </div>
@@ -847,6 +848,42 @@ export default function JadwalHub({
               className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-indigo-200 active:scale-95"
             >
               Simpan Jadwal Kajian
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selectedKajianDetail && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-sm w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-slate-100">
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+               <h4 className="text-lg font-black text-slate-800">Detail Kajian</h4>
+               <button onClick={() => setSelectedKajianDetail(null)} className="p-2 hover:bg-slate-100 rounded-full text-slate-400">
+                 <X className="h-5 w-5" />
+               </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                <p className="text-[10px] uppercase font-black text-emerald-700 tracking-wider">Topik/Tema</p>
+                <h4 className="text-md font-black text-emerald-950">{selectedKajianDetail.title}</h4>
+                <p className="text-xs font-semibold text-emerald-800/80 mt-1">{selectedKajianDetail.theme}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1">
+                   <p className="text-slate-400 font-bold uppercase tracking-wider">Pemateri</p>
+                   <p className="font-bold text-slate-800">{selectedKajianDetail.lecturer}</p>
+                </div>
+                <div className="space-y-1">
+                   <p className="text-slate-400 font-bold uppercase tracking-wider">Hari & Waktu</p>
+                   <p className="font-bold text-slate-800">{selectedKajianDetail.day}, {selectedKajianDetail.time} WITA</p>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => setSelectedKajianDetail(null)} className="w-full py-3 bg-slate-900 text-white font-black rounded-xl text-xs hover:bg-slate-800 transition">
+              Tutup
             </button>
           </div>
         </div>
