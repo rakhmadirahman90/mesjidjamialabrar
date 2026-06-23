@@ -191,7 +191,11 @@ export default function App() {
 
   // Admin Mode States
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    return localStorage.getItem('abrar_is_admin') === 'true';
+    try {
+      return localStorage.getItem('abrar_is_admin') === 'true';
+    } catch (e) {
+      return false;
+    }
   });
 
   const clickCountRef = useRef(0);
@@ -1006,7 +1010,7 @@ export default function App() {
           </div>
 
           {/* Desktop Core Navigation Links (Uppercased, spacing elegant) */}
-          <nav className={`hidden ${isAdmin ? '' : 'md:flex'} items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans`}>
+          <nav className={`hidden ${activeTab === 'beranda' || !isAdmin ? 'md:flex' : 'hidden'} items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans`}>
           {[
             { id: 'beranda', label: 'Home', hasSub: false },
             { id: 'profil', label: 'Profil', hasSub: true },
@@ -1110,7 +1114,7 @@ export default function App() {
           </nav>
 
           {/* Touch-optimized horizontal menu list on mobile, designed to be gorgeous and intuitive */}
-          <div className={`${isAdmin ? 'hidden' : 'flex'} xl:hidden overflow-x-auto no-scrollbar gap-1.5 py-1 w-full mt-1`}>
+          <div className={`${activeTab === 'beranda' || !isAdmin ? 'flex' : 'hidden'} md:hidden overflow-x-auto no-scrollbar gap-1.5 py-2 w-full mt-2 border-t border-white/5 pt-3`}>
             {[
               { id: 'beranda', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
               { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
