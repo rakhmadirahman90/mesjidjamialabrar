@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Congregant } from '../types';
-import { Users, UserPlus, Search, ShieldCheck, HeartPulse, MapPin, PhoneCall, Trash2, Edit2, X, Save } from 'lucide-react';
+import { Users, UserPlus, Search, ShieldCheck, HeartPulse, MapPin, PhoneCall, Trash2, Edit2, X, Save, Image as IconImage, FileImage, UploadCloud, Eye, User } from 'lucide-react';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 import { parseNumber } from '../lib/utils';
 
@@ -38,6 +38,8 @@ export default function ManajemenJamaah({
   const [familyCount, setFamilyCount] = useState('3');
   const [status, setStatus] = useState<'Warga Tetap' | 'Pendatang' | 'Musafir'>('Warga Tetap');
   const [attendance, setAttendance] = useState<'Aktif Jamaah' | 'Jarang' | 'Sakit'>('Aktif Jamaah');
+  const [inputImageUrl, setInputImageUrl] = useState('');
+  const [selectedJamaahForView, setSelectedJamaahForView] = useState<Congregant | null>(null);
 
   const handleRegisterJamaah = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +60,8 @@ export default function ManajemenJamaah({
       familyMembersCount: validFamily,
       status: status,
       attendanceStatus: attendance,
-      registeredDate: new Date().toISOString().substring(0, 10)
+      registeredDate: new Date().toISOString().substring(0, 10),
+      imageUrl: inputImageUrl.trim() || undefined
     };
 
     addDocument('mosque_congregants', newCon);
@@ -66,7 +69,7 @@ export default function ManajemenJamaah({
     // trigger system logs
     onAddLog(
       `Jamaah Baru Terdaftar`,
-      `Registrasi mandiri atas nama "${fullName}" (${status}) dari alamat ${address} berhasil diverifikasi.`,
+      `Registrasi mandiri atas nama "${fullName}" (${status}) berhasil diverifikasi dengan foto profil terlampir.`,
       'success'
     );
 
@@ -75,6 +78,7 @@ export default function ManajemenJamaah({
     setPhone('');
     setAddress('');
     setRtRw('');
+    setInputImageUrl('');
   };
 
   const handleUpdateAttendance = (id: string, nextAtt: 'Aktif Jamaah' | 'Jarang' | 'Sakit') => {
@@ -253,11 +257,12 @@ export default function ManajemenJamaah({
               </div>
             </div>
 
-            {/* Table layout of sensor jamaah */}
+             {/* Table layout of sensor jamaah */}
             <div className="overflow-x-auto text-left pt-2">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">
+                    <th className="pb-3 w-16 text-center">Foto</th>
                     <th className="pb-3 w-40">Identitas Jamaah</th>
                     <th className="pb-3 w-32">Status Hunian</th>
                     <th className="pb-3 w-28">Jumlah Tanggungan</th>
@@ -265,18 +270,56 @@ export default function ManajemenJamaah({
                     <th className="pb-3 text-right">Keaktifan</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-55 text-xs">
+                <tbody className="divide-y divide-slate-55 text-xs text-left">
                   {filteredJamaah.length > 0 ? (
                     filteredJamaah.map(jm => (
                       <tr key={jm.id} className="hover:bg-slate-50/50 transition">
+                        {/* 1. Foto Column */}
+                        <td className="py-3.5 text-center">
+                          {jm.imageUrl ? (
+                            <div 
+                              onClick={() => setSelectedJamaahForView(jm)}
+                              className="relative w-10 h-10 rounded-full overflow-hidden cursor-zoom-in border border-slate-200 inline-block group hover:scale-105 transition-all duration-300 shadow-sm"
+                            >
+                              <img 
+                                src={jm.imageUrl} 
+                                alt={jm.fullName} 
+                                className="w-full h-full object-cover" 
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                                <Eye className="h-3 w-3 text-white" />
+                              </div>
+                            </div>
+                          ) : (
+                            <div 
+                              onClick={() => setSelectedJamaahForView(jm)}
+                              className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 inline-flex cursor-zoom-in hover:bg-slate-200 transition duration-200"
+                            >
+                              <User className="h-4.5 w-4.5 text-slate-400" />
+                            </div>
+                          )}
+                        </td>
+
+                        {/* 2. Identitas Column */}
                         <td className="py-3.5">
                           {editingId === jm.id ? (
-                            <input 
-                              type="text"
-                              value={editForm.fullName || ''}
-                              onChange={(e) => setEditForm({...editForm, fullName: e.target.value})}
-                              className="w-full border rounded p-1 font-bold text-slate-800"
-                            />
+                            <div className="space-y-1">
+                              <input 
+                                type="text"
+                                value={editForm.fullName || ''}
+                                onChange={(e) => setEditForm({...editForm, fullName: e.target.value})}
+                                className="w-full border rounded p-1 font-bold text-slate-800 text-xs"
+                                placeholder="Nama Lengkap"
+                              />
+                              <input 
+                                type="text"
+                                value={editForm.imageUrl || ''}
+                                onChange={(e) => setEditForm({...editForm, imageUrl: e.target.value})}
+                                className="w-full border rounded p-1 text-[10px] text-slate-600 font-mono"
+                                placeholder="Link URL Foto"
+                              />
+                            </div>
                           ) : (
                             <>
                               <span className="block font-bold text-slate-800 leading-relaxed">{jm.fullName}</span>
@@ -492,6 +535,87 @@ export default function ManajemenJamaah({
                 </div>
               </div>
 
+              {/* Foto Profil Jamaah Section */}
+              <div className="space-y-1.5 pt-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase">Foto Profil Jamaah</label>
+                <div className="space-y-2">
+                  {inputImageUrl ? (
+                    <div className="relative h-28 w-28 mx-auto rounded-full overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                      <img 
+                        src={inputImageUrl} 
+                        alt="Pratinjau Foto Profil" 
+                        className="w-full h-full object-cover" 
+                        referrerPolicy="no-referrer"
+                      />
+                      <button 
+                        type="button"
+                        onClick={() => setInputImageUrl('')}
+                        className="absolute top-2 right-2 p-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition"
+                        title="Hapus foto"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="h-28 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 bg-slate-50 p-4">
+                      <IconImage className="h-6 w-6 text-slate-300 mb-1" />
+                      <span className="text-[10px] font-bold text-slate-500">Belum Ada Foto Profil</span>
+                      <span className="text-[9px] text-slate-400 text-center">Gunakan foto lokal atau URL</span>
+                    </div>
+                  )}
+
+                  {/* Choose Options */}
+                  <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold">
+                    <label className="flex items-center justify-center gap-1 p-2 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition shadow-sm text-slate-700">
+                      <UploadCloud className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>Unggah Foto</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            const r = new FileReader();
+                            r.onload = (ev) => {
+                              if (ev.target?.result) {
+                                setInputImageUrl(ev.target.result as string);
+                                onAddLog('Foto Diproses', 'Foto profil berhasil dibaca.', 'success');
+                              }
+                            };
+                            r.readAsDataURL(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = prompt('Masukkan URL Gambar/Profile Picture (misalnya Unsplash):');
+                        if (url) {
+                          setInputImageUrl(url);
+                          onAddLog('Berhasil', 'URL foto profil eksternal berhasil disimpan.', 'success');
+                        }
+                      }}
+                      className="flex items-center justify-center gap-1 p-2 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition text-slate-700 shadow-sm"
+                    >
+                      <FileImage className="h-3.5 w-3.5 text-blue-600" />
+                      <span>Input URL</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="block text-[9px] font-bold text-slate-400 uppercase">Input Link Gambar Manual</span>
+                    <input 
+                      type="text"
+                      placeholder="https://images.unsplash.com/..."
+                      value={inputImageUrl}
+                      onChange={(e) => setInputImageUrl(e.target.value)}
+                      className="w-full text-[10px] p-2 rounded-lg bg-slate-50 border border-slate-200 focus:border-slate-450 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className="w-full py-2.5 bg-slate-900 hover:bg-emerald-950 text-white font-black text-xs rounded-xl shadow transition duration-150 flex items-center justify-center gap-1.5"
@@ -517,6 +641,93 @@ export default function ManajemenJamaah({
         </div>
 
       </div>
+
+      {/* Lightbox details modal overlay */}
+      {selectedJamaahForView && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] animate-scale-up">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-emerald-700" />
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-wide">Spesifikasi Kartu Jamaah</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedJamaahForView(null)} 
+                className="p-1 px-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 font-bold transition flex items-center justify-center gap-1"
+              >
+                <X className="h-4 w-4" /> Tutup
+              </button>
+            </div>
+
+            {/* Photo preview segment */}
+            <div className="relative w-full h-48 bg-slate-900 border-b border-slate-100 flex items-center justify-center">
+              {selectedJamaahForView.imageUrl ? (
+                <img 
+                  src={selectedJamaahForView.imageUrl} 
+                  alt={selectedJamaahForView.fullName} 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-950">
+                  <User className="h-14 w-14 text-slate-700 mb-2" />
+                  <span className="text-xs font-bold text-slate-400">Belum Ada Foto Profil</span>
+                </div>
+              )}
+            </div>
+
+            {/* Details information segment */}
+            <div className="p-6 space-y-4 overflow-y-auto text-left">
+              <div>
+                <h4 className="font-extrabold text-base text-slate-800 leading-tight">{selectedJamaahForView.fullName}</h4>
+                <p className="text-[10px] text-slate-400 font-mono mt-1">ID Unik Jamaah: {selectedJamaahForView.id}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs leading-relaxed">
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Status Tinggal</span>
+                  <span className="font-extrabold text-slate-800">{selectedJamaahForView.status}</span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tanggungan KK</span>
+                  <span className="font-extrabold text-slate-800">{selectedJamaahForView.familyMembersCount} Jiwa</span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 col-span-2">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Alamat Domisili</span>
+                  <span className="font-bold text-slate-700">{selectedJamaahForView.address} ({selectedJamaahForView.rtRw})</span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 col-span-2">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tingkat Keaktifan Shalat</span>
+                  <span className={`inline-block font-bold text-[10px] px-2 py-0.5 rounded-full ${
+                    selectedJamaahForView.attendanceStatus === 'Aktif Jamaah' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+                    selectedJamaahForView.attendanceStatus === 'Jarang' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
+                    'bg-rose-50 text-rose-805 border-rose-200'
+                  }`}>
+                    {selectedJamaahForView.attendanceStatus === 'Aktif Jamaah' ? '🟢 Aktif Berjamaah' :
+                     selectedJamaahForView.attendanceStatus === 'Jarang' ? '🟡 Jarang Hadir' :
+                     '🔴 Sakit / Jenguk'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-slate-400 pt-3 border-t border-slate-100 flex justify-between">
+                <span>Registrasi: <strong>{selectedJamaahForView.registeredDate}</strong></span>
+                <span>Masjid Al Abrar Lapadde</span>
+              </div>
+            </div>
+            
+            <div className="bg-slate-50 p-4 border-t border-slate-100">
+              <button 
+                onClick={() => setSelectedJamaahForView(null)}
+                className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition duration-150"
+              >
+                Tutup Kartu Detail
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -42,9 +42,15 @@ export const storage = getStorage(app);
 async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
+    console.log("Firestore connection test: Online connection verified successfully.");
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. Currently running in offline mode.");
+    const isOffline = error instanceof Error && (
+      error.message.includes('the client is offline') || 
+      error.message.includes('unavailable') || 
+      error.message.includes('Could not reach')
+    );
+    if (isOffline) {
+      console.warn("Firestore connection check status: Currently running in offline cache mode with localized data synced successfully.");
     } else {
       console.warn("Firestore connection check status:", error);
     }

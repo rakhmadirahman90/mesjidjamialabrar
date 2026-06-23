@@ -279,7 +279,8 @@ export const DUMMY_CONGREGANTS: Partial<Congregant>[] = [
     familyMembersCount: 4,
     status: 'Warga Tetap',
     attendanceStatus: 'Aktif Jamaah',
-    registeredDate: '2026-01-15'
+    registeredDate: '2026-01-15',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=256&h=256&auto=format&fit=crop'
   },
   {
     fullName: 'Siti Aminah',
@@ -289,7 +290,8 @@ export const DUMMY_CONGREGANTS: Partial<Congregant>[] = [
     familyMembersCount: 2,
     status: 'Warga Tetap',
     attendanceStatus: 'Sakit',
-    registeredDate: '2026-02-10'
+    registeredDate: '2026-02-10',
+    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&h=256&auto=format&fit=crop'
   },
   {
     fullName: 'Abdurrahman',
@@ -299,7 +301,8 @@ export const DUMMY_CONGREGANTS: Partial<Congregant>[] = [
     familyMembersCount: 1,
     status: 'Pendatang',
     attendanceStatus: 'Aktif Jamaah',
-    registeredDate: '2026-05-20'
+    registeredDate: '2026-05-20',
+    imageUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=256&h=256&auto=format&fit=crop'
   }
 ];
 

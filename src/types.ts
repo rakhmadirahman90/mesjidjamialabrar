@@ -104,6 +104,7 @@ export interface Congregant {
   status: 'Warga Tetap' | 'Pendatang' | 'Musafir';
   attendanceStatus: 'Aktif Jamaah' | 'Jarang' | 'Sakit';
   registeredDate: string;
+  imageUrl?: string;
 }
 
 // 6. Image Slider Interfaces
