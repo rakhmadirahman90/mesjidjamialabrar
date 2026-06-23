@@ -17,15 +17,11 @@ interface MasjidDashboardProps {
   prayers: PrayerTime[];
   nextDetails: any;
   onNavigate: (tab: any) => void;
-  isAdmin: boolean;
-  onShowLogin: () => void;
 }
 
 export default function MasjidDashboard({ 
   prayers, 
-  onNavigate,
-  isAdmin,
-  onShowLogin
+  onNavigate
 }: MasjidDashboardProps) {
   
   // States for ticking countdown and dates
@@ -336,23 +332,6 @@ export default function MasjidDashboard({
         </div>
       </section>
 
-      {/* Admin/Login Section */}
-      <div className="pt-6">
-        {!isAdmin && (
-          <div className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-1">
-              <h4 className="text-lg font-black text-slate-900">Akses Pengurus</h4>
-              <p className="text-xs text-slate-500 font-medium">Hanya untuk pengurus resmi masjid dengan otorisasi PIN.</p>
-            </div>
-            <button 
-              onClick={onShowLogin}
-              className="px-6 py-3 bg-slate-900 text-white font-black text-xs rounded-xl hover:bg-slate-800 transition active:scale-95"
-            >
-              LOGIN PENGURUS
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

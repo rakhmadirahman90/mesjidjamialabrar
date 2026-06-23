@@ -273,10 +273,12 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
     <div className="space-y-6 sm:space-y-8 pb-16 w-full" id="galeri_masjid_container">
       
       {/* 1. Header Banner & Filter Area */}
-      <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-900 text-white p-8 sm:p-12 shadow-2xl">
-        {/* Abstract motif backdrop decoration */}
-        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_70%_20%,_var(--tw-gradient-stops))] from-yellow-400 via-transparent to-transparent pointer-events-none"></div>
-        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+      <section className="relative rounded-[2.5rem] bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-900 text-white p-8 sm:p-12 shadow-2xl">
+        {/* Abstract motif backdrop decoration wrapped inside overflow-hidden to allow dropdown to pop out nicely */}
+        <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_70%_20%,_var(--tw-gradient-stops))] from-yellow-400 via-transparent to-transparent"></div>
+          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px]"></div>
+        </div>
 
         <div className="relative z-10 max-w-3xl space-y-6 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-800/40 border border-emerald-500/30 text-xs font-black text-emerald-300 uppercase tracking-widest">

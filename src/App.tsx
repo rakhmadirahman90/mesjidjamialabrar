@@ -1281,9 +1281,7 @@ export default function App() {
                 <MasjidDashboard 
                   prayers={prayers}
                   nextDetails={nextDetails}
-                  isAdmin={false}
                   onNavigate={setActiveTab}
-                  onShowLogin={() => setActiveTab('admin')}
                 />
               </div>
             )}
