@@ -290,23 +290,39 @@ export default function MasjidDashboard({
       <section className="space-y-6">
         <h3 className="text-2xl font-black text-slate-900 tracking-tight px-1">Layanan Prioritas</h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {mainServices.map((service, idx) => (
             <motion.button
               key={service.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * idx }}
+              transition={{ delay: 0.08 * idx }}
               onClick={() => onNavigate(service.id)}
-              className="group bg-white border border-slate-200 rounded-3xl p-6 text-left hover:border-emerald-300 hover:shadow-lg transition-all"
+              className="group bg-white border border-slate-100/90 rounded-[2.2rem] p-8 text-left hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:border-emerald-305 transition-all duration-300 flex flex-col justify-between h-full min-h-[340px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-[0_12px_30px_rgba(0,0,0,0.025)]"
             >
-              <div className={`w-12 h-12 rounded-2xl ${service.color} flex items-center justify-center mb-6 group-hover:scale-105 transition`}>
-                {service.icon}
+              <div className="flex flex-col items-start w-full">
+                {/* Golden Circle Icon Container */}
+                <div className="w-14 h-14 rounded-full bg-[#FAF2E8] border border-[#F4EBE3] text-[#A47E3B] flex items-center justify-center mb-6 shrink-0 transition-transform duration-300 group-hover:scale-110">
+                  {service.icon}
+                </div>
+                
+                {/* Title */}
+                <h4 className="font-extrabold text-xl text-slate-900 tracking-tight mb-2 group-hover:text-emerald-800 transition-colors duration-200">
+                  {service.title}
+                </h4>
+                
+                {/* Description */}
+                <p className="text-xs sm:text-[13px] text-slate-500 font-medium leading-relaxed mb-6">
+                  {service.desc}
+                </p>
               </div>
-              <h4 className="font-black text-lg text-slate-900 tracking-tight mb-2">{service.title}</h4>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                {service.desc}
-              </p>
+
+              {/* Pill Button "PILIH LAYANAN" exactly like requested image */}
+              <div className="w-full mt-auto">
+                <div className="w-full py-3.5 bg-[#008F6A] group-hover:bg-[#007C5B] text-white font-black text-[11px] tracking-[0.2em] rounded-full uppercase text-center transition-all duration-300 shadow-md shadow-emerald-600/10 active:scale-[0.98]">
+                  PILIH LAYANAN
+                </div>
+              </div>
             </motion.button>
           ))}
         </div>
