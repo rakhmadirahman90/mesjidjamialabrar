@@ -101,7 +101,7 @@ function MemberCard({ name, role, imageUrl, onEdit, onDelete, isAdmin }: { name:
         src={avatarUrl} 
         alt={name}
         referrerPolicy="no-referrer"
-        className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md group-hover:scale-105 transition shrink-0"
+        className="w-10 h-10 rounded-full object-cover object-top border-2 border-white shadow-md group-hover:scale-105 transition shrink-0"
       />
       <div className="min-w-0 flex-1">
         {role && <span className="block text-[8px] font-black text-emerald-700 uppercase font-mono tracking-widest mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{role}</span>}
@@ -502,7 +502,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                           <Loader2 className="h-6 w-6 text-amber-400 animate-spin" />
                         </div>
                       ) : memberForm.imageUrl ? (
-                        <img src={memberForm.imageUrl} className="w-full h-full object-cover" />
+                        <img src={memberForm.imageUrl} className="w-full h-full object-cover object-top" />
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 text-[8px] font-black uppercase text-center p-2">
                           <ImageIcon className="h-5 w-5 mb-1" />

@@ -461,6 +461,13 @@ export default function App() {
         audioRef.current.src = customAdzan || AUDIO_SOURCES.adzan;
         audioRef.current.load(); // Ensure the source is loaded
         audioRef.current.volume = volume;
+        audioRef.current.onerror = () => {
+          console.error("Failed to load custom audio, falling back to default.");
+          if (customAdzan && audioRef.current) {
+            audioRef.current.src = AUDIO_SOURCES.adzan;
+            audioRef.current.load();
+          }
+        };
         audioRef.current.play().then(() => {
           audioRef.current!.onended = () => {
             setIsAudioPlaying(false);
