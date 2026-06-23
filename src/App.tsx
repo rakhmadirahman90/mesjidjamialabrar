@@ -959,21 +959,22 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
       {/* Floating Glass Navbar Capsule mimicking the premium Istiqlal UI/UX */}
+      {(activeTab === 'beranda' || !isAdmin) && (
       <header className="sticky top-3 sm:top-5 z-50 w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 select-none overflow-visible" id="header_navbar">
-        <div className="bg-[#091b14]/95 backdrop-blur-md border border-emerald-500/20 rounded-[1.8rem] sm:rounded-full px-3.5 py-2 sm:px-6 sm:py-3.5 shadow-[0_20px_50px_rgba(4,47,31,0.25)] flex flex-col xl:flex-row xl:items-center justify-between gap-2 text-white transition-all duration-300 overflow-hidden sm:overflow-visible">
-          
-          {/* Brand Left Silhouette Logo Area */}
-          <div className="flex items-center justify-between w-full xl:w-auto shrink-0 border-b border-white/5 pb-2 xl:pb-0 xl:border-b-0">
-            <div 
-              className="flex items-center gap-2 sm:gap-3 cursor-pointer group" 
-              onClick={() => {
-                const triggered = handleLogoClick();
-                if (!triggered) {
-                  setActiveTab('beranda');
-                }
-                setActiveDropdown(null);
-              }}
-            >
+          <div className="bg-[#091b14]/95 backdrop-blur-md border border-emerald-500/20 rounded-[1.8rem] sm:rounded-full px-5 py-3 sm:px-6 sm:py-3.5 shadow-[0_20px_50px_rgba(4,47,31,0.25)] flex flex-col xl:flex-row xl:items-center justify-between gap-3 text-white transition-all duration-300 overflow-hidden sm:overflow-visible">
+            
+            {/* Brand Left Silhouette Logo Area */}
+            <div className="flex items-center justify-between w-full xl:w-auto shrink-0 border-b border-white/5 pb-2 xl:pb-0 xl:border-b-0">
+              <div 
+                className="flex items-center gap-2 sm:gap-3 cursor-pointer group" 
+                onClick={() => {
+                  const triggered = handleLogoClick();
+                  if (!triggered) {
+                    setActiveTab('beranda');
+                  }
+                  setActiveDropdown(null);
+                }}
+              >
               <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 border border-white/10 flex items-center justify-center text-base sm:text-xl shadow-lg shrink-0 transform group-hover:scale-105 transition-all duration-300">
                 🕌
               </div>
@@ -1005,7 +1006,7 @@ export default function App() {
           </div>
 
           {/* Desktop Core Navigation Links (Uppercased, spacing elegant) */}
-          <nav className="hidden xl:flex items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans">
+          <nav className={`hidden ${isAdmin ? '' : 'xl:flex'} items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans`}>
           {[
             { id: 'beranda', label: 'Home', hasSub: false },
             { id: 'profil', label: 'Profil', hasSub: true },
@@ -1109,7 +1110,7 @@ export default function App() {
           </nav>
 
           {/* Touch-optimized horizontal menu list on mobile, designed to be gorgeous and intuitive */}
-          <div className="flex xl:hidden overflow-x-auto no-scrollbar gap-1.5 py-1 w-full mt-1">
+          <div className={`${isAdmin ? 'hidden' : 'flex'} xl:hidden overflow-x-auto no-scrollbar gap-1.5 py-1 w-full mt-1`}>
             {[
               { id: 'beranda', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
               { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
@@ -1127,7 +1128,7 @@ export default function App() {
                     setActiveTab(tab.id as any);
                     setActiveDropdown(null);
                   }}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap outline-none ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap outline-none ${
                     isActive
                       ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-950/40 border border-emerald-400/30'
                       : 'text-slate-300 bg-white/5 active:bg-white/10 border border-white/5'
@@ -1166,6 +1167,7 @@ export default function App() {
 
         </div>
       </header>
+      )}
 
 
       {/* Category Submenu Pill Row (When a desktop tab has submenus, float beneath the sticky navbar in gorgeous dark-emerald gold glass wrapper) */}
