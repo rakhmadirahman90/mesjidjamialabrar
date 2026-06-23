@@ -405,9 +405,9 @@ export default function DonationOpen({
 
             {/* Visual Simulated QRIS Image */}
             <div className="bg-white p-3 rounded-2xl shadow-inner relative group border-4 border-slate-850">
-              <div className="w-48 h-48 bg-slate-100 flex items-center justify-center border-2 border-dashed border-slate-350 rounded-lg overflow-hidden relative">
+              <div className="w-48 h-48 bg-white flex items-center justify-center border border-slate-100 rounded-lg overflow-hidden relative">
                 {qrisUrl ? (
-                  <img src={qrisUrl} alt="QRIS Masjid" className="w-full h-full object-contain" />
+                  <img src={qrisUrl} alt="QRIS Masjid" className="w-full h-full object-cover" />
                 ) : (
                   <QrCode className="h-40 w-40 text-slate-800" />
                 )}
