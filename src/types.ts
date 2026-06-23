@@ -151,6 +151,7 @@ export interface RamadanEntry {
   description: string;
   icon: string;
   category: 'Ibadah' | 'Sosial' | 'Edukasi';
+  imageUrl?: string;
 }
 
 export interface RoutineEntry {

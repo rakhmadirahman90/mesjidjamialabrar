@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, RoutineEntry } from '../types';
 import SliderManager from './SliderManager';
+import ImageUploader from './ImageUploader';
 import { addDocument, updateDocument, deleteDocument } from '../lib/db';
 
 interface JadwalHubProps {
@@ -212,23 +213,23 @@ export default function JadwalHub({
     }
   };
 
-  // const handleEditRamadan = (r: RamadanEntry) => {
-  //   setEditingRamadan(r);
-  //   setRamadanForm(r);
-  // };
+  const handleEditRamadan = (r: RamadanEntry) => {
+    setEditingRamadan(r);
+    setRamadanForm(r);
+  };
 
-  // const handleAddRamadan = () => {
-  //   const newRam: RamadanEntry = {
-  //     id: Math.random().toString(36).substr(2, 9),
-  //     title: '',
-  //     time: '',
-  //     description: '',
-  //     icon: '🌙',
-  //     category: 'Ibadah'
-  //   };
-  //   setEditingRamadan(newRam);
-  //   setRamadanForm(newRam);
-  // };
+  const handleAddRamadan = () => {
+    const newRam: RamadanEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: '',
+      time: '',
+      description: '',
+      icon: '🌙',
+      category: 'Ibadah'
+    };
+    setEditingRamadan(newRam);
+    setRamadanForm(newRam);
+  };
 
   const saveRamadan = () => {
     if (!ramadanForm.title || !ramadanForm.time) {
@@ -604,6 +605,40 @@ export default function JadwalHub({
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeSubTab === 'ramadan' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in text-left">
+          {isAdmin && (
+            <div className="col-span-full flex justify-end">
+              <button 
+                onClick={handleAddRamadan}
+                className="flex items-center gap-2 px-6 py-2.5 bg-rose-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-rose-700 transition shadow-lg"
+              >
+                <Plus className="h-4 w-4" /> Tambah Agenda Ramadan
+              </button>
+            </div>
+          )}
+          {ramadan.map((item) => (
+            <div key={item.id} className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4 text-left group hover:border-emerald-500 transition-colors border-t-4 border-rose-400">
+              <div className="flex justify-between items-start">
+                 <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-xl">{item.icon}</div>
+                 <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-black uppercase">{item.category}</span>
+              </div>
+              <div className="space-y-1 text-left">
+                <h4 className="font-black text-lg text-slate-800">{item.title}</h4>
+                <p className="text-xs font-black text-rose-600 font-mono">{item.time}</p>
+              </div>
+              <p className="text-slate-500 text-xs leading-relaxed">{item.description}</p>
+              {item.imageUrl && <img src={item.imageUrl} className="w-full h-32 object-cover rounded-xl" />}
+              {isAdmin && (
+                <div className="flex gap-2 mt-4 pt-2 border-t border-slate-100">
+                  <button onClick={() => handleEditRamadan(item)} className="p-2 bg-slate-100 text-slate-600 hover:text-rose-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
@@ -1139,6 +1174,14 @@ export default function JadwalHub({
                   onChange={e => setRamadanForm({...ramadanForm, description: e.target.value})}
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 outline-none focus:border-emerald-500 transition resize-none"
                   placeholder="Jelaskan detail singkat kegiatan..."
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Foto Kegiatan</label>
+                <ImageUploader 
+                    onImageUploaded={(url) => setRamadanForm({...ramadanForm, imageUrl: url})} 
+                    currentImageUrl={ramadanForm.imageUrl}
+                    onAddLog={onAddLog}
                 />
               </div>
               <div className="space-y-1 col-span-2">

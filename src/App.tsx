@@ -442,6 +442,20 @@ export default function App() {
     }
   };
 
+  const seedDummyData = async () => {
+    if (!confirm('Apakah Anda yakin ingin memuat data dummy (Ramadan)?')) return;
+    try {
+      const dummyRamadan: RamadanEntry[] = [
+        { id: 'r1', title: 'Tarawih', time: '20:00', description: 'Tarawih berjamaah', icon: '🌙', category: 'Ibadah' },
+        { id: 'r2', title: 'Buka Bersama', time: '18:00', description: 'Buka puasa bersama', icon: '🍲', category: 'Sosial' }
+      ];
+      await Promise.all(dummyRamadan.map(r => upsertDocument('ramadan_schedule', r.id, r)));
+      addLog('Seed Data', 'Data dummy Ramadan berhasil dimuat.', 'success');
+    } catch (e) {
+      addLog('Seed Data Gagal', 'Terjadi kesalahan saat memuat data.', 'alert');
+    }
+  };
+
   // Active custom synthesis instance reference
   const synthInstanceRef = useRef<{ stop: () => void } | null>(null);
 
@@ -869,6 +883,7 @@ export default function App() {
               { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-4 w-4" /> },
               { id: 'jamaah', label: 'Jamaah', icon: <Users className="h-4 w-4" /> },
               { id: 'inventaris', label: 'Aset', icon: <Package className="h-4 w-4" /> },
+              { id: 'admin', label: 'Admin', icon: <Settings className="h-4 w-4" /> },
               { id: 'tentang', label: 'Info', icon: <Info className="h-4 w-4" /> },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
@@ -1126,6 +1141,12 @@ export default function App() {
                             className="w-full py-3 bg-red-600 hover:bg-red-500 text-white border border-red-500 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
                           >
                             Reset SEMUA Data
+                          </button>
+                          <button
+                            onClick={seedDummyData}
+                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
+                          >
+                            Muat Data Dummy
                           </button>
                         </div>
                       </div>
