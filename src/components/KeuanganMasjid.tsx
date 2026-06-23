@@ -191,7 +191,7 @@ export default function KeuanganMasjid({
     if (!isAdmin) return;
     if (!newDonorForm.name.trim()) return;
 
-    const months = ['Jan', 'Peb', 'Maret', 'April', 'Mei', 'Jun', 'Jul', 'Agust', 'Sept', 'Okt', 'Nop', 'Des'];
+    const months = ['JAN', 'PEB', 'MARET', 'APRIL', 'MEI', 'JUN', 'JUL', 'AGUST', 'SEPT', 'OKT', 'NOP', 'DES'];
     const pm: { [m: string]: boolean } = {};
     months.forEach(m => pm[m] = false);
 
@@ -464,7 +464,7 @@ export default function KeuanganMasjid({
                       <th className="py-4 px-3 text-right w-24 border border-slate-850">NOMINAL</th>
                       <th className="py-4 px-3 w-28 border border-slate-850">FREKUENSI</th>
                       <th className="py-4 px-3 text-right w-28 border border-slate-850">TOTAL</th>
-                      {['JAN', 'PEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOP', 'DES'].map(m => (
+                      {['JAN', 'PEB', 'MARET', 'APRIL', 'MEI', 'JUN', 'JUL', 'AGUST', 'SEPT', 'OKT', 'NOP', 'DES'].map(m => (
                         <th key={m} className={`py-4 px-1 border border-slate-850 text-[8px] ${['JUN', 'JUL'].includes(m) ? 'bg-emerald-900' : ''}`}>{m}</th>
                       ))}
                     </tr>
@@ -545,7 +545,7 @@ export default function KeuanganMasjid({
                               </span>
                               <span className="text-[9px] text-emerald-600 font-bold uppercase">{progressPercent.toFixed(0)}% PAID</span>
                             </td>
-                            {['Jan', 'Peb', 'Maret', 'April', 'Mei', 'Jun', 'Jul', 'Agust', 'Sept', 'Okt', 'Nop', 'Des'].map((m) => {
+                            {['JAN', 'PEB', 'MARET', 'APRIL', 'MEI', 'JUN', 'JUL', 'AGUST', 'SEPT', 'OKT', 'NOP', 'DES'].map((m) => {
                               const isPaid = d.monthlyPayments[m];
                               return (
                                 <td 
