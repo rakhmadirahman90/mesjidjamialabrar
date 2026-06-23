@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction, PermanentDonor } from '../types';
 import { TrendingUp, TrendingDown, Wallet, PlusCircle, ClipboardCheck, Users, Search, Trash2, Edit2, X, Save } from 'lucide-react';
+import { ConfirmationModal } from './ConfirmationModal';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 
 export default function KeuanganMasjid({ 
@@ -22,7 +23,7 @@ export default function KeuanganMasjid({
   const [searchDonorQuery, setSearchDonorQuery] = useState('');
 
   // Donor Editing State
-  const [editingDonorId, setEditingDonorId] = useState<number | null>(null);
+  const [editingDonorId, setEditingDonorId] = useState<string | null>(null);
   const [editDonorForm, setEditDonorForm] = useState<Partial<PermanentDonor>>({});
   const [showAddDonorForm, setShowAddDonorForm] = useState(false);
   const [newDonorForm, setNewDonorForm] = useState({ name: '', amount: 100000 });
@@ -187,20 +188,25 @@ export default function KeuanganMasjid({
     setShowAddDonorForm(false);
   };
 
+  const [donorToDelete, setDonorToDelete] = useState<{no: number, name: string} | null>(null);
+
   const handleRemoveDonor = (no: number, name: string) => {
-    if (!isAdmin) return;
-    if (confirm(`Hapus donatur "${name}" dari daftar tetap?`)) {
-      const dToDelete = permanentDonors.find(d => d.no === no);
-      if (dToDelete && dToDelete.id) {
+    setDonorToDelete({ no, name });
+  };
+
+  const performDeleteDonor = () => {
+    if (!donorToDelete) return;
+    const dToDelete = permanentDonors.find(d => d.no === donorToDelete.no);
+    if (dToDelete && dToDelete.id) {
         deleteDocument('permanent_donors', dToDelete.id);
-        onAddLog('Donatur Dihapus', `Data donatur "${name}" telah dihapus.`, 'alert');
-      }
+        onAddLog('Donatur Dihapus', `Data donatur "${donorToDelete.name}" telah dihapus.`, 'alert');
     }
+    setDonorToDelete(null);
   };
 
   const saveDonorEdit = () => {
-    if (!editDonorForm.name) return;
-    const dToEdit = permanentDonors.find(d => d.no === editingDonorId);
+    if (!editDonorForm.name || !editingDonorId) return;
+    const dToEdit = permanentDonors.find(d => d.id === editingDonorId);
     if (dToEdit && dToEdit.id) {
       updateDocument('permanent_donors', dToEdit.id, editDonorForm);
       onAddLog('Profil Donatur Diperbarui', `Informasi donatur "${editDonorForm.name}" telah diupdate.`, 'info');
@@ -217,6 +223,13 @@ export default function KeuanganMasjid({
 
   return (
     <div className="space-y-6 animate-fade-in" id="accounting_ledger_view">
+      <ConfirmationModal
+        isOpen={!!donorToDelete}
+        title="Hapus Donatur"
+        message={`Anda yakin akan menghapus donatur "${donorToDelete?.name}" dari daftar tetap? Tindakan ini tidak dapat dibatalkan.`}
+        onConfirm={performDeleteDonor}
+        onCancel={() => setDonorToDelete(null)}
+      />
       
       {/* Visual Analytics dashboard strip cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -468,10 +481,10 @@ export default function KeuanganMasjid({
                         const progressPercent = (paidCount / 12) * 100;
 
                         return (
-                          <tr key={d.no} className="hover:bg-slate-50 transition-colors group">
+                          <tr key={d.id || d.no} className="hover:bg-slate-50 transition-colors group">
                             <td className="py-3 px-2 font-mono font-bold text-slate-400 border border-slate-100">{d.no}</td>
                             <td className="py-3 px-4 text-left border border-slate-100">
-                              {editingDonorId === d.no ? (
+                              {editingDonorId === d.id ? (
                                 <input 
                                   value={editDonorForm.name || ''}
                                   onChange={e => setEditDonorForm({...editDonorForm, name: e.target.value})}
@@ -485,7 +498,7 @@ export default function KeuanganMasjid({
                               )}
                             </td>
                             <td className="py-3 px-3 text-right font-mono font-bold text-slate-500 border border-slate-100">
-                              {editingDonorId === d.no ? (
+                              {editingDonorId === d.id ? (
                                 <input 
                                   type="number"
                                   value={editDonorForm.amount || 0}
@@ -497,7 +510,7 @@ export default function KeuanganMasjid({
                               )}
                             </td>
                             <td className="py-3 px-3 text-right border border-slate-100">
-                              {editingDonorId === d.no ? (
+                              {editingDonorId === d.id ? (
                                 <div className="flex gap-2 justify-center">
                                   <button onClick={saveDonorEdit} className="p-1.5 bg-emerald-600 text-white rounded-lg"><Save className="h-3.5 w-3.5"/></button>
                                   <button onClick={() => setEditingDonorId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg"><X className="h-3.5 w-3.5"/></button>
@@ -509,7 +522,7 @@ export default function KeuanganMasjid({
                                     {paidCount === 12 && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full flex items-center justify-center text-[6px] text-slate-900 ring-2 ring-amber-100">★</div>}
                                     {isAdmin && (
                                       <div className="flex items-center gap-1.5 ml-2 opacity-0 group-hover:opacity-100 transition">
-                                        <button onClick={() => {setEditingDonorId(d.no); setEditDonorForm(d);}} className="text-emerald-600"><Edit2 className="h-3 w-3"/></button>
+                                        <button onClick={() => {setEditingDonorId(d.id || null); setEditDonorForm(d);}} className="text-emerald-600"><Edit2 className="h-3 w-3"/></button>
                                         <button onClick={() => handleRemoveDonor(d.no, d.name)} className="text-rose-500"><Trash2 className="h-3 w-3"/></button>
                                       </div>
                                     )}

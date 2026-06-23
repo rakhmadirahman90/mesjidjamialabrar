@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DonationCampaign, Donor } from '../types';
 import { Heart, ShieldCheck, QrCode, CheckCircle, Plus, X, Trash } from 'lucide-react';
 import { subscribeToCollection, subscribeToDocument, addDocument, updateDocument, deleteDocument, clearCollection } from '../lib/db';
+import { ConfirmationModal } from './ConfirmationModal';
 
 interface DonationOpenProps {
   onDonationSuccess: (title: string, msg: string, amount: number) => void;
@@ -152,16 +153,23 @@ export default function DonationOpen({
     }
   };
 
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
   const clearDonors = () => {
-    if (confirm('Bersihkan seluruh riwayat donatur?')) {
-      const ids = donors.map(d => d.id).filter(Boolean);
-      clearCollection('donor_logs', ids);
-      onAddLog('Riwayat Dibersihkan', 'Daftar donatur berhasil dikosongkan.', 'system');
-    }
+    const ids = donors.map(d => d.id).filter(Boolean);
+    clearCollection('donor_logs', ids);
+    onAddLog('Riwayat Dibersihkan', 'Daftar donatur berhasil dikosongkan.', 'system');
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in" id="donation_portal_view">
+      <ConfirmationModal 
+        isOpen={showClearConfirm}
+        title="Bersihkan Riwayat"
+        message="Anda yakin akan menghapus seluruh riwayat donatur? Tindakan ini tidak dapat dibatalkan."
+        onConfirm={clearDonors}
+        onCancel={() => setShowClearConfirm(false)}
+      />
       
       {/* Left Area: Campaign List, Progress & Payment */}
       <div className="lg:col-span-8 space-y-6">
@@ -454,7 +462,7 @@ export default function DonationOpen({
             </h4>
             {isAdmin ? (
               <button 
-                onClick={clearDonors} 
+                onClick={() => setShowClearConfirm(true)} 
                 className="text-[9px] font-bold text-slate-400 hover:text-rose-600 flex items-center gap-1"
               >
                 <Trash className="h-3 w-3" /> Bersihkan

@@ -18,6 +18,7 @@ import MosqueProfile from './components/MosqueProfile';
 import AboutApp from './components/AboutApp';
 import DonationOpen from './components/DonationOpen';
 import KeuanganMasjid from './components/KeuanganMasjid';
+import { ConfirmationModal } from './components/ConfirmationModal';
 import InventarisMasjid from './components/InventarisMasjid';
 import ManajemenJamaah from './components/ManajemenJamaah';
 import ImageSlider from './components/ImageSlider';
@@ -163,6 +164,7 @@ export default function App() {
   const [adminPin, setAdminPin] = useState<string>('123456');
   const [loginError, setLoginError] = useState<string>('');
   const [showPinChange, setShowPinChange] = useState<boolean>(false);
+  const [showPinConfirm, setShowPinConfirm] = useState<boolean>(false);
   const [newPinValue, setNewPinValue] = useState<string>('');
   const [announcement, setAnnouncement] = useState<string>('Selamat Datang di Masjid Jami Al Abrar Lapadde, Parepare. Mari laksanakan Shalat Berjamaah tepat waktu di Shaff terdepan.');
   const [announcementInput, setAnnouncementInput] = useState<string>('');
@@ -233,21 +235,58 @@ export default function App() {
       }
     });
 
-    const unsubDonors = subscribeToCollection('permanent_donors', (data) => {
-      if (data.length === 0) {
-        DUMMY_PERMANENT_DONORS.forEach(d => addDocument('permanent_donors', d));
+    const unsubDonors = subscribeToCollection('permanent_donors', (data: any) => {
+      if (!data || data.length === 0) {
+        DUMMY_PERMANENT_DONORS.forEach(d => {
+          if (d.no) {
+            upsertDocument('permanent_donors', `donor_${d.no}`, d);
+          }
+        });
+      } else {
+        const seenNos = new Set();
+        data.forEach((item: any) => {
+          if (item.no !== undefined && item.id) {
+            if (seenNos.has(item.no)) {
+              deleteDocument('permanent_donors', item.id);
+            } else {
+              seenNos.add(item.no);
+            }
+          }
+        });
       }
     });
 
-    const unsubAssets = subscribeToCollection('mosque_assets', (data) => {
-      if (data.length === 0) {
+    const unsubAssets = subscribeToCollection('mosque_assets', (data: any) => {
+      if (!data || data.length === 0) {
         DUMMY_ASSETS.forEach(a => addDocument('mosque_assets', a));
+      } else {
+        const seenNames = new Set();
+        data.forEach((item: any) => {
+          if (item.name && item.id) {
+            if (seenNames.has(item.name)) {
+              deleteDocument('mosque_assets', item.id);
+            } else {
+              seenNames.add(item.name);
+            }
+          }
+        });
       }
     });
 
-    const unsubCon = subscribeToCollection('mosque_congregants', (data) => {
-      if (data.length === 0) {
+    const unsubCon = subscribeToCollection('mosque_congregants', (data: any) => {
+      if (!data || data.length === 0) {
         DUMMY_CONGREGANTS.forEach(c => addDocument('mosque_congregants', c));
+      } else {
+        const seenPhones = new Set();
+        data.forEach((item: any) => {
+          if (item.phone && item.id) {
+            if (seenPhones.has(item.phone)) {
+              deleteDocument('mosque_congregants', item.id);
+            } else {
+              seenPhones.add(item.phone);
+            }
+          }
+        });
       }
     });
 
@@ -764,12 +803,12 @@ export default function App() {
           <div className="flex overflow-x-auto no-scrollbar gap-1 flex-1 px-1 py-0.5">
             {[
               { id: 'beranda', label: 'Home', icon: <Home className="h-4 w-4" /> },
-              { id: 'profil', label: 'Masjid', icon: <Building className="h-4 w-4" /> },
               { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-4 w-4" /> },
+              { id: 'profil', label: 'Masjid', icon: <Building className="h-4 w-4" /> },
               { id: 'donasi', label: 'Donasi', icon: <Heart className="h-4 w-4" /> },
               { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-4 w-4" /> },
-              { id: 'inventaris', label: 'Aset', icon: <Package className="h-4 w-4" /> },
               { id: 'jamaah', label: 'Jamaah', icon: <Users className="h-4 w-4" /> },
+              { id: 'inventaris', label: 'Aset', icon: <Package className="h-4 w-4" /> },
               { id: 'tentang', label: 'Info', icon: <Info className="h-4 w-4" /> },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
@@ -1058,7 +1097,7 @@ export default function App() {
                                 className="w-full p-2.5 bg-slate-900 text-slate-100 rounded-xl text-xs border border-slate-800 focus:border-blue-400 outline-none font-mono text-center"
                               />
                               <div className="flex gap-2">
-                                <button onClick={() => handlePinChange(newPinValue)} className="flex-1 py-1.5 bg-blue-600 rounded-lg text-[10px] font-bold">Simpan</button>
+                                <button onClick={() => setShowPinConfirm(true)} className="flex-1 py-1.5 bg-blue-600 rounded-lg text-[10px] font-bold">Simpan</button>
                                 <button onClick={() => setShowPinChange(false)} className="flex-1 py-1.5 bg-slate-800 rounded-lg text-[10px] font-bold text-slate-400">Batal</button>
                               </div>
                             </div>
@@ -1098,6 +1137,17 @@ export default function App() {
 
       {/* Professional Floating Notifications */}
       <ProfessionalToasts logs={activeToasts} onRemove={removeToast} />
+      <ConfirmationModal 
+        isOpen={showPinConfirm}
+        title="Ganti PIN"
+        message="Anda yakin akan mengganti PIN akses Admin? Pastikan Anda mengingat PIN baru ini untuk menghindari terkunci dari fitur Admin."
+        onConfirm={() => {
+            handlePinChange(newPinValue);
+            setShowPinConfirm(false);
+            setShowPinChange(false);
+        }}
+        onCancel={() => setShowPinConfirm(false)}
+      />
     </div>
   );
 }
