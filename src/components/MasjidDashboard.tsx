@@ -176,6 +176,26 @@ export default function MasjidDashboard({
         </div>
       </section>
 
+      {/* Live Video Streaming Section */}
+      <section className="space-y-4 pt-4">
+        <h3 className="text-xl font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
+        <div className="bg-slate-950 rounded-3xl p-2 sm:p-3 border border-slate-800 shadow-xl">
+           <div className="relative pt-[56.25%] rounded-2xl overflow-hidden bg-slate-900">
+             <iframe
+               className="absolute top-0 left-0 w-full h-full"
+               src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+               title="Live Streaming Masjid"
+               frameBorder="0"
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+               allowFullScreen
+             ></iframe>
+           </div>
+           <p className="text-[10px] text-slate-400 font-mono p-3 uppercase tracking-widest text-center">
+             Status: Offline / Standby
+           </p>
+        </div>
+      </section>
+
       {/* Admin/Login Section */}
       <div className="pt-6">
         {!isAdmin && (
