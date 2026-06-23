@@ -133,6 +133,7 @@ export interface KajianEntry {
   lecturer: string;
   theme: string;
   category: 'Rutin' | 'Pilihan' | 'Khusus' | 'Ba\'da Subuh' | 'Ba\'da Maghrib' | 'Lainnya';
+  imageUrl?: string;
 }
 
 export interface JumatEntry {
@@ -161,4 +162,5 @@ export interface RoutineEntry {
   day: string;
   description: string;
   category: 'Harian' | 'Bulanan';
+  imageUrl?: string;
 }

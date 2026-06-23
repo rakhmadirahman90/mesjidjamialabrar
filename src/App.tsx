@@ -443,14 +443,27 @@ export default function App() {
   };
 
   const seedDummyData = async () => {
-    if (!confirm('Apakah Anda yakin ingin memuat data dummy (Ramadan)?')) return;
+    if (!confirm('Apakah Anda yakin ingin memuat data dummy (Ramadan & Kegiatan)?')) return;
     try {
       const dummyRamadan: RamadanEntry[] = [
         { id: 'r1', title: 'Tarawih', time: '20:00', description: 'Tarawih berjamaah', icon: '🌙', category: 'Ibadah' },
         { id: 'r2', title: 'Buka Bersama', time: '18:00', description: 'Buka puasa bersama', icon: '🍲', category: 'Sosial' }
       ];
       await Promise.all(dummyRamadan.map(r => upsertDocument('ramadan_schedule', r.id, r)));
-      addLog('Seed Data', 'Data dummy Ramadan berhasil dimuat.', 'success');
+      
+      const dummyRoutine: RoutineEntry[] = [
+        { id: 'k1', title: 'Bersih Masjid', time: '07:00', day: 'Jumat', description: 'Gotong royong membersihkan masjid', category: 'Bulanan' },
+        { id: 'k2', title: 'Pengajian Rutin', time: '19:30', day: 'Kamis', description: 'Kajian kitab bersama ustadz setempat', category: 'Harian' }
+      ];
+      await Promise.all(dummyRoutine.map(r => upsertDocument('routine_schedule', r.id, r)));
+      
+      const dummyKajian: KajianEntry[] = [
+        { id: 'kj1', title: 'Tafsir Jalalain', lecturer: 'Ustadz Ahmad', theme: 'Memahami QS. Al-Baqarah', time: '05:30', day: 'Setiap Hari', category: 'Ba\'da Subuh' },
+        { id: 'kj2', title: 'Kajian Fiqih', lecturer: 'KH. Mahmud', theme: 'Fiqih Shalat Berjamaah', time: '19:00', day: 'Senin', category: 'Ba\'da Maghrib' }
+      ];
+      await Promise.all(dummyKajian.map(r => upsertDocument('kajian_schedule', r.id, r)));
+      
+      addLog('Seed Data', 'Data dummy Ramadan, Kegiatan & Kajian berhasil dimuat.', 'success');
     } catch (e) {
       addLog('Seed Data Gagal', 'Terjadi kesalahan saat memuat data.', 'alert');
     }
