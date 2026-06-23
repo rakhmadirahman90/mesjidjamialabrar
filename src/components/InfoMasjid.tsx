@@ -29,8 +29,10 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
   useEffect(() => {
     const handleSubtabChange = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      if (detail && detail.tab === 'tentang' && detail.subtab) {
-        setInternalSubTab(detail.subtab as any);
+      if (detail && detail.tab === 'profil' && detail.subtab) {
+        if (detail.subtab !== 'jamaah') {
+          setInternalSubTab(detail.subtab as any);
+        }
       }
     };
     window.addEventListener('change_subtab', handleSubtabChange);

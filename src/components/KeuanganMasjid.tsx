@@ -22,8 +22,10 @@ export default function KeuanganMasjid({
   useEffect(() => {
     const handleSubtabChange = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      if (detail && detail.tab === 'keuangan' && detail.subtab) {
-        setActiveSubTab(detail.subtab as any);
+      if (detail && (detail.tab === 'keuangan' || detail.tab === 'donasi') && detail.subtab) {
+        if (detail.subtab === 'donatur_tetap' || detail.subtab === 'kas_utama') {
+          setActiveSubTab(detail.subtab as any);
+        }
       }
     };
     window.addEventListener('change_subtab', handleSubtabChange);

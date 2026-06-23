@@ -37,11 +37,10 @@ export default function ProfessionalToasts({ logs, onRemove }: ToastProps) {
 
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none max-w-sm w-full">
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence>
         {recentToasts.map((log) => (
           <motion.div
             key={log.id}
-            layout
             initial={{ opacity: 0, x: 50, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.95, transition: { duration: 0.2 } }}

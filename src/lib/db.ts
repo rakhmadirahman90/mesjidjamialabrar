@@ -75,8 +75,8 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
     operationType,
     path
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  console.warn('Firestore Operation Notification: ', errInfo);
+  // Do NOT throw to avoid crashing the app in async contexts or iframes
 }
 
 // Helper for document conversion

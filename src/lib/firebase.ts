@@ -3,9 +3,7 @@ import {
   initializeFirestore, 
   doc, 
   getDocFromServer, 
-  setLogLevel,
-  persistentLocalCache,
-  persistentMultipleTabManager
+  setLogLevel
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
@@ -26,14 +24,13 @@ const firebaseConfig = {
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// use initializeFirestore with robust persistentLocalCache to support multi-tab synchronization and offline-first reading
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  }),
+// use initializeFirestore with memory cache for maximum compatibility in iframes
+const firestoreDb = initializeFirestore(app, {
   experimentalForceLongPolling: true,
   experimentalAutoDetectLongPolling: false,
 }, firebaseConfig.firestoreDatabaseId);
+
+export const db = firestoreDb;
 
 export const auth = getAuth(app);
 export const storage = getStorage(app);

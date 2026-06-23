@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Clock, 
   Home,
   Building,
   Heart,
@@ -9,7 +8,12 @@ import {
   Package,
   Calendar,
   Image as ImageIcon,
-  Phone
+  Phone,
+  Settings,
+  Landmark,
+  ChevronDown,
+  Menu,
+  X
 } from 'lucide-react';
 
 import InfoMasjid from './components/InfoMasjid';
@@ -166,6 +170,7 @@ export default function App() {
   const [curDonasiSub, setCurDonasiSub] = useState<'online' | 'donatur_tetap'>('online');
   const [curTentangSub, setCurTentangSub] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap' | 'jamaah'>('info_umum');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
     const handleSubtabSync = (e: Event) => {
@@ -192,10 +197,13 @@ export default function App() {
   // Admin Mode States
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('abrar_is_admin') === 'true';
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return localStorage.getItem('abrar_is_admin') === 'true';
+      }
     } catch (e) {
-      return false;
+      console.warn('LocalStorage access blocked');
     }
+    return false;
   });
 
   const clickCountRef = useRef(0);
@@ -404,7 +412,13 @@ export default function App() {
 
     if (isUserValid && isPassValid) {
       setIsAdmin(true);
-      localStorage.setItem('abrar_is_admin', 'true');
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('abrar_is_admin', 'true');
+        }
+      } catch (e) {
+        console.warn('LocalStorage save failed');
+      }
       setLoginError('');
       addLog('Akses Admin Dibuka', 'Sesi admin aktif berhasil diverifikasi menggunakan Username dan Password.', 'success');
     } else {
@@ -414,7 +428,13 @@ export default function App() {
 
   const handleAdminLogout = () => {
     setIsAdmin(false);
-    localStorage.removeItem('abrar_is_admin');
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.removeItem('abrar_is_admin');
+      }
+    } catch (e) {
+      console.warn('LocalStorage clear failed');
+    }
     addLog('Akses Admin Ditutup', 'Sesi admin berhasil ditutup dengan aman.', 'system');
   };
 
@@ -455,18 +475,30 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const firedAlerts = useRef<Set<string>>(new Set());
 
-  // Check notification permission on mount
+  // Check notification permission on mount and setup audio
   useEffect(() => {
-    if ('Notification' in window) {
-      setNotificationPermission(Notification.permission);
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        setNotificationPermission(Notification.permission);
+      }
+    } catch (e) {
+      console.warn("Notification API access restricted:", e);
     }
-    
-    // Setup audio element
-    audioRef.current = new Audio();
+
+    try {
+      // Setup audio element
+      audioRef.current = new Audio();
+    } catch (e) {
+      console.warn("Audio API access restricted:", e);
+    }
 
     return () => {
       if (audioRef.current) {
-        audioRef.current.pause();
+        try {
+          audioRef.current.pause();
+        } catch (e) {
+          // Ignore pause errors on cleanup
+        }
       }
     };
   }, []);
@@ -622,7 +654,7 @@ export default function App() {
         audioRef.current.load(); // Ensure the source is loaded
         audioRef.current.volume = volume;
         audioRef.current.onerror = () => {
-          console.error("Failed to load custom audio, falling back to default.");
+          console.warn("Failed to load custom audio, falling back to default.");
           if (customAdzan && audioRef.current) {
             audioRef.current.src = AUDIO_SOURCES.adzan;
             audioRef.current.load();
@@ -636,7 +668,7 @@ export default function App() {
           setIsAudioPlaying(false);
           // Only log error if it's not simply an interruption (AbortError)
           if (err.name !== 'AbortError') {
-            console.error("Audio playback error:", err);
+            console.warn("Audio playback error:", err);
             addLog('Kegagalan Suara', 'Gagal memutar aliran audio eksternal. Kami merekomendasikan menggunakan nada sintetis Chime atau Gong.', 'info');
           }
         });
@@ -702,7 +734,7 @@ export default function App() {
         addLog('Izin Notifikasi Ditolak', 'Izin ditolak. Peringatan hanya akan muncul di dalam aplikasi.', 'alert');
       }
     } catch (e) {
-      console.error(e);
+      console.warn('Notification permission error:', e);
     }
   };
 
@@ -742,7 +774,7 @@ export default function App() {
           window.focus();
         };
       } catch (err) {
-        console.error("Failed to showcase desktop notification:", err);
+        console.warn("Failed to showcase desktop notification:", err);
       }
     }
 
@@ -964,62 +996,43 @@ export default function App() {
       
       {/* Floating Glass Navbar Capsule mimicking the premium Istiqlal UI/UX */}
       {(activeTab === 'beranda' || !isAdmin) && (
-      <header className="sticky top-2 sm:top-5 z-50 w-full max-w-[1440px] mx-auto px-2 sm:px-6 lg:px-8 xl:px-12 select-none overflow-visible" id="header_navbar">
-          <div className="bg-[#091b14]/95 backdrop-blur-md border border-emerald-500/20 rounded-[1.5rem] sm:rounded-full px-4 py-2.5 sm:px-6 sm:py-3.5 shadow-[0_20px_50px_rgba(4,47,31,0.25)] flex flex-col xl:flex-row xl:items-center justify-between gap-2 text-white transition-all duration-300 overflow-hidden sm:overflow-visible">
+      <header className="sticky top-1 sm:top-2 z-50 w-full max-w-[1400px] mx-auto px-1.5 sm:px-6 lg:px-12 select-none overflow-visible" id="header_navbar">
+          <div className="bg-[#0b1f17]/95 backdrop-blur-md border border-emerald-500/20 rounded-xl sm:rounded-full px-2.5 py-1.5 sm:px-4 sm:py-1.5 shadow-[0_15px_40px_rgba(4,47,31,0.3)] flex items-center justify-between gap-1 text-white transition-all duration-300 overflow-visible">
             
             {/* Brand Left Silhouette Logo Area */}
-            <div className="flex items-center justify-between w-full xl:w-auto shrink-0 border-b border-white/5 pb-2 xl:pb-0 xl:border-b-0">
-              <div 
-                className="flex items-center gap-2 sm:gap-3 cursor-pointer group" 
-                onClick={() => {
-                  const triggered = handleLogoClick();
-                  if (!triggered) {
-                    setActiveTab('beranda');
-                  }
-                  setActiveDropdown(null);
-                }}
-              >
-              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 border border-white/10 flex items-center justify-center text-base sm:text-xl shadow-lg shrink-0 transform group-hover:scale-105 transition-all duration-300">
-                🕌
+            <div 
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0" 
+              onClick={() => {
+                const triggered = handleLogoClick();
+                if (!triggered) {
+                  setActiveTab('beranda');
+                }
+                setActiveDropdown(null);
+              }}
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 border border-white/10 flex items-center justify-center text-sm sm:text-lg shadow-lg shrink-0 transform group-hover:scale-105 transition-all duration-300">
+                <Landmark className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-              <div className="text-left leading-tight">
-                <span className="text-[7px] sm:text-[8px] font-black tracking-[0.25em] text-emerald-400 uppercase leading-none block mb-0.5">Pusat Ibadah</span>
-                <h1 className="text-[11px] xs:text-xs sm:text-sm font-extrabold tracking-wider text-white uppercase whitespace-nowrap">
+              <div className="text-left leading-tight hidden xs:block">
+                <span className="text-[6px] sm:text-[7px] font-black tracking-[0.2em] text-emerald-400 uppercase leading-none block mb-0.5">Pusat Ibadah</span>
+                <h1 className="text-[10px] sm:text-xs font-black tracking-wider text-white uppercase whitespace-nowrap">
                   Masjid Jami Al Abrar <span className="text-emerald-400">Parepare</span>
                 </h1>
-                <span className="text-[7px] sm:text-[8px] font-bold text-emerald-400/50 tracking-[0.2em] uppercase block mt-0.5 hidden sm:block">Sistem Masjid Cerdas</span>
               </div>
             </div>
 
-            {/* Quick action widgets on mobile viewport inside brand row */}
-            <div className="flex items-center gap-1.5 xs:gap-2 xl:hidden">
-              <span className="text-[8px] xs:text-[9px] font-bold font-mono text-amber-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full shadow-inner leading-none">
-                {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-              </span>
-              <button
-                onClick={() => {
-                  setActiveTab('donasi');
-                  setActiveDropdown(null);
-                }}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-2.5 py-1 xs:px-4 xs:py-1.5 text-[8px] xs:text-[9px] font-black tracking-widest uppercase shadow-md flex items-center gap-1 active:scale-95 transition-all"
-              >
-                <Heart className="h-2.5 w-2.5 fill-current" />
-                <span>DONASI</span>
-              </button>
-            </div>
-          </div>
-
           {/* Desktop Core Navigation Links (Uppercased, spacing elegant) */}
-          <nav className={`hidden ${activeTab === 'beranda' || !isAdmin ? 'md:flex' : 'hidden'} items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans`}>
-          {[
-            { id: 'beranda', label: 'Home', hasSub: false },
-            { id: 'profil', label: 'Profil', hasSub: true },
-            { id: 'jadwal', label: 'Jadwal', hasSub: true },
-            { id: 'galeri', label: 'Galeri', hasSub: false },
-            { id: 'keuangan', label: 'Kas', hasSub: false },
-            { id: 'inventaris', label: 'Aset', hasSub: false },
-            { id: 'kontak', label: 'Kontak', hasSub: false },
-          ].map((tab) => {
+          <nav className={`hidden md:flex items-center justify-center gap-0.5 lg:gap-1 tracking-widest text-[10px] lg:text-[11px] font-black font-sans uppercase`}>
+            {[
+              { id: 'beranda', label: 'Beranda', hasSub: false },
+              { id: 'profil', label: 'Profil', hasSub: true },
+              { id: 'jadwal', label: 'Jadwal', hasSub: true },
+              { id: 'galeri', label: 'Galeri', hasSub: false },
+              { id: 'keuangan', label: 'Laporan', hasSub: true },
+              { id: 'donasi', label: 'Donasi', hasSub: true },
+              { id: 'inventaris', label: 'Inventaris', hasSub: false },
+              { id: 'kontak', label: 'Kontak', hasSub: false },
+            ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <div
@@ -1037,15 +1050,15 @@ export default function App() {
                         setActiveDropdown(null);
                       }
                     }}
-                    className={`flex items-center gap-1 px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-300 relative outline-none whitespace-nowrap overflow-visible select-none ${
+                    className={`flex items-center gap-1 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition-all duration-300 relative outline-none whitespace-nowrap overflow-visible select-none ${
                       isActive
-                        ? 'text-emerald-400'
-                        : 'text-slate-300 hover:text-white'
+                        ? 'text-emerald-400 font-black'
+                        : 'text-slate-300/80 hover:text-white'
                     }`}
                   >
                     <span>{tab.label}</span>
                     {tab.hasSub && (
-                      <span className="text-[7px] text-slate-400 ml-0.5 mt-0.5 transition-transform duration-200 group-hover/nav:translate-y-0.5">▼</span>
+                      <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${activeDropdown === tab.id ? 'rotate-180' : ''}`} />
                     )}
                     {isActive && (
                       <motion.span
@@ -1056,7 +1069,7 @@ export default function App() {
                     )}
                   </button>
 
-                  {/* Desktop Dropdown with White Luxurious Floating Cards style */}
+                  {/* Desktop Dropdown with Dark Luxurious Floating Cards style */}
                   <AnimatePresence>
                     {tab.hasSub && activeDropdown === tab.id && (
                       <motion.div
@@ -1064,14 +1077,14 @@ export default function App() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-3.5 bg-white border border-slate-100 shadow-[0_30px_60px_rgba(15,23,42,0.15)] rounded-3xl p-5 min-w-[340px] z-55 flex flex-col gap-2.5 overflow-hidden text-left"
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-3.5 bg-[#0b1f17]/98 backdrop-blur-xl border border-emerald-500/20 shadow-[0_30px_60px_rgba(0,0,0,0.5)] rounded-3xl p-5 min-w-[340px] z-55 flex flex-col gap-2.5 overflow-hidden text-left"
                         style={{ transformOrigin: 'top center' }}
                         onMouseEnter={() => setActiveDropdown(tab.id)}
                         onMouseLeave={() => setActiveDropdown(null)}
                       >
                          {/* Dropdown Header */}
-                         <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 mb-1 select-none">
-                           <span className="text-[9px] font-black text-emerald-600 tracking-wider uppercase">PILIH LAYANAN {tab.label}</span>
+                         <div className="flex items-center justify-between pb-2.5 border-b border-white/5 mb-1 select-none">
+                           <span className="text-[9px] font-black text-emerald-400 tracking-wider uppercase">PILIH LAYANAN {tab.label}</span>
                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                          </div>
                          <div className="grid grid-cols-1 gap-1">
@@ -1089,17 +1102,23 @@ export default function App() {
                                    onClick={() => handleSubtabClick(tab.id, sub.key)}
                                    className={`w-full flex items-start text-left gap-3.5 p-2.5 rounded-2xl transition-all duration-150 ${
                                      isSelected
-                                       ? 'bg-emerald-50 text-emerald-950 font-bold border-l-4 border-emerald-600 shadow-inner'
-                                       : 'hover:bg-slate-50 text-slate-700 hover:translate-x-1'
+                                       ? 'bg-emerald-600/20 text-white font-bold border-l-4 border-emerald-400 shadow-inner'
+                                       : 'hover:bg-white/5 text-slate-300 hover:text-white hover:translate-x-1'
                                    }`}
                                  >
-                                   <span className="text-base shrink-0 p-2 bg-slate-100 border border-slate-200/40 rounded-xl">{sub.icon}</span>
+                                   <span className={`text-base shrink-0 p-2 border rounded-xl transition-colors ${
+                                     isSelected ? 'bg-emerald-500/20 border-emerald-500/40' : 'bg-white/5 border-white/10'
+                                   }`}>{sub.icon}</span>
                                    <div className="min-w-0 flex-1">
-                                     <p className="text-xs font-extrabold tracking-tight text-slate-800 flex items-center justify-between">
+                                     <p className={`text-xs font-extrabold tracking-tight flex items-center justify-between ${
+                                       isSelected ? 'text-white' : 'text-slate-200'
+                                     }`}>
                                        <span>{sub.label}</span>
-                                       {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1.5 rounded font-black">ADMIN</span>}
+                                       {sub.adminOnly && <span className="bg-amber-400 text-amber-950 text-[8px] px-1.5 rounded font-black">ADMIN</span>}
                                      </p>
-                                     <p className="text-[9px] text-slate-400 mt-1 font-medium leading-normal">{sub.desc}</p>
+                                     <p className={`text-[9px] mt-1 font-medium leading-normal ${
+                                       isSelected ? 'text-emerald-200/60' : 'text-slate-500'
+                                     }`}>{sub.desc}</p>
                                    </div>
                                  </button>
                                );
@@ -1113,63 +1132,78 @@ export default function App() {
             })}
           </nav>
 
-          {/* Touch-optimized horizontal menu list on mobile, designed to be gorgeous and intuitive */}
-          <div className={`${activeTab === 'beranda' || !isAdmin ? 'flex' : 'hidden'} md:hidden overflow-x-auto no-scrollbar gap-1.5 py-2 w-full mt-2 border-t border-white/5 pt-3`}>
-            {[
-              { id: 'beranda', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
-              { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
-              { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-3.5 w-3.5" /> },
-              { id: 'galeri', label: 'Galeri', icon: <ImageIcon className="h-3.5 w-3.5" /> },
-              { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-3.5 w-3.5" /> },
-              { id: 'inventaris', label: 'Aset', icon: <Package className="h-3.5 w-3.5" /> },
-              { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id as any);
-                    setActiveDropdown(null);
-                  }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap outline-none ${
-                    isActive
-                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-950/40 border border-emerald-400/30'
-                      : 'text-slate-300 bg-white/5 active:bg-white/10 border border-white/5'
-                  }`}
-                >
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Desktop Right Side CTA widgets */}
-          <div className="hidden xl:flex items-center gap-3 shrink-0 select-none">
-            {/* Real-time Clock Widget mimicking the premium screenshot item */}
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-left shadow-inner">
-              <Clock className="h-3.5 w-3.5 text-amber-400 shrink-0 animate-pulse" />
-              <div className="flex flex-col text-[8px] font-extrabold font-mono text-slate-350 tracking-wide uppercase leading-none gap-0.5">
-                <span className="text-amber-300">{currentTime.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-                <span className="text-white">{currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WITA</span>
-              </div>
+          {/* Right Side Tools Area (Clock, CTA) */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            {/* Universal Digital Clock (Mono font for stability) */}
+            <div className="hidden sm:flex flex-col items-end border-r border-white/10 pr-3 mr-1">
+               <span className="text-[10px] font-black text-amber-300 font-mono tracking-tighter tabular-nums leading-none">
+                {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+              <span className="text-[6px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Parepare, Indonesia</span>
             </div>
 
-            {/* Premium Mint Donasi Button exactly like Istiqlal design banner CTA */}
+            {/* Major CTA Button (Donasi) */}
             <button
               onClick={() => {
                 setActiveTab('donasi');
                 setActiveDropdown(null);
               }}
-              className="bg-emerald-600 hover:bg-emerald-500 hover:scale-105 active:scale-95 text-white rounded-full px-5 py-2.5 text-xs font-black tracking-widest uppercase shadow-xl hover:shadow-emerald-950/20 flex items-center gap-1.5 transition-all duration-300 select-none cursor-pointer border border-emerald-500/20"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-[8px] sm:text-[10px] font-black tracking-widest uppercase shadow-lg shadow-emerald-900/40 flex items-center gap-1.5 group/cta transition-all active:scale-95"
             >
-              <Heart className="h-3.5 w-3.5 fill-current text-white shrink-0" />
-              <span>DONASI</span>
+              <Heart className="h-3 w-3 fill-current group-hover/cta:scale-110 transition-transform" />
+              <span className="hidden sm:inline">Infaq & Sedekah</span>
+              <span className="sm:hidden">INFAQ</span>
+            </button>
+
+            {/* Minimal Mobile Menu Toggle */}
+            <button 
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="md:hidden p-2 rounded-full bg-white/5 hover:bg-white/10 transition border border-white/10"
+            >
+              {showMobileMenu ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
-
         </div>
+
+        {/* Compact Mobile Scrollable Menu under the brand capsule */}
+        <AnimatePresence>
+          {showMobileMenu && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl mt-1 overflow-hidden shadow-2xl"
+            >
+              <div className="p-2 grid grid-cols-2 gap-1.5">
+                {[
+                  { id: 'beranda', label: 'Beranda', icon: <Home className="h-3.5 w-3.5" /> },
+                  { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
+                  { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-3.5 w-3.5" /> },
+                  { id: 'galeri', label: 'Galeri', icon: <ImageIcon className="h-3.5 w-3.5" /> },
+                  { id: 'keuangan', label: 'Laporan', icon: <TrendingUp className="h-3.5 w-3.5" /> },
+                  { id: 'donasi', label: 'Donasi', icon: <Heart className="h-3.5 w-3.5" /> },
+                  { id: 'inventaris', label: 'Inventaris', icon: <Package className="h-3.5 w-3.5" /> },
+                  { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },
+                  { id: 'admin', label: 'Admin', icon: <Settings className="h-3.5 w-3.5" /> },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id as any);
+                      setShowMobileMenu(false);
+                    }}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                      activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 bg-white/5'
+                    }`}
+                  >
+                    {tab.icon}
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
       )}
 
@@ -1194,7 +1228,7 @@ export default function App() {
                       onClick={() => handleSubtabClick(activeTab, sub.key)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[9px] sm:text-xs font-black tracking-wider transition-all duration-300 transform active:scale-95 border uppercase ${
                         isSelected
-                          ? 'bg-amber-500 text-slate-950 font-black shadow-[0_0_12px_rgba(245,158,11,0.25)] border-amber-400'
+                          ? 'bg-emerald-600 text-white font-black shadow-[0_0_12px_rgba(16,185,129,0.25)] border-emerald-500'
                           : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                       }`}
                     >

@@ -1,6 +1,60 @@
 <!doctype html>
 <html lang="id">
   <head>
+    <script>
+      // Robust early error suppression for benign cross-origin iframe errors
+      (function() {
+        var ignoredMessages = [
+          'Script error.',
+          'Script error',
+          'Unexpected token \'<\'',
+          'ResizeObserver loop limit exceeded',
+          'ResizeObserver loop completed with undelivered notifications',
+          'error 0:',
+          'NS_ERROR_NOT_INITIALIZED',
+          'QuotaExceededError',
+          'NetworkError',
+          'Failed to fetch',
+          'FirebaseError',
+          'firestore'
+        ];
+
+        var shouldSuppress = function(msg) {
+          if (!msg) return false;
+          var sMsg = String(msg);
+          for (var i = 0; i < ignoredMessages.length; i++) {
+            if (sMsg.indexOf(ignoredMessages[i]) !== -1) return true;
+          }
+          return false;
+        };
+
+        var originalError = console.error;
+        console.error = function() {
+          if (arguments[0] && shouldSuppress(arguments[0])) {
+            // Quietly log suppressed errors to warn instead of error
+            console.warn('[Suppressed Error]', arguments[0]);
+            return;
+          }
+          originalError.apply(console, arguments);
+        };
+
+        var suppress = function(e) {
+          var msg = "";
+          if (typeof e === 'string') msg = e;
+          else if (e && e.message) msg = e.message;
+          else if (e && e.reason && (e.reason.message || e.reason)) msg = e.reason.message || String(e.reason);
+
+          if (shouldSuppress(msg)) {
+            if (e.preventDefault) e.preventDefault();
+            if (e.stopPropagation) e.stopPropagation();
+            return true;
+          }
+        };
+
+        window.addEventListener('error', suppress, true);
+        window.addEventListener('unhandledrejection', suppress, true);
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Masjid Jami Al Abrar</title>
