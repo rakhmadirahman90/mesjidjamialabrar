@@ -43,8 +43,24 @@ interface FirestoreErrorInfo {
 }
 
 function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const code = (error as any)?.code || '';
+  const message = error instanceof Error ? error.message : String(error);
+
+  // If the error is network/offline related (transient/connection issue), log it and fail safe
+  if (
+    code === 'unavailable' || 
+    message.includes('Could not reach Cloud Firestore backend') ||
+    message.includes('unavailable') ||
+    message.includes('failed to connect') ||
+    message.includes('Connection failed') ||
+    message.includes('the client is offline')
+  ) {
+    console.warn(`[Firestore Safe Fallback] Operation '${operationType}' on path '${path}' experienced a network/disconnect. Currently operating in offline cache mode. Error detail: ${message}`);
+    return;
+  }
+
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: message,
     authInfo: {
       userId: auth.currentUser?.uid,
       email: auth.currentUser?.email,

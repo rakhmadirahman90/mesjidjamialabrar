@@ -165,3 +165,56 @@ export interface RoutineEntry {
   category: 'Harian' | 'Bulanan';
   imageUrl?: string;
 }
+
+export interface AdminDashboardPortalProps {
+  onLogout: () => void;
+  announcement: string;
+  announcementInput: string;
+  setAnnouncementInput: (val: string) => void;
+  showAnnouncement: boolean;
+  onUpdateAnnouncement: (text: string) => void;
+  onToggleAnnouncement: (enabled: boolean) => void;
+  adminPin: string;
+  showPinChange: boolean;
+  setShowPinChange: (val: boolean) => void;
+  newPinValue: string;
+  setNewPinValue: (val: string) => void;
+  onPinChange: (pin: string) => void;
+  onResetDefaults: () => void;
+  onResetAllData: () => void;
+  seedDummyData: () => void;
+  onClearLogs: () => void;
+  addLog: (title: string, message: string, type: 'info' | 'success' | 'alert' | 'system') => void;
+  logs: NotificationLog[];
+  prayers: PrayerTime[];
+  nextDetails: any;
+  notificationPermission: string;
+  selectedAudio: string;
+  isMuted: boolean;
+  volume: number;
+  isAudioPlaying: boolean;
+  testNotificationTimeLeft: number | null;
+  showConfigInfo: boolean;
+  editingPrayer: any;
+  editTimeValue: string;
+  onSetShowConfigInfo: (val: boolean) => void;
+  onTriggerQuickTest: () => void;
+  onRequestNotificationPermission: () => void;
+  onSetSelectedAudio: (val: any) => void;
+  onSetIsMuted: (val: boolean) => void;
+  onSetVolume: (val: number) => void;
+  onToggleSoundPlay: () => void;
+  onStartEditing: (p: any) => void;
+  onSetEditTimeValue: (val: string) => void;
+  onSavePrayerEdit: () => void;
+  onCancelEdit: () => void;
+  onDeleteLog: (id: string) => void;
+  slides: SlideItem[];
+  kajian: KajianEntry[];
+  jumat: JumatEntry[];
+  ramadan: RamadanEntry[];
+  routine: RoutineEntry[];
+  campaigns: DonationCampaign[];
+  onDonationSuccess: (title: string, msg: string, amount: number) => void;
+  triggerAudioPlayback: () => void;
+}

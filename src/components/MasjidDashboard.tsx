@@ -190,7 +190,7 @@ export default function MasjidDashboard({
 
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+    <div className="w-full py-2 sm:py-4 space-y-6 sm:space-y-8">
       {/* Waktu Sholat Wilayah Parepare - Perfect reconstruction of Image 3 */}
       <div className="w-full relative select-none">
         <motion.div 
@@ -210,73 +210,80 @@ export default function MasjidDashboard({
           <div className="relative z-10 w-full flex flex-col items-center">
             
             {/* Title with yellow gold glow line */}
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-wide font-display uppercase">
+            <h2 className="text-xl sm:text-3xl lg:text-5xl font-black text-white tracking-wide font-display uppercase px-2">
               Waktu Sholat wilayah Parepare
             </h2>
-            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent bg-amber-500 mx-auto mt-2.5 mb-5 rounded-full shadow-[0_0_8px_#d4af37]"></div>
-
+            <div className="w-16 sm:w-24 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent bg-amber-500 mx-auto mt-2 sm:mt-2.5 mb-4 sm:mb-5 rounded-full shadow-[0_0_8px_#d4af37]"></div>
+ 
             {/* Location marker info pill - Custom Cimahi / Parepare reference */}
-            <div className="flex items-center gap-2 text-emerald-200/70 text-xs sm:text-sm font-black tracking-widest uppercase mb-6 bg-emerald-950/40 border border-emerald-500/10 px-4 py-1.5 rounded-full">
-              <MapPin className="h-4 w-4 text-emerald-400" />
+            <div className="flex items-center gap-2 text-emerald-200/70 text-[10px] sm:text-sm font-black tracking-widest uppercase mb-5 sm:mb-6 bg-emerald-950/40 border border-emerald-500/10 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
+              <MapPin className="h-3.5 w-3.5 text-emerald-400" />
               <span>Parepare</span>
             </div>
-
+ 
             {/* Capsule Ticking CountDown Badge */}
-            <div className="bg-[#0b3c2a]/60 border border-emerald-500/15 backdrop-blur-md rounded-[2.5rem] px-12 py-5 max-w-sm w-full mx-auto shadow-inner mb-6 flex flex-col items-center">
-              <span className="text-[10px] font-black tracking-[0.25em] text-[#abccbe] uppercase mb-1">
+            <div className="bg-[#0b3c2a]/60 border border-emerald-500/15 backdrop-blur-md rounded-2xl sm:rounded-[2.5rem] px-5 sm:px-12 py-3 sm:py-5 max-w-xs sm:max-w-sm w-full mx-auto shadow-inner mb-5 sm:mb-6 flex flex-col items-center">
+              <span className="text-[9px] sm:text-[10px] font-black tracking-[0.25em] text-[#abccbe] uppercase mb-0.5 sm:mb-1">
                 MENUJU {targetName}
               </span>
-              <div className="text-3xl sm:text-4.5xl font-black tracking-widest font-mono text-white">
+              <div className="text-2xl sm:text-4.5xl font-black tracking-widest font-mono text-white">
                 {timeLeft}
               </div>
             </div>
-
+ 
             {/* Dates: Gregorian and Hijri aligned */}
-            <p className="text-emerald-100/60 text-xs font-black tracking-wider uppercase mb-1">
+            <p className="text-emerald-100/60 text-[10px] sm:text-xs font-black tracking-wider uppercase mb-0.5 sm:mb-1">
               {currentDateFormatted}
             </p>
-            <p className="text-amber-400 text-lg sm:text-xl font-black tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+            <p className="text-amber-400 text-base sm:text-xl font-black tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
               {hijriFormatted}
             </p>
-
-            {/* Prayer Cards Grid Horizontally (Exact replica of Image 3) */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 sm:gap-6 w-full mt-11 max-w-4xl relative">
-              {FIVE_PRAYERS.map((fp) => {
-                const prayerValue = prayers.find(p => p.id === fp.id);
-                const displayTime = prayerValue ? prayerValue.time : '00:00';
-                const isActive = targetName === fp.name;
-
-                return (
-                  <button
-                    key={fp.id}
-                    onClick={() => onNavigate('jadwal')}
-                    className={`group transition-all duration-500 flex flex-col justify-between items-center rounded-3xl p-5 min-h-[145px] hover:-translate-y-1 ${
-                      isActive 
-                        ? 'bg-gradient-to-b from-amber-500 via-amber-600 to-yellow-600 border-0 shadow-[0_15px_30px_rgba(245,158,11,0.35)] scale-105 z-10' 
-                        : 'bg-[#06241a]/60 backdrop-blur-md border border-white/5 hover:border-white/12 text-white'
-                    }`}
-                  >
-                    {/* Icon aligned at top */}
-                    <div className="mb-2">
-                      {getPrayerIcon(fp.id, isActive)}
-                    </div>
-
-                    {/* Prayer key label centered */}
-                    <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] mb-2 ${
-                      isActive ? 'text-white' : 'text-emerald-200/50 group-hover:text-emerald-100'
-                    }`}>
-                      {fp.label}
-                    </span>
-
-                    {/* Display exact sholat time at bottom */}
-                    <span className={`font-black font-mono tracking-tight text-center ${
-                      isActive ? 'text-white text-2xl drop-shadow-md' : 'text-white text-xl'
-                    }`}>
-                      {displayTime}
-                    </span>
-                  </button>
-                );
-              })}
+ 
+            {/* Prayer Cards Grid Horizontally with fluid swipe navigation on Mobile viewports */}
+            <div className="w-full overflow-x-auto no-scrollbar py-2 -my-2 mt-8 sm:mt-11">
+              <div className="grid grid-cols-5 gap-3 sm:gap-6 min-w-[640px] sm:min-w-0 w-full px-4 sm:px-0 relative">
+                {FIVE_PRAYERS.map((fp) => {
+                  const prayerValue = prayers.find(p => p.id === fp.id);
+                  const displayTime = prayerValue ? prayerValue.time : '00:00';
+                  const isActive = targetName === fp.name;
+  
+                  return (
+                    <button
+                      key={fp.id}
+                      onClick={() => onNavigate('jadwal')}
+                      className={`group transition-all duration-500 flex flex-col justify-between items-center rounded-2xl sm:rounded-3xl p-4 sm:p-5 min-h-[125px] sm:min-h-[145px] hover:-translate-y-1 ${
+                        isActive 
+                          ? 'bg-gradient-to-b from-amber-500 via-amber-600 to-yellow-600 border-0 shadow-[0_15px_30px_rgba(245,158,11,0.35)] scale-[1.03] z-10' 
+                          : 'bg-[#06241a]/60 backdrop-blur-md border border-white/5 hover:border-white/12 text-white'
+                      }`}
+                    >
+                      {/* Icon aligned at top */}
+                      <div className="mb-2">
+                        {getPrayerIcon(fp.id, isActive)}
+                      </div>
+  
+                      {/* Prayer key label centered */}
+                      <span className={`text-[8px] sm:text-[10px] font-black uppercase tracking-[0.25em] mb-2 ${
+                        isActive ? 'text-white' : 'text-emerald-200/50 group-hover:text-emerald-100'
+                      }`}>
+                        {fp.label}
+                      </span>
+  
+                      {/* Display exact sholat time at bottom */}
+                      <span className={`font-black font-mono tracking-tight text-center ${
+                        isActive ? 'text-white text-xl sm:text-2xl drop-shadow-md' : 'text-white text-lg sm:text-xl'
+                      }`}>
+                        {displayTime}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Small scroll helper guide for mobile viewers */}
+            <div className="block sm:hidden text-emerald-400/60 font-medium text-[9px] tracking-widest uppercase mt-3 animate-pulse bg-emerald-950/20 border border-emerald-500/5 rounded-full px-3.5 py-1">
+              Geser secara horizontal untuk waktu lainnya ⇄
             </div>
 
           </div>

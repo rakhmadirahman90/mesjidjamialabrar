@@ -94,7 +94,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab }: InfoMasjidProps
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-4 space-y-8 animate-fade-in" id="info_masjid_view">
+    <div className="w-full py-2 space-y-6 sm:space-y-8 animate-fade-in" id="info_masjid_view">
       
       {/* 1. TENTANG / INFORMASI UMUM */}
       {activeTab === 'info_umum' && (

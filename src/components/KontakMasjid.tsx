@@ -114,7 +114,7 @@ export default function KontakMasjid({ isAdmin = false }: KontakMasjidProps) {
   };
 
   return (
-    <div className="animate-fade-in space-y-8 max-w-5xl mx-auto px-2">
+    <div className="animate-fade-in space-y-6 sm:space-y-8 w-full">
       
       {/* Title Header matching Screenshot Theme */}
       <div className="text-center space-y-3">

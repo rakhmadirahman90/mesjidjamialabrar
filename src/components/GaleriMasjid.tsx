@@ -270,7 +270,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
   };
 
   return (
-    <div className="space-y-8 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" id="galeri_masjid_container">
+    <div className="space-y-6 sm:space-y-8 pb-16 w-full" id="galeri_masjid_container">
       
       {/* 1. Header Banner & Filter Area */}
       <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-900 text-white p-8 sm:p-12 shadow-2xl">

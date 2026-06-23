@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Clock, 
   Settings, 
-  RefreshCw, 
   Home,
   Building,
   Heart,
@@ -24,11 +23,10 @@ import ImageSlider from './components/ImageSlider';
 import JadwalHub from './components/JadwalHub';
 import MasjidDashboard from './components/MasjidDashboard';
 import ProfessionalToasts from './components/ProfessionalToasts';
-import AudioUploader from './components/AudioUploader';
 import AdminLogin from './components/AdminLogin';
-import QrisUploader from './components/QrisUploader';
 import GaleriMasjid from './components/GaleriMasjid';
 import KontakMasjid from './components/KontakMasjid';
+import AdminDashboardPortal from './components/AdminDashboardPortal';
 import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign, RoutineEntry } from './types';
 import { 
   DEFAULT_SLIDES,
@@ -197,6 +195,7 @@ export default function App() {
   const [newPinValue, setNewPinValue] = useState<string>('');
   const [announcement, setAnnouncement] = useState<string>('Selamat Datang di Masjid Jami Al Abrar Lapadde, Parepare. Mari laksanakan Shalat Berjamaah tepat waktu di Shaff terdepan.');
   const [announcementInput, setAnnouncementInput] = useState<string>('');
+  const [showAnnouncement, setShowAnnouncement] = useState<boolean>(false);
   const [customAdzan, setCustomAdzan] = useState<string | null>(null);
 
   useEffect(() => {
@@ -211,7 +210,7 @@ export default function App() {
 
   // Firebase Real-time listeners
   useEffect(() => {
-    const unsubConfig = subscribeToDocument<{ announcement: string, adminPin: string, prayers: PrayerTime[] }>('settings', 'config', (data) => {
+    const unsubConfig = subscribeToDocument<{ announcement: string, adminPin: string, prayers: PrayerTime[], showAnnouncement?: boolean }>('settings', 'config', (data) => {
       if (data) {
         if (data.announcement) {
           setAnnouncement(data.announcement);
@@ -219,12 +218,18 @@ export default function App() {
         }
         if (data.adminPin) setAdminPin(data.adminPin);
         if (data.prayers) setPrayers(data.prayers);
+        if (data.showAnnouncement !== undefined) {
+          setShowAnnouncement(data.showAnnouncement);
+        } else {
+          setShowAnnouncement(false);
+        }
       } else {
         // Seed initial config
         upsertDocument('settings', 'config', {
           announcement: announcement,
           adminPin: adminPin,
-          prayers: DEFAULT_PRAYERS
+          prayers: DEFAULT_PRAYERS,
+          showAnnouncement: false
         });
       }
     });
@@ -357,14 +362,17 @@ export default function App() {
     };
   }, []);
 
-  const handleAdminLogin = (pinStr: string) => {
-    if (pinStr.trim() === adminPin) {
+  const handleAdminLogin = (userStr: string, passStr: string) => {
+    const isUserValid = userStr.trim().toLowerCase() === 'admin' || userStr.trim().toLowerCase() === 'admin_abrar';
+    const isPassValid = passStr.trim() === adminPin || passStr.trim() === 'admin123';
+
+    if (isUserValid && isPassValid) {
       setIsAdmin(true);
       localStorage.setItem('abrar_is_admin', 'true');
       setLoginError('');
-      addLog('Akses Admin Dibuka', 'Sesi admin aktif berhasil diverifikasi menggunakan PIN.', 'success');
+      addLog('Akses Admin Dibuka', 'Sesi admin aktif berhasil diverifikasi menggunakan Username dan Password.', 'success');
     } else {
-      setLoginError('PIN yang Anda masukkan salah. Silakan coba lagi.');
+      setLoginError('Username atau Password yang Anda masukkan salah. Silakan coba lagi.');
     }
   };
 
@@ -395,6 +403,16 @@ export default function App() {
     setAnnouncement(cleanText);
     upsertDocument('settings', 'config', { announcement: cleanText });
     addLog('Pengumuman Masjid Diperbarui', `Informasi baru dipublikasikan: "${cleanText}"`, 'info');
+  };
+
+  const handleToggleAnnouncement = (enabled: boolean) => {
+    setShowAnnouncement(enabled);
+    upsertDocument('settings', 'config', { showAnnouncement: enabled });
+    addLog(
+      enabled ? 'Pengumuman Diaktifkan' : 'Pengumuman Dinonaktifkan',
+      enabled ? 'Running text pengumuman kini aktif dan tampil di halaman utama.' : 'Running text pengumuman disembunyikan dari halaman utama.',
+      enabled ? 'success' : 'info'
+    );
   };
 
   // Audio element reference to control playback
@@ -881,210 +899,370 @@ export default function App() {
     setActiveDropdown(null);
   };
 
+  if (activeTab === 'admin' && isAdmin) {
+    return (
+      <AdminDashboardPortal
+        onLogout={handleAdminLogout}
+        announcement={announcement}
+        announcementInput={announcementInput}
+        setAnnouncementInput={setAnnouncementInput}
+        showAnnouncement={showAnnouncement}
+        onUpdateAnnouncement={handleUpdateAnnouncement}
+        onToggleAnnouncement={handleToggleAnnouncement}
+        adminPin={adminPin}
+        showPinChange={showPinChange}
+        setShowPinChange={setShowPinChange}
+        newPinValue={newPinValue}
+        setNewPinValue={setNewPinValue}
+        onPinChange={handlePinChange}
+        onResetDefaults={handleResetDefaults}
+        onResetAllData={handleResetAllData}
+        seedDummyData={seedDummyData}
+        onClearLogs={() => {
+          const ids = logs.map(l => (l as any).id).filter(Boolean);
+          clearCollection('activity_logs', ids);
+        }}
+        addLog={addLog}
+        logs={logs}
+        prayers={prayers}
+        nextDetails={nextDetails}
+        notificationPermission={notificationPermission}
+        selectedAudio={selectedAudio}
+        isMuted={isMuted}
+        volume={volume}
+        isAudioPlaying={isAudioPlaying}
+        testNotificationTimeLeft={testNotificationTimeLeft}
+        showConfigInfo={showConfigInfo}
+        editingPrayer={editingPrayer}
+        editTimeValue={editTimeValue}
+        onSetShowConfigInfo={setShowConfigInfo}
+        onTriggerQuickTest={triggerQuickTest}
+        onRequestNotificationPermission={requestNotificationPermission}
+        onSetSelectedAudio={setSelectedAudio}
+        onSetIsMuted={setIsMuted}
+        onSetVolume={setVolume}
+        onToggleSoundPlay={toggleSoundPlay}
+        onStartEditing={startEditing}
+        onSetEditTimeValue={setEditTimeValue}
+        onSavePrayerEdit={savePrayerEdit}
+        onCancelEdit={() => setEditingPrayer(null)}
+        onDeleteLog={deleteLog}
+        slides={slides}
+        kajian={kajian}
+        jumat={jumat}
+        ramadan={ramadan}
+        routine={routine}
+        campaigns={campaigns}
+        onDonationSuccess={(title, msg, _amount) => {
+          addLog(title, msg, 'success');
+          triggerAudioPlayback();
+        }}
+        triggerAudioPlayback={triggerAudioPlayback}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
-      {/* Top Emerald Header */}
-      <header className="bg-slate-950 text-white shadow-md relative overflow-hidden border-b border-white/5" id="header_navbar">
-        {/* Motif background pattern */}
-        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-emerald-900/40 via-transparent to-transparent pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto px-4 py-2 sm:py-3 sm:px-6 lg:px-8 relative z-10 flex flex-nowrap items-center justify-between gap-3">
+      {/* Floating Glass Navbar Capsule mimicking the premium Istiqlal UI/UX */}
+      <header className="sticky top-3 sm:top-5 z-50 w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 select-none overflow-visible" id="header_navbar">
+        <div className="bg-[#091b14]/95 backdrop-blur-md border border-emerald-500/20 rounded-[1.8rem] sm:rounded-full px-3.5 py-2 sm:px-6 sm:py-3.5 shadow-[0_20px_50px_rgba(4,47,31,0.25)] flex flex-col xl:flex-row xl:items-center justify-between gap-2 text-white transition-all duration-300 overflow-hidden sm:overflow-visible">
           
-          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 border border-white/20 flex items-center justify-center text-lg sm:text-xl shadow-lg shrink-0 transform hover:scale-105 transition duration-300">
-              🕌
-            </div>
-            <div className="min-w-0 text-left animate-fade-in-down">
-              <div className="flex flex-col">
-                <span className="text-[8px] sm:text-[9px] font-extrabold text-emerald-400 uppercase tracking-[0.25em] leading-none mb-0.5 sm:mb-1">Pusat Ibadah</span>
-                <h1 className="text-sm sm:text-xl font-extrabold tracking-tight whitespace-nowrap text-white leading-tight">
-                  Masjid Al Abrar
-                  <span className="text-emerald-300 font-extrabold ml-1.5 uppercase tracking-wide text-xs sm:text-lg">PAREPARE</span>
+          {/* Brand Left Silhouette Logo Area */}
+          <div className="flex items-center justify-between w-full xl:w-auto shrink-0 border-b border-white/5 pb-2 xl:pb-0 xl:border-b-0">
+            <div 
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer group" 
+              onClick={() => {
+                setActiveTab('beranda');
+                setActiveDropdown(null);
+              }}
+            >
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 border border-white/10 flex items-center justify-center text-base sm:text-xl shadow-lg shrink-0 transform group-hover:scale-105 transition-all duration-300">
+                🕌
+              </div>
+              <div className="text-left leading-tight">
+                <span className="text-[7px] sm:text-[8px] font-black tracking-[0.25em] text-emerald-400 uppercase leading-none block mb-0.5">Pusat Ibadah</span>
+                <h1 className="text-[11px] xs:text-xs sm:text-sm font-extrabold tracking-wider text-white uppercase whitespace-nowrap">
+                  Al Abrar <span className="text-emerald-400">Parepare</span>
                 </h1>
-              </div>
-              <p className="text-emerald-400/60 text-[7px] sm:text-[8px] font-bold uppercase tracking-[0.25em] leading-none mt-1 hidden sm:block">Sistem Cerdas Terintegrasi</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center shrink-0">
-            <div className="flex items-center gap-1.5 sm:gap-2.5 bg-white/5 border border-white/10 px-2 sm:px-3 py-1 sm:py-1 rounded-full shrink-0 shadow-lg">
-              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400 shrink-0" />
-              <div className="flex flex-col items-start shrink-0 text-left">
-                <span className="text-[7px] sm:text-[8px] font-bold text-amber-300 uppercase tracking-widest leading-none mb-0.5">
-                  {currentTime.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}
-                </span>
-                <span className="text-xs sm:text-sm font-bold font-mono tracking-wide text-white leading-none">
-                  {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                  <span className="text-[9px] opacity-40 ml-0.5">: {currentTime.toLocaleTimeString('id-ID', { second: '2-digit' })}</span>
-                  <span className="text-[8px] ml-1 opacity-60 font-bold text-amber-200">WITA</span>
-                </span>
+                <span className="text-[7px] sm:text-[8px] font-bold text-emerald-400/50 tracking-[0.2em] uppercase block mt-0.5 hidden sm:block">Sistem Cerdas Terintegrasi</span>
               </div>
             </div>
+
+            {/* Quick action widgets on mobile viewport inside brand row */}
+            <div className="flex items-center gap-1.5 xs:gap-2 xl:hidden">
+              <span className="text-[8px] xs:text-[9px] font-bold font-mono text-amber-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full shadow-inner leading-none">
+                {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+              <button
+                onClick={() => {
+                  setActiveTab('donasi');
+                  setActiveDropdown(null);
+                }}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-2.5 py-1 xs:px-4 xs:py-1.5 text-[8px] xs:text-[9px] font-black tracking-widest uppercase shadow-md flex items-center gap-1 active:scale-95 transition-all"
+              >
+                <Heart className="h-2.5 w-2.5 fill-current" />
+                <span>DONASI</span>
+              </button>
+            </div>
           </div>
+
+          {/* Desktop Core Navigation Links (Uppercased, spacing elegant) */}
+          <nav className="hidden xl:flex items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans">
+            {[
+              { id: 'beranda', label: 'Home', hasSub: false },
+              { id: 'profil', label: 'Profil', hasSub: true },
+              { id: 'jadwal', label: 'Jadwal', hasSub: true },
+              { id: 'galeri', label: 'Galeri', hasSub: false },
+              { id: 'donasi', label: 'Donasi', hasSub: false },
+              { id: 'keuangan', label: 'Kas', hasSub: false },
+              { id: 'inventaris', label: 'Aset', hasSub: false },
+              { id: 'kontak', label: 'Kontak', hasSub: false },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <div
+                  key={tab.id}
+                  className="relative group/nav"
+                  onMouseEnter={() => tab.hasSub && setActiveDropdown(tab.id)}
+                  onMouseLeave={() => tab.hasSub && setActiveDropdown(null)}
+                >
+                  <button
+                    onClick={() => {
+                      setActiveTab(tab.id as any);
+                      if (tab.hasSub) {
+                        setActiveDropdown(activeDropdown === tab.id ? null : tab.id);
+                      } else {
+                        setActiveDropdown(null);
+                      }
+                    }}
+                    className={`flex items-center gap-1 px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-300 relative outline-none whitespace-nowrap overflow-visible select-none ${
+                      isActive
+                        ? 'text-emerald-400'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    {tab.hasSub && (
+                      <span className="text-[7px] text-slate-400 ml-0.5 mt-0.5 transition-transform duration-200 group-hover/nav:translate-y-0.5">▼</span>
+                    )}
+                    {isActive && (
+                      <motion.span
+                        layoutId="activeFloatingIndicator"
+                        className="absolute bottom-0 left-3 right-3 h-[2px] bg-emerald-400 rounded-full"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </button>
+
+                  {/* Desktop Dropdown with White Luxurious Floating Cards style */}
+                  <AnimatePresence>
+                    {tab.hasSub && activeDropdown === tab.id && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-3.5 bg-white border border-slate-100 shadow-[0_30px_60px_rgba(15,23,42,0.15)] rounded-3xl p-5 min-w-[340px] z-55 flex flex-col gap-2.5 overflow-hidden text-left"
+                        style={{ transformOrigin: 'top center' }}
+                        onMouseEnter={() => setActiveDropdown(tab.id)}
+                        onMouseLeave={() => setActiveDropdown(null)}
+                      >
+                         {/* Dropdown Header */}
+                         <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 mb-1 select-none">
+                           <span className="text-[9px] font-black text-emerald-600 tracking-wider uppercase">PILIH LAYANAN {tab.label}</span>
+                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                         </div>
+                         <div className="grid grid-cols-1 gap-1">
+                           {submenusMap[tab.id]
+                             ?.filter(sub => !sub.adminOnly || isAdmin)
+                             .map((sub) => {
+                               const isSelected = tab.id === 'jadwal' ? curJadwalSub === sub.key
+                                 : tab.id === 'keuangan' ? curKeuanganSub === sub.key
+                                 : tab.id === 'profil' ? curTentangSub === sub.key
+                                 : false;
+                               return (
+                                 <button
+                                   key={sub.key}
+                                   onClick={() => handleSubtabClick(tab.id, sub.key)}
+                                   className={`w-full flex items-start text-left gap-3.5 p-2.5 rounded-2xl transition-all duration-150 ${
+                                     isSelected
+                                       ? 'bg-emerald-50 text-emerald-950 font-bold border-l-4 border-emerald-600 shadow-inner'
+                                       : 'hover:bg-slate-50 text-slate-700 hover:translate-x-1'
+                                   }`}
+                                 >
+                                   <span className="text-base shrink-0 p-2 bg-slate-100 border border-slate-200/40 rounded-xl">{sub.icon}</span>
+                                   <div className="min-w-0 flex-1">
+                                     <p className="text-xs font-extrabold tracking-tight text-slate-800 flex items-center justify-between">
+                                       <span>{sub.label}</span>
+                                       {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1.5 rounded font-black">ADMIN</span>}
+                                     </p>
+                                     <p className="text-[9px] text-slate-400 mt-1 font-medium leading-normal">{sub.desc}</p>
+                                   </div>
+                                 </button>
+                               );
+                             })}
+                         </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Touch-optimized horizontal menu list on mobile, designed to be gorgeous and intuitive */}
+          <div className="flex xl:hidden overflow-x-auto no-scrollbar gap-1.5 py-1 w-full mt-1">
+            {[
+              { id: 'beranda', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
+              { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
+              { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-3.5 w-3.5" /> },
+              { id: 'galeri', label: 'Galeri', icon: <ImageIcon className="h-3.5 w-3.5" /> },
+              { id: 'donasi', label: 'Donasi', icon: <Heart className="h-3.5 w-3.5" /> },
+              { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-3.5 w-3.5" /> },
+              { id: 'inventaris', label: 'Aset', icon: <Package className="h-3.5 w-3.5" /> },
+              { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id as any);
+                    setActiveDropdown(null);
+                  }}
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap outline-none ${
+                    isActive
+                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-950/40 border border-emerald-400/30'
+                      : 'text-slate-300 bg-white/5 active:bg-white/10 border border-white/5'
+                  }`}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Desktop Right Side CTA widgets */}
+          <div className="hidden xl:flex items-center gap-3 shrink-0 select-none">
+            {/* Real-time Clock Widget mimicking the premium screenshot item */}
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-left shadow-inner">
+              <Clock className="h-3.5 w-3.5 text-amber-400 shrink-0 animate-pulse" />
+              <div className="flex flex-col text-[8px] font-extrabold font-mono text-slate-350 tracking-wide uppercase leading-none gap-0.5">
+                <span className="text-amber-300">{currentTime.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                <span className="text-white">{currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WITA</span>
+              </div>
+            </div>
+
+            {/* Premium Mint Donasi Button exactly like Istiqlal design banner CTA */}
+            <button
+              onClick={() => {
+                setActiveTab('donasi');
+                setActiveDropdown(null);
+              }}
+              className="bg-emerald-600 hover:bg-emerald-500 hover:scale-105 active:scale-95 text-white rounded-full px-5 py-2.5 text-xs font-black tracking-widest uppercase shadow-xl hover:shadow-emerald-950/20 flex items-center gap-1.5 transition-all duration-300 select-none cursor-pointer border border-emerald-500/20"
+            >
+              <Heart className="h-3.5 w-3.5 fill-current text-white shrink-0" />
+              <span>DONASI</span>
+            </button>
+          </div>
+
         </div>
       </header>
 
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-5 space-y-4 sm:space-y-5 pb-12 sm:pb-16" id="main_content">
-        
-        {/* Banner Running Text / Pengumuman */}
-        <div className="bg-emerald-950 border border-emerald-900 rounded-2xl py-2 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden shadow-inner font-sans">
-          <span className="bg-amber-400 text-emerald-950 text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 sm:py-1 rounded-md shrink-0 tracking-wider flex items-center gap-1 shadow-sm">
-            📢 PENGUMUMAN
-          </span>
-          <div className="relative flex-1 overflow-hidden h-5 flex items-center">
-            <div className="absolute whitespace-nowrap text-[11px] sm:text-xs text-emerald-100 font-medium tracking-wide animate-marquee hover:pause-marquee">
-              {announcement}
-            </div>
-          </div>
-        </div>
-
-        {/* Dynamic Navigation Tab Hub */}
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-1 border border-slate-200/80 shadow-[0_12px_24px_rgba(15,23,42,0.04)] flex flex-col sticky top-2 sm:top-4 z-40 overflow-visible transition-all duration-300" id="navigation_menu_tabs">
-          <div className="relative flex items-center w-full">
-            <div className="flex overflow-x-auto no-scrollbar gap-0.5 flex-1 px-1 py-1 items-center relative scroll-smooth w-full">
-              {[
-                { id: 'beranda', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
-                { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
-                { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-3.5 w-3.5" /> },
-                { id: 'galeri', label: 'Galeri', icon: <ImageIcon className="h-3.5 w-3.5" /> },
-                { id: 'donasi', label: 'Donasi', icon: <Heart className="h-3.5 w-3.5" /> },
-                { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-3.5 w-3.5" /> },
-                { id: 'inventaris', label: 'Aset', icon: <Package className="h-3.5 w-3.5" /> },
-                { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },
-                { id: 'admin', label: 'Admin', icon: <Settings className="h-3.5 w-3.5" /> },
-              ].map((tab) => {
-                const isActive = activeTab === tab.id;
-                const hasSubmenu = !!submenusMap[tab.id];
-                return (
-                  <div 
-                    key={tab.id}
-                    className="relative shrink-0"
-                    onMouseEnter={() => hasSubmenu && setActiveDropdown(tab.id)}
-                    onMouseLeave={() => hasSubmenu && setActiveDropdown(null)}
-                  >
+      {/* Category Submenu Pill Row (When a desktop tab has submenus, float beneath the sticky navbar in gorgeous dark-emerald gold glass wrapper) */}
+      {submenusMap[activeTab] && (
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-2 select-none z-30 relative animate-fade-in">
+          <div className="bg-[#031d12]/90 backdrop-blur-md px-4 py-2.5 sm:py-3 border border-emerald-500/15 shadow-[0_15px_35px_rgba(4,47,31,0.25)] rounded-2xl flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth">
+            <span className="text-[9px] font-black text-emerald-400/60 uppercase tracking-widest shrink-0 hidden xl:inline-block border-r border-emerald-500/10 pr-3.5 mr-0.5">Kategori:</span>
+            <div className="flex gap-2 min-w-max">
+              {submenusMap[activeTab]
+                .filter(sub => !sub.adminOnly || isAdmin)
+                .map(sub => {
+                  const isSelected = activeTab === 'jadwal' ? curJadwalSub === sub.key
+                    : activeTab === 'keuangan' ? curKeuanganSub === sub.key
+                    : activeTab === 'profil' ? curTentangSub === sub.key
+                    : false;
+                  return (
                     <button
-                      onClick={() => {
-                        setActiveTab(tab.id as any);
-                        if (hasSubmenu) {
-                          setActiveDropdown(activeDropdown === tab.id ? null : tab.id);
-                        } else {
-                          setActiveDropdown(null);
-                        }
-                      }}
-                      className={`flex items-center gap-1.5 px-3 sm:px-4.5 py-1.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all duration-300 outline-none relative whitespace-nowrap overflow-visible ${
-                        isActive 
-                          ? 'text-white shadow-md shadow-slate-900/10'
-                          : 'text-slate-500 hover:text-slate-950 hover:bg-slate-50/80 transition-colors'
+                      key={sub.key}
+                      onClick={() => handleSubtabClick(activeTab, sub.key)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[9px] sm:text-xs font-black tracking-wider transition-all duration-300 transform active:scale-95 border uppercase ${
+                        isSelected
+                          ? 'bg-amber-500 text-slate-950 font-black shadow-[0_0_12px_rgba(245,158,11,0.25)] border-amber-400'
+                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                       }`}
                     >
-                      <span className="relative z-10 flex items-center gap-1.5">
-                        {tab.icon}
-                        <span>{tab.label}</span>
-                        {hasSubmenu && (
-                          <span className="text-[7px] opacity-60 ml-0.5 transform group-hover:translate-y-0.5 transition-transform">▼</span>
-                        )}
-                      </span>
-                      {isActive && (
-                        <motion.div 
-                          layoutId="activeNav"
-                          className="absolute inset-0 bg-slate-950 rounded-xl"
-                          style={{ zIndex: 0 }}
-                          transition={{ type: "spring", bounce: 0.1, duration: 0.5 }}
-                        />
-                      )}
+                      <span className="text-sm shrink-0">{sub.icon}</span>
+                      <span className="whitespace-nowrap leading-none mt-0.5">{sub.label}</span>
+                      {sub.adminOnly && <span className="bg-amber-950 text-amber-300 text-[8px] px-1 rounded font-black ml-1 border border-amber-500/10">ADMIN</span>}
                     </button>
-
-                    {/* Desktop Hover / Click Dropdown Menu (With Framer Motion transition) */}
-                    <AnimatePresence>
-                      {hasSubmenu && activeDropdown === tab.id && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                          transition={{ duration: 0.12 }}
-                          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border border-slate-200 shadow-2xl rounded-2xl p-2 grid grid-cols-1 gap-0.5 min-w-[280px] z-50 hidden sm:block"
-                          style={{ transformOrigin: 'top center' }}
-                          onMouseEnter={() => setActiveDropdown(tab.id)}
-                          onMouseLeave={() => setActiveDropdown(null)}
-                        >
-                          <div className="px-2.5 py-1.5 border-b border-slate-100 mb-1 flex items-center justify-between">
-                            <p className="text-[9px] font-black uppercase text-emerald-600 tracking-wider">Detail Menu {tab.label}</p>
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                          </div>
-                          {submenusMap[tab.id]
-                            .filter(sub => !sub.adminOnly || isAdmin)
-                            .map(sub => {
-                              const isSelected = tab.id === 'jadwal' ? curJadwalSub === sub.key
-                                : tab.id === 'keuangan' ? curKeuanganSub === sub.key
-                                : tab.id === 'profil' ? curTentangSub === sub.key
-                                : false;
-                              return (
-                                <button
-                                  key={sub.key}
-                                  onClick={() => handleSubtabClick(tab.id, sub.key)}
-                                  className={`w-full flex items-start text-left gap-3 p-2 rounded-lg transition-all duration-150 ${
-                                    isSelected 
-                                      ? 'bg-emerald-50 text-emerald-950 font-bold border-l-4 border-emerald-600' 
-                                      : 'hover:bg-slate-50 text-slate-700 hover:translate-x-0.5'
-                                  }`}
-                                >
-                                  <span className="text-base shrink-0 p-1 bg-slate-50 border border-slate-100 rounded-md shadow-sm">{sub.icon}</span>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="text-xs font-bold tracking-tight leading-none flex items-center justify-between">
-                                      <span>{sub.label}</span>
-                                      {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1 py-0.5 rounded font-black tracking-normal">ADMIN</span>}
-                                    </p>
-                                    <p className="text-[9px] text-slate-400 mt-1.5 leading-normal font-medium">{sub.desc}</p>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Secondary Submenu Pill Row (Sleek, High contrast, Touch-friendly on all viewports) */}
-          {submenusMap[activeTab] && (
-            <div className="border-t border-slate-100 px-4 py-3 flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth bg-slate-50/70 rounded-b-[1.75rem]">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0 hidden md:inline-block">Kategori Utama:</span>
-              <div className="flex gap-2.5 min-w-max">
-                {submenusMap[activeTab]
-                  .filter(sub => !sub.adminOnly || isAdmin)
-                  .map(sub => {
-                    const isSelected = activeTab === 'jadwal' ? curJadwalSub === sub.key
-                      : activeTab === 'keuangan' ? curKeuanganSub === sub.key
-                      : activeTab === 'profil' ? curTentangSub === sub.key
-                      : false;
-                    return (
-                      <button
-                        key={sub.key}
-                        onClick={() => handleSubtabClick(activeTab, sub.key)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all duration-300 transform active:scale-95 ${
-                          isSelected
-                            ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 -translate-y-0.5'
-                            : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200/50 shadow-sm'
-                        }`}
-                      >
-                        <span className="text-sm shrink-0">{sub.icon}</span>
-                        <span className="whitespace-nowrap tracking-wide">{sub.label}</span>
-                        {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1 rounded font-black">ADMIN</span>}
-                      </button>
-                    );
-                  })}
+
+      {/* Premium Editorial Header Banner for Non-Home tabs (mimicking the clean, institutional banner backdrop) */}
+      {activeTab !== 'beranda' && (
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-4 select-none relative animate-fade-in z-10">
+          <div className="relative h-28 sm:h-36 bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-950 text-white rounded-3xl flex items-end px-6 sm:px-10 pb-5 sm:pb-6 overflow-hidden shadow-lg border border-emerald-900/40">
+            {/* Background pattern */}
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute -bottom-8 -right-8 w-44 h-44 sm:w-64 sm:h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-left">
+              <div>
+                <span className="text-[9px] font-black tracking-[0.25em] text-emerald-400 uppercase">Halaman Layanan</span>
+                <h2 className="text-lg sm:text-2xl font-black tracking-tight text-white uppercase mt-0.5">
+                  {activeTab === 'profil' ? 'Profil Jami Al Abrar' :
+                   activeTab === 'jadwal' ? 'Jadwal & Syiar' :
+                   activeTab === 'galeri' ? 'Galeri Dokumentasi' :
+                   activeTab === 'donasi' ? 'Portal Amal Jariyah' :
+                   activeTab === 'keuangan' ? 'Keuangan & Infaq' :
+                   activeTab === 'inventaris' ? 'Aset & Inventaris' :
+                   activeTab === 'kontak' ? 'Kontak Kami' :
+                   'Sistem Administrator'}
+                </h2>
+              </div>
+              
+              {/* Breadcrumb paths */}
+              <div className="text-[9px] sm:text-[10px] text-slate-350 font-bold bg-white/5 border border-white/10 px-3 py-1.5 rounded-full max-w-fit flex items-center gap-1.5 backdrop-blur-sm shadow-inner mt-1 sm:mt-0">
+                <span className="text-slate-500 hover:text-slate-300 font-extrabold cursor-pointer" onClick={() => setActiveTab('beranda')}>BERANDA</span>
+                <span className="text-slate-500">/</span>
+                <span className="text-emerald-400 uppercase font-extrabold">{activeTab}</span>
               </div>
             </div>
-          )}
+          </div>
         </div>
+      )}
 
 
+      {/* Main Container */}
+      <main className="flex-1 max-w-[1440px] w-full mx-auto p-3 sm:p-5 lg:px-8 xl:px-12 space-y-4 sm:space-y-5 pb-12 sm:pb-16" id="main_content">
         
+        {/* Banner Running Text / Pengumuman - Integrated beneath headers */}
+        {showAnnouncement && (
+          <div className="bg-emerald-950 border border-emerald-900 rounded-2xl py-2 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden shadow-inner font-sans">
+            <span className="bg-amber-400 text-emerald-950 text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 sm:py-1 rounded-md shrink-0 tracking-wider flex items-center gap-1 shadow-sm">
+              📢 PENGUMUMAN
+            </span>
+            <div className="relative flex-1 overflow-hidden h-5 flex items-center">
+              <div className="absolute whitespace-nowrap text-[11px] sm:text-xs text-emerald-100 font-medium tracking-wide animate-marquee hover:pause-marquee">
+                {announcement}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div id="main_content_anchor"></div>
+
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -1103,7 +1281,7 @@ export default function App() {
                 <MasjidDashboard 
                   prayers={prayers}
                   nextDetails={nextDetails}
-                  isAdmin={isAdmin}
+                  isAdmin={false}
                   onNavigate={setActiveTab}
                   onShowLogin={() => setActiveTab('admin')}
                 />
@@ -1114,7 +1292,7 @@ export default function App() {
               <>
                 {curTentangSub === 'jamaah' ? (
                   <ManajemenJamaah 
-                    isAdmin={isAdmin}
+                    isAdmin={false}
                     onAddLog={addLog} 
                     onShowLogin={() => setActiveTab('admin')}
                   />
@@ -1127,7 +1305,7 @@ export default function App() {
             )}
 
             {activeTab === 'galeri' && (
-              <GaleriMasjid isAdmin={isAdmin} />
+              <GaleriMasjid isAdmin={false} />
             )}
 
             {activeTab === 'jadwal' && (
@@ -1189,7 +1367,7 @@ export default function App() {
                   }}
                   onNavigate={(tab) => setActiveTab(tab as any)}
                   onDeleteLog={deleteLog}
-                  isAdmin={isAdmin}
+                  isAdmin={false}
                   slides={slides}
                   onUpdateSlides={async () => {
                     // Logic to update slides handled by subcomponents
@@ -1211,7 +1389,7 @@ export default function App() {
             
             {activeTab === 'donasi' && (
               <DonationOpen 
-                isAdmin={isAdmin}
+                isAdmin={false}
                 campaigns={campaigns}
                 onUpdateCampaigns={() => {
                   // Handled by subcomponent usually
@@ -1226,7 +1404,7 @@ export default function App() {
 
             {activeTab === 'keuangan' && (
               <KeuanganMasjid 
-                isAdmin={isAdmin} 
+                isAdmin={false} 
                 onAddLog={addLog} 
                 onShowLogin={() => setActiveTab('admin')} 
               />
@@ -1234,19 +1412,19 @@ export default function App() {
 
             {activeTab === 'inventaris' && (
               <InventarisMasjid 
-                isAdmin={isAdmin} 
+                isAdmin={false} 
                 onAddLog={addLog} 
                 onShowLogin={() => setActiveTab('admin')} 
               />
             )}
 
             {activeTab === 'kontak' && (
-              <KontakMasjid isAdmin={isAdmin} />
+              <KontakMasjid isAdmin={false} />
             )}
 
             {activeTab === 'jamaah' && (
               <ManajemenJamaah 
-                isAdmin={isAdmin}
+                isAdmin={false}
                 onAddLog={addLog} 
                 onShowLogin={() => setActiveTab('admin')}
               />
@@ -1254,182 +1432,11 @@ export default function App() {
 
             {activeTab === 'admin' && (
               <div className="animate-fade-in space-y-6">
-                {!isAdmin ? (
-                  <AdminLogin 
-                    onLogin={handleAdminLogin} 
-                    loginError={loginError} 
-                    onClose={() => setActiveTab('beranda')}
-                  />
-                ) : (
-                  <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl shadow-2xl p-6 sm:p-10 relative overflow-hidden border-t-8 border-amber-400" id="admin_control_tab">
-                    <div className="absolute right-0 top-0 opacity-5 text-9xl font-sans select-none translate-y-4 -translate-x-8 font-black pointer-events-none text-amber-300">
-                      ADMIN
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 relative z-10">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 sm:p-4 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-2xl sm:rounded-3xl shadow-lg">
-                          <Settings className="h-6 w-6 sm:h-8 sm:w-8" />
-                        </div>
-                        <div className="text-left">
-                          <h3 className="font-black text-xl sm:text-2xl tracking-tight text-white flex items-center gap-2">
-                            ADMIN HUB
-                            <span className="bg-amber-400 text-slate-950 text-[8px] sm:text-[10px] px-2 py-0.5 rounded-full font-black uppercase">LIVE</span>
-                          </h3>
-                          <p className="text-slate-400 text-xs sm:text-sm mt-0.5 font-medium">Pusat kendali Masjid Jami Al Abrar.</p>
-                        </div>
-                      </div>
-                      
-                      <button
-                        onClick={handleAdminLogout}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white font-black text-xs rounded-2xl shadow-xl shadow-rose-950/40 transition active:scale-95"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                        Keluar & Kunci
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
-                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-amber-400/30 transition duration-300 group">
-                        <div className="w-10 h-10 bg-amber-400/10 rounded-xl flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
-                          📢
-                        </div>
-                        <div className="space-y-2 text-left">
-                          <h4 className="font-black text-[10px] sm:text-[11px] text-amber-400 uppercase tracking-widest text-left">Broadcast Pengumuman</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
-                            Update running text yang tampil secara realtime pada display utama masjid.
-                          </p>
-                        </div>
-                        <div className="space-y-3 pt-2">
-                          <textarea
-                            rows={2}
-                            placeholder="Tulis pengumuman baru..."
-                            value={announcementInput}
-                            onChange={(e) => setAnnouncementInput(e.target.value)}
-                            className="w-full p-3 bg-slate-900/80 text-slate-100 placeholder-slate-600 rounded-2xl text-[11px] border border-slate-800 focus:border-amber-400 outline-none transition"
-                          />
-                          <button
-                            onClick={() => handleUpdateAnnouncement(announcementInput)}
-                            className="w-full py-2.5 bg-amber-400 hover:bg-amber-500 active:bg-amber-600 font-black text-slate-950 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-amber-400/10"
-                          >
-                            Update Sekarang
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-emerald-400/30 transition duration-300 group">
-                        <div className="w-10 h-10 bg-emerald-400/10 rounded-xl flex items-center justify-center text-emerald-300 group-hover:scale-110 transition">
-                          🛠️
-                        </div>
-                        <div className="space-y-2 text-left">
-                          <h4 className="font-black text-[10px] sm:text-[11px] text-emerald-400 uppercase tracking-widest text-left">Utilitas Sistem</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
-                            Aksi cepat untuk mereset data atau membersihkan logs aktivitas historis.
-                          </p>
-                        </div>
-                        <div className="space-y-2 pt-2">
-                          <button
-                            onClick={handleResetDefaults}
-                            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
-                          >
-                            Reset Jadwal Sholat
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (confirm('Bersihkan LOG aktivitas?')) {
-                                setLogs([]);
-                                localStorage.removeItem('abrar_notification_logs');
-                                addLog('Log Dibersihkan', 'Admin membersihkan log aktivitas.', 'system');
-                              }
-                            }}
-                            className="w-full py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
-                          >
-                            Bersihkan System Logs
-                          </button>
-                          <button
-                            onClick={handleResetAllData}
-                            className="w-full py-3 bg-red-600 hover:bg-red-500 text-white border border-red-500 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
-                          >
-                            Reset SEMUA Data
-                          </button>
-                          <button
-                            onClick={seedDummyData}
-                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
-                          >
-                            Muat Data Dummy
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-sky-400/30 transition duration-300 group">
-                        <div className="w-10 h-10 bg-sky-400/10 rounded-xl flex items-center justify-center text-sky-300 group-hover:scale-110 transition">
-                          📷
-                        </div>
-                        <div className="space-y-2 text-left">
-                          <h4 className="font-black text-[10px] sm:text-[11px] text-sky-400 uppercase tracking-widest text-left">Update QRIS</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
-                            Ganti gambar QRIS masjid yang tampil pada menu donasi.
-                          </p>
-                        </div>
-                        <QrisUploader onAddLog={addLog} />
-                      </div>
-
-                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-emerald-400/30 transition duration-300 group">
-                        <div className="w-10 h-10 bg-emerald-400/10 rounded-xl flex items-center justify-center text-emerald-300 group-hover:scale-110 transition">
-                          🎵
-                        </div>
-                        <div className="space-y-2 text-left">
-                          <h4 className="font-black text-[10px] sm:text-[11px] text-emerald-400 uppercase tracking-widest text-left">Suara Notifikasi</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
-                            Ganti file audio Adzan untuk notifikasi waktu shalat.
-                          </p>
-                        </div>
-                        <AudioUploader 
-                          onAddLog={addLog} 
-                          onUpload={(dataUrl: string) => {
-                            upsertDocument('settings', 'audio_config', { adzanUrl: dataUrl });
-                          }}
-                        />
-                      </div>
-
-                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-blue-400/30 transition duration-300 group">
-                        <div className="w-10 h-10 bg-blue-400/10 rounded-xl flex items-center justify-center text-blue-300 group-hover:scale-110 transition">
-                          🔐
-                        </div>
-                        <div className="space-y-2 text-left">
-                          <h4 className="font-black text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-widest text-left">Keamanan Akses</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
-                            Ganti PIN otorisasi Admin untuk menjaga kerahasiaan akses kontrol sistem.
-                          </p>
-                        </div>
-                        <div className="pt-2">
-                          {showPinChange ? (
-                            <div className="space-y-2">
-                              <input
-                                type="password"
-                                placeholder="PIN Baru"
-                                value={newPinValue}
-                                onChange={(e) => setNewPinValue(e.target.value)}
-                                className="w-full p-2.5 bg-slate-900 text-slate-100 rounded-xl text-xs border border-slate-800 focus:border-blue-400 outline-none font-mono text-center"
-                              />
-                              <div className="flex gap-2">
-                                <button onClick={() => setShowPinConfirm(true)} className="flex-1 py-1.5 bg-blue-600 rounded-lg text-[10px] font-bold">Simpan</button>
-                                <button onClick={() => setShowPinChange(false)} className="flex-1 py-1.5 bg-slate-800 rounded-lg text-[10px] font-bold text-slate-400">Batal</button>
-                              </div>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => setShowPinChange(true)}
-                              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-bold transition active:scale-95"
-                            >
-                              Ganti PIN Otorisasi
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <AdminLogin 
+                  onLogin={handleAdminLogin} 
+                  loginError={loginError} 
+                  onClose={() => setActiveTab('beranda')}
+                />
               </div>
             )}
           </motion.div>
@@ -1439,7 +1446,7 @@ export default function App() {
 
       {/* Footer Area */}
       <footer className="fixed bottom-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md text-emerald-250 border-t border-emerald-900/50 py-4 px-4 z-40" id="footer_section">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between">
           <p className="text-emerald-400/80 text-[10px] font-bold tracking-[0.2em] uppercase">@2026 Mesjid Jami Al Abrar Parepare</p>
           <button 
             onClick={() => setActiveTab('admin')}

@@ -1,5 +1,12 @@
 import { initializeApp } from 'firebase/app';
-import { initializeFirestore, doc, getDocFromServer, setLogLevel } from 'firebase/firestore';
+import { 
+  initializeFirestore, 
+  doc, 
+  getDocFromServer, 
+  setLogLevel,
+  persistentLocalCache,
+  persistentMultipleTabManager
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
@@ -19,8 +26,11 @@ const firebaseConfig = {
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// use initializeFirestore to specify the databaseId and additional settings
+// use initializeFirestore with robust persistentLocalCache to support multi-tab synchronization and offline-first reading
 export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  }),
   experimentalForceLongPolling: true,
   experimentalAutoDetectLongPolling: false,
 }, firebaseConfig.firestoreDatabaseId);
