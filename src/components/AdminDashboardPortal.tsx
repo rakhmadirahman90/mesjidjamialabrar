@@ -105,7 +105,7 @@ export default function AdminDashboardPortal({
     { id: 'profil', label: 'Profil & Jamaah', icon: <Users className="h-4.5 w-4.5" />, badge: null },
     { id: 'jadwal', label: 'Jadwal & Syiar', icon: <Calendar className="h-4.5 w-4.5" />, badge: '5 Waktu' },
     { id: 'galeri', label: 'Dokumentasi Galeri', icon: <ImageIcon className="h-4.5 w-4.5" />, badge: null },
-    { id: 'donasi', label: 'Zakat & Donasi', icon: <Heart className="h-4.5 w-4.5" />, badge: `${activeCampaignsCount} Kategori` },
+    { id: 'donasi', label: 'Zakat, Infaq & Donatur', icon: <Heart className="h-4.5 w-4.5" />, badge: `${activeCampaignsCount} Kategori` },
     { id: 'keuangan', label: 'Kas & Infaq', icon: <TrendingUp className="h-4.5 w-4.5" />, badge: null },
     { id: 'inventaris', label: 'Aset Inventaris', icon: <Package className="h-4.5 w-4.5" />, badge: null },
     { id: 'kontak', label: 'Direct Messages', icon: <Phone className="h-4.5 w-4.5" />, badge: null },

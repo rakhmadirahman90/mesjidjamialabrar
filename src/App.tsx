@@ -960,8 +960,8 @@ export default function App() {
       
       {/* Floating Glass Navbar Capsule mimicking the premium Istiqlal UI/UX */}
       {(activeTab === 'beranda' || !isAdmin) && (
-      <header className="sticky top-3 sm:top-5 z-50 w-full max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 select-none overflow-visible" id="header_navbar">
-          <div className="bg-[#091b14]/95 backdrop-blur-md border border-emerald-500/20 rounded-[1.8rem] sm:rounded-full px-5 py-3 sm:px-6 sm:py-3.5 shadow-[0_20px_50px_rgba(4,47,31,0.25)] flex flex-col xl:flex-row xl:items-center justify-between gap-3 text-white transition-all duration-300 overflow-hidden sm:overflow-visible">
+      <header className="sticky top-2 sm:top-5 z-50 w-full max-w-[1440px] mx-auto px-2 sm:px-6 lg:px-8 xl:px-12 select-none overflow-visible" id="header_navbar">
+          <div className="bg-[#091b14]/95 backdrop-blur-md border border-emerald-500/20 rounded-[1.5rem] sm:rounded-full px-4 py-2.5 sm:px-6 sm:py-3.5 shadow-[0_20px_50px_rgba(4,47,31,0.25)] flex flex-col xl:flex-row xl:items-center justify-between gap-2 text-white transition-all duration-300 overflow-hidden sm:overflow-visible">
             
             {/* Brand Left Silhouette Logo Area */}
             <div className="flex items-center justify-between w-full xl:w-auto shrink-0 border-b border-white/5 pb-2 xl:pb-0 xl:border-b-0">
@@ -1006,7 +1006,7 @@ export default function App() {
           </div>
 
           {/* Desktop Core Navigation Links (Uppercased, spacing elegant) */}
-          <nav className={`hidden ${isAdmin ? '' : 'xl:flex'} items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans`}>
+          <nav className={`hidden ${isAdmin ? '' : 'md:flex'} items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans`}>
           {[
             { id: 'beranda', label: 'Home', hasSub: false },
             { id: 'profil', label: 'Profil', hasSub: true },
