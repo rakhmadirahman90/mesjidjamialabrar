@@ -9,8 +9,9 @@ import {
   Heart,
   TrendingUp,
   Package,
-  Users,
-  Calendar
+  Calendar,
+  Image as ImageIcon,
+  Phone
 } from 'lucide-react';
 
 import InfoMasjid from './components/InfoMasjid';
@@ -26,6 +27,8 @@ import ProfessionalToasts from './components/ProfessionalToasts';
 import AudioUploader from './components/AudioUploader';
 import AdminLogin from './components/AdminLogin';
 import QrisUploader from './components/QrisUploader';
+import GaleriMasjid from './components/GaleriMasjid';
+import KontakMasjid from './components/KontakMasjid';
 import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign, RoutineEntry } from './types';
 import { 
   DEFAULT_SLIDES,
@@ -156,12 +159,12 @@ export default function App() {
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
 
   // High-Level Integrated Navigation Hub Tab selection
-  const [activeTab, setActiveTab] = useState<'beranda'|'profil'|'jadwal'|'donasi'|'keuangan'|'inventaris'|'jamaah'|'tentang'|'admin'>('beranda');
+  const [activeTab, setActiveTab] = useState<'beranda'|'profil'|'jadwal'|'donasi'|'keuangan'|'inventaris'|'jamaah'|'tentang'|'admin'|'galeri'|'kontak'>('beranda');
 
   // Submenu State synchronized with child components via event listeners
   const [curJadwalSub, setCurJadwalSub] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
   const [curKeuanganSub, setCurKeuanganSub] = useState<'kas_utama' | 'donatur_tetap'>('kas_utama');
-  const [curTentangSub, setCurTentangSub] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap'>('info_umum');
+  const [curTentangSub, setCurTentangSub] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap' | 'jamaah'>('info_umum');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   useEffect(() => {
@@ -860,11 +863,8 @@ export default function App() {
       { label: 'Tentang', key: 'info_umum', icon: 'ℹ️', desc: 'Pusat Informasi Umum & Tanya Jawab (FAQ)' },
       { label: 'Sejarah Singkat', key: 'sejarah', icon: '📜', desc: 'Sejarah singkat berdirinya Masjid Jami Al Abrar' },
       { label: 'Visi dan Misi', key: 'visi_misi', icon: '🎯', desc: 'Visi utama dan misi pelayanan ketaqwaan' },
-      { label: 'Pengurus Lengkap', key: 'pengurus_lengkap', icon: '👥', desc: 'Susunan seluruh pengurus inti dan fungsional' }
-    ],
-    keuangan: [
-      { label: 'Kas Utama', key: 'kas_utama', icon: '📈', desc: 'Laporan mutasi pemasukan & pengeluaran' },
-      { label: 'Donatur Tetap', key: 'donatur_tetap', icon: '👥', desc: 'Daftar nama donatur & kontribusi' }
+      { label: 'Pengurus Lengkap', key: 'pengurus_lengkap', icon: '👥', desc: 'Susunan seluruh pengurus inti dan fungsional' },
+      { label: 'Jamaah Masjid', key: 'jamaah', icon: '👥', desc: 'Manajemen database dan aspirasi jamaah' }
     ]
   };
 
@@ -885,40 +885,38 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
       {/* Top Emerald Header */}
-      <header className="bg-slate-950 text-white shadow-2xl relative overflow-hidden border-b border-white/5" id="header_navbar">
+      <header className="bg-slate-950 text-white shadow-md relative overflow-hidden border-b border-white/5" id="header_navbar">
         {/* Motif background pattern */}
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-emerald-900/40 via-transparent to-transparent pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-5 sm:px-6 lg:px-8 relative z-10 flex flex-nowrap items-center justify-between gap-3 sm:gap-4">
+        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-emerald-900/40 via-transparent to-transparent pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 py-2 sm:py-3 sm:px-6 lg:px-8 relative z-10 flex flex-nowrap items-center justify-between gap-3">
           
-          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
-            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 border border-white/20 flex items-center justify-center text-xl sm:text-2xl shadow-xl shadow-emerald-900/40 shrink-0 transform hover:rotate-3 transition duration-300">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 border border-white/20 flex items-center justify-center text-lg sm:text-xl shadow-lg shrink-0 transform hover:scale-105 transition duration-300">
               🕌
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 text-left animate-fade-in-down">
               <div className="flex flex-col">
-                <span className="text-[9px] sm:text-[10px] font-bold text-emerald-400/80 uppercase tracking-[0.25em] leading-none mb-1">Pusat Ibadah</span>
-                <h1 className="text-base sm:text-2xl font-black tracking-tight whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-50 to-emerald-200 leading-none">
+                <span className="text-[8px] sm:text-[9px] font-extrabold text-emerald-400 uppercase tracking-[0.25em] leading-none mb-0.5 sm:mb-1">Pusat Ibadah</span>
+                <h1 className="text-sm sm:text-xl font-extrabold tracking-tight whitespace-nowrap text-white leading-tight">
                   Masjid Al Abrar
-                  <span className="hidden sm:inline text-white/30 ml-2 font-bold uppercase tracking-normal">Parepare</span>
+                  <span className="text-emerald-300 font-extrabold ml-1.5 uppercase tracking-wide text-xs sm:text-lg">PAREPARE</span>
                 </h1>
               </div>
-              <p className="text-emerald-400/50 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest leading-none mt-1.5 hidden sm:block">Sistem Cerdas Terintegrasi</p>
+              <p className="text-emerald-400/60 text-[7px] sm:text-[8px] font-bold uppercase tracking-[0.25em] leading-none mt-1 hidden sm:block">Sistem Cerdas Terintegrasi</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3 bg-white/5 backdrop-blur-xl px-2 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-3xl border border-white/5 shadow-inner">
-              <div className="hidden md:block">
-                <Clock className="h-4 w-4 text-amber-400" />
-              </div>
-              <div className="flex flex-col items-center sm:items-start shrink-0">
-                <span className="text-[8px] sm:text-[9px] font-black text-amber-400 uppercase tracking-widest leading-none mb-1">
+          <div className="flex items-center shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 bg-white/5 border border-white/10 px-2 sm:px-3 py-1 sm:py-1 rounded-full shrink-0 shadow-lg">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400 shrink-0" />
+              <div className="flex flex-col items-start shrink-0 text-left">
+                <span className="text-[7px] sm:text-[8px] font-bold text-amber-300 uppercase tracking-widest leading-none mb-0.5">
                   {currentTime.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}
                 </span>
-                <span className="text-sm sm:text-lg font-black font-mono tracking-tighter text-white leading-none flex items-baseline">
+                <span className="text-xs sm:text-sm font-bold font-mono tracking-wide text-white leading-none">
                   {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                  <span className="text-[9px] sm:text-xs opacity-40 ml-0.5 font-normal">: {currentTime.toLocaleTimeString('id-ID', { second: '2-digit' })}</span>
-                  <span className="text-[9px] ml-1 opacity-60 font-bold text-amber-200 hidden sm:inline">WITA</span>
+                  <span className="text-[9px] opacity-40 ml-0.5">: {currentTime.toLocaleTimeString('id-ID', { second: '2-digit' })}</span>
+                  <span className="text-[8px] ml-1 opacity-60 font-bold text-amber-200">WITA</span>
                 </span>
               </div>
             </div>
@@ -928,125 +926,128 @@ export default function App() {
 
 
       {/* Main Container */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6 pb-12 sm:pb-16" id="main_content">
+      <main className="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-5 space-y-4 sm:space-y-5 pb-12 sm:pb-16" id="main_content">
         
         {/* Banner Running Text / Pengumuman */}
-        <div className="bg-emerald-950 border border-emerald-800/80 rounded-2xl py-3 px-4 flex items-center gap-3 overflow-hidden shadow-inner font-sans">
-          <span className="bg-amber-400 text-emerald-950 text-[10px] font-black uppercase px-2 py-1 rounded shrink-0 tracking-wide flex items-center gap-1">
+        <div className="bg-emerald-950 border border-emerald-900 rounded-2xl py-2 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden shadow-inner font-sans">
+          <span className="bg-amber-400 text-emerald-950 text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 sm:py-1 rounded-md shrink-0 tracking-wider flex items-center gap-1 shadow-sm">
             📢 PENGUMUMAN
           </span>
-          <div className="relative flex-1 overflow-hidden h-5">
-            <div className="absolute whitespace-nowrap text-xs text-emerald-100 font-medium tracking-wide animate-marquee hover:pause-marquee">
+          <div className="relative flex-1 overflow-hidden h-5 flex items-center">
+            <div className="absolute whitespace-nowrap text-[11px] sm:text-xs text-emerald-100 font-medium tracking-wide animate-marquee hover:pause-marquee">
               {announcement}
             </div>
           </div>
         </div>
 
         {/* Dynamic Navigation Tab Hub */}
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl p-1.5 border border-slate-200/80 shadow-[0_20px_40px_rgba(15,23,42,0.06)] flex flex-col sticky top-2 sm:top-4 z-40 overflow-visible transition-all duration-300" id="navigation_menu_tabs">
-          <div className="flex overflow-x-auto no-scrollbar gap-1 flex-1 px-1 py-0.5 items-center relative">
-            {[
-              { id: 'beranda', label: 'Home', icon: <Home className="h-4 w-4" /> },
-              { id: 'profil', label: 'Profil', icon: <Building className="h-4 w-4" /> },
-              { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-4 w-4" /> },
-              { id: 'donasi', label: 'Donasi', icon: <Heart className="h-4 w-4" /> },
-              { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-4 w-4" /> },
-              { id: 'jamaah', label: 'Jamaah', icon: <Users className="h-4 w-4" /> },
-              { id: 'inventaris', label: 'Aset', icon: <Package className="h-4 w-4" /> },
-              { id: 'admin', label: 'Admin', icon: <Settings className="h-4 w-4" /> },
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              const hasSubmenu = !!submenusMap[tab.id];
-              return (
-                <div 
-                  key={tab.id}
-                  className="relative shrink-0"
-                  onMouseEnter={() => hasSubmenu && setActiveDropdown(tab.id)}
-                  onMouseLeave={() => hasSubmenu && setActiveDropdown(null)}
-                >
-                  <button
-                    onClick={() => {
-                      setActiveTab(tab.id as any);
-                      if (hasSubmenu) {
-                        setActiveDropdown(activeDropdown === tab.id ? null : tab.id);
-                      } else {
-                        setActiveDropdown(null);
-                      }
-                    }}
-                    className={`flex items-center gap-2 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all duration-300 outline-none relative whitespace-nowrap overflow-visible ${
-                      isActive 
-                        ? 'text-white shadow-lg shadow-slate-900/10'
-                        : 'text-slate-500 hover:text-slate-950 hover:bg-slate-50/80 transition-colors'
-                    }`}
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-1 border border-slate-200/80 shadow-[0_12px_24px_rgba(15,23,42,0.04)] flex flex-col sticky top-2 sm:top-4 z-40 overflow-visible transition-all duration-300" id="navigation_menu_tabs">
+          <div className="relative flex items-center w-full">
+            <div className="flex overflow-x-auto no-scrollbar gap-0.5 flex-1 px-1 py-1 items-center relative scroll-smooth w-full">
+              {[
+                { id: 'beranda', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
+                { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
+                { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-3.5 w-3.5" /> },
+                { id: 'galeri', label: 'Galeri', icon: <ImageIcon className="h-3.5 w-3.5" /> },
+                { id: 'donasi', label: 'Donasi', icon: <Heart className="h-3.5 w-3.5" /> },
+                { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-3.5 w-3.5" /> },
+                { id: 'inventaris', label: 'Aset', icon: <Package className="h-3.5 w-3.5" /> },
+                { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },
+                { id: 'admin', label: 'Admin', icon: <Settings className="h-3.5 w-3.5" /> },
+              ].map((tab) => {
+                const isActive = activeTab === tab.id;
+                const hasSubmenu = !!submenusMap[tab.id];
+                return (
+                  <div 
+                    key={tab.id}
+                    className="relative shrink-0"
+                    onMouseEnter={() => hasSubmenu && setActiveDropdown(tab.id)}
+                    onMouseLeave={() => hasSubmenu && setActiveDropdown(null)}
                   >
-                    <span className="relative z-10 flex items-center gap-2">
-                      {tab.icon}
-                      <span>{tab.label}</span>
-                      {hasSubmenu && (
-                        <span className="text-[8px] opacity-50 ml-0.5 transform group-hover:translate-y-0.5 transition-transform">▼</span>
+                    <button
+                      onClick={() => {
+                        setActiveTab(tab.id as any);
+                        if (hasSubmenu) {
+                          setActiveDropdown(activeDropdown === tab.id ? null : tab.id);
+                        } else {
+                          setActiveDropdown(null);
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 sm:px-4.5 py-1.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all duration-300 outline-none relative whitespace-nowrap overflow-visible ${
+                        isActive 
+                          ? 'text-white shadow-md shadow-slate-900/10'
+                          : 'text-slate-500 hover:text-slate-950 hover:bg-slate-50/80 transition-colors'
+                      }`}
+                    >
+                      <span className="relative z-10 flex items-center gap-1.5">
+                        {tab.icon}
+                        <span>{tab.label}</span>
+                        {hasSubmenu && (
+                          <span className="text-[7px] opacity-60 ml-0.5 transform group-hover:translate-y-0.5 transition-transform">▼</span>
+                        )}
+                      </span>
+                      {isActive && (
+                        <motion.div 
+                          layoutId="activeNav"
+                          className="absolute inset-0 bg-slate-950 rounded-xl"
+                          style={{ zIndex: 0 }}
+                          transition={{ type: "spring", bounce: 0.1, duration: 0.5 }}
+                        />
                       )}
-                    </span>
-                    {isActive && (
-                      <motion.div 
-                        layoutId="activeNav"
-                        className="absolute inset-0 bg-slate-950 rounded-2xl"
-                        style={{ zIndex: 0 }}
-                        transition={{ type: "spring", bounce: 0.12, duration: 0.6 }}
-                      />
-                    )}
-                  </button>
+                    </button>
 
-                  {/* Desktop Hover / Click Dropdown Menu (With Framer Motion transition) */}
-                  <AnimatePresence>
-                    {hasSubmenu && activeDropdown === tab.id && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white/95 backdrop-blur-xl border border-slate-200/60 shadow-[0_20px_50px_rgba(15,23,42,0.12)] rounded-2xl p-2.5 grid grid-cols-1 gap-1 min-w-[300px] z-50 hidden sm:block"
-                        style={{ transformOrigin: 'top center' }}
-                        onMouseEnter={() => setActiveDropdown(tab.id)}
-                        onMouseLeave={() => setActiveDropdown(null)}
-                      >
-                        <div className="px-3 py-2 border-b border-slate-100/85 mb-1.5 flex items-center justify-between">
-                          <p className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">Detail Menu {tab.label}</p>
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        </div>
-                        {submenusMap[tab.id]
-                          .filter(sub => !sub.adminOnly || isAdmin)
-                          .map(sub => {
-                            const isSelected = tab.id === 'jadwal' ? curJadwalSub === sub.key
-                              : tab.id === 'keuangan' ? curKeuanganSub === sub.key
-                              : tab.id === 'profil' ? curTentangSub === sub.key
-                              : false;
-                            return (
-                              <button
-                                key={sub.key}
-                                onClick={() => handleSubtabClick(tab.id, sub.key)}
-                                className={`w-full flex items-start text-left gap-3.5 p-2.5 rounded-xl transition-all duration-200 ${
-                                  isSelected 
-                                    ? 'bg-emerald-500/10 text-emerald-950 font-bold border-l-4 border-emerald-600' 
-                                    : 'hover:bg-slate-50 text-slate-700 hover:translate-x-1'
-                                }`}
-                              >
-                                <span className="text-lg shrink-0 p-1.5 bg-slate-50 border border-slate-100 rounded-lg shadow-sm">{sub.icon}</span>
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-xs font-black tracking-tight leading-tight flex items-center justify-between">
-                                    <span>{sub.label}</span>
-                                    {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1.5 py-0.5 rounded font-black tracking-normal">ADMIN</span>}
-                                  </p>
-                                  <p className="text-[10px] text-slate-400 mt-1 leading-snug font-medium">{sub.desc}</p>
-                                </div>
-                              </button>
-                            );
-                          })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+                    {/* Desktop Hover / Click Dropdown Menu (With Framer Motion transition) */}
+                    <AnimatePresence>
+                      {hasSubmenu && activeDropdown === tab.id && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                          transition={{ duration: 0.12 }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border border-slate-200 shadow-2xl rounded-2xl p-2 grid grid-cols-1 gap-0.5 min-w-[280px] z-50 hidden sm:block"
+                          style={{ transformOrigin: 'top center' }}
+                          onMouseEnter={() => setActiveDropdown(tab.id)}
+                          onMouseLeave={() => setActiveDropdown(null)}
+                        >
+                          <div className="px-2.5 py-1.5 border-b border-slate-100 mb-1 flex items-center justify-between">
+                            <p className="text-[9px] font-black uppercase text-emerald-600 tracking-wider">Detail Menu {tab.label}</p>
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          </div>
+                          {submenusMap[tab.id]
+                            .filter(sub => !sub.adminOnly || isAdmin)
+                            .map(sub => {
+                              const isSelected = tab.id === 'jadwal' ? curJadwalSub === sub.key
+                                : tab.id === 'keuangan' ? curKeuanganSub === sub.key
+                                : tab.id === 'profil' ? curTentangSub === sub.key
+                                : false;
+                              return (
+                                <button
+                                  key={sub.key}
+                                  onClick={() => handleSubtabClick(tab.id, sub.key)}
+                                  className={`w-full flex items-start text-left gap-3 p-2 rounded-lg transition-all duration-150 ${
+                                    isSelected 
+                                      ? 'bg-emerald-50 text-emerald-950 font-bold border-l-4 border-emerald-600' 
+                                      : 'hover:bg-slate-50 text-slate-700 hover:translate-x-0.5'
+                                  }`}
+                                >
+                                  <span className="text-base shrink-0 p-1 bg-slate-50 border border-slate-100 rounded-md shadow-sm">{sub.icon}</span>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs font-bold tracking-tight leading-none flex items-center justify-between">
+                                      <span>{sub.label}</span>
+                                      {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1 py-0.5 rounded font-black tracking-normal">ADMIN</span>}
+                                    </p>
+                                    <p className="text-[9px] text-slate-400 mt-1.5 leading-normal font-medium">{sub.desc}</p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Secondary Submenu Pill Row (Sleek, High contrast, Touch-friendly on all viewports) */}
@@ -1110,9 +1111,23 @@ export default function App() {
             )}
 
             {activeTab === 'profil' && (
-              <InfoMasjid 
-                activeSubTab={curTentangSub} 
-              />
+              <>
+                {curTentangSub === 'jamaah' ? (
+                  <ManajemenJamaah 
+                    isAdmin={isAdmin}
+                    onAddLog={addLog} 
+                    onShowLogin={() => setActiveTab('admin')}
+                  />
+                ) : (
+                  <InfoMasjid 
+                    activeSubTab={curTentangSub} 
+                  />
+                )}
+              </>
+            )}
+
+            {activeTab === 'galeri' && (
+              <GaleriMasjid isAdmin={isAdmin} />
             )}
 
             {activeTab === 'jadwal' && (
@@ -1223,6 +1238,10 @@ export default function App() {
                 onAddLog={addLog} 
                 onShowLogin={() => setActiveTab('admin')} 
               />
+            )}
+
+            {activeTab === 'kontak' && (
+              <KontakMasjid isAdmin={isAdmin} />
             )}
 
             {activeTab === 'jamaah' && (

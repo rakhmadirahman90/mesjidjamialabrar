@@ -1,7 +1,10 @@
 import { initializeApp } from 'firebase/app';
-import { initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeFirestore, doc, getDocFromServer, setLogLevel } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
+
+// Set Firestore log level to suppress transient connection warning messages during initial boot
+setLogLevel('error');
 
 const firebaseConfig = {
   projectId: "polynomial-node-c2gpt",
@@ -37,4 +40,8 @@ async function testConnection() {
     }
   }
 }
-testConnection();
+
+// Delays the initial strict network check slightly to let container gateways start smoothly
+setTimeout(() => {
+  testConnection();
+}, 1500);

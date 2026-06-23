@@ -1,9 +1,7 @@
 import { 
   Info, 
-  ShieldCheck, 
   HelpCircle, 
   ChevronDown, 
-  MapPin, 
   Check, 
   Search, 
   Award, 
@@ -108,83 +106,65 @@ export default function InfoMasjid({ activeSubTab: propSubTab }: InfoMasjidProps
               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Pusat Informasi Digital Al Abrar</span>
             </div>
             <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight uppercase font-display">
-              Satu Sistem Untuk <br />
-              <span className="text-emerald-600">Semua Layanan.</span>
+              Latar Belakang <br />
+              <span className="text-emerald-600">Digitalisasi Masjid.</span>
             </h2>
-            <p className="text-slate-500 text-base leading-relaxed max-w-xl mx-auto font-medium">
-              Aplikasi Masjid Jami Al Abrar Lapadde adalah platform terpadu untuk transparansi keuangan, penjadwalan ibadah, dan kemudahan sedekah bagi seluruh jamaah.
+            <p className="text-slate-500 text-sm leading-relaxed max-w-2xl mx-auto font-medium">
+              Digitalisasi Masjid Jami Al Abrar Parepare dilatarbelakangi oleh visi luhur Pengurus Takmir untuk menghadirkan tata kelola rumah ibadah yang modern, transparan, akuntabel, dan berorientasi pada peningkatan layanan keumatan serta kemudahan akses informasi bagi seluruh jamaah secara realtime.
             </p>
           </section>
 
-          {/* Contact Area */}
-          <section className="bg-white rounded-[2rem] p-8 border border-slate-150 shadow-sm space-y-6">
-            <h3 className="text-sm font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-               <MapPin className="h-5 w-5 text-emerald-600" /> Informasi Kontak & Akses
+          {/* Detailed Background Context Card */}
+          <section className="bg-slate-50 border border-slate-200/60 rounded-[2rem] p-8 space-y-6 text-left">
+            <h3 className="text-base font-black text-slate-900 tracking-tight border-b border-slate-200/80 pb-3 flex items-center gap-2">
+              📜 Sejarah & Dorongan Transformasi Digital
             </h3>
-            <div className="text-xs text-slate-600 space-y-3 leading-relaxed">
-              <div className="flex gap-3">
-                 <span className="font-semibold text-slate-800 w-24 shrink-0">Sekretariat:</span>
-                 <span>Kantor Takmir Lt. 1 Al Abrar, Kelurahan Lapadde, Kecamatan Ujung, Kota Parepare</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-semibold text-slate-800 w-24 shrink-0">E-mail:</span>
-                <span className="underline text-emerald-700">takmir@alabrar-parepare.or.id</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-semibold text-slate-800 w-24 shrink-0">Google Map:</span>
-                <span className="text-slate-500 italic">5.021° S, 119.645° E (Lapadde)</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-semibold text-slate-800 w-24 shrink-0">Jam Layanan:</span>
-                <span>Terbuka 24 Jam Setiap Hari bagi Jamaat Umum</span>
-              </div>
-            </div>
-          </section>
-
-          {/* Grid of Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { 
-                title: 'Ibadah & Agenda', 
-                desc: 'Jadwal shalat realtime, petugas Jumat, dan pengumuman kajian rutin harian.',
-                icon: '🕌'
-              },
-              { 
-                title: 'Kas & Transparansi', 
-                desc: 'Laporan pemasukan dan pengeluaran kas masjid yang dapat dipantau setiap saat.',
-                icon: '📊'
-              },
-              { 
-                title: 'Zakat & Infaq', 
-                desc: 'Saluran donasi digital dan manajemen bantuan sosial bagi warga yang membutuhkan.',
-                icon: '🤝'
-              }
-            ].map((item, i) => (
-              <div key={i} className="bg-white border border-slate-200 rounded-[2.5rem] p-8 space-y-4 shadow-sm hover:border-emerald-200 transition-colors text-left group">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl group-hover:scale-110 transition">
-                  {item.icon}
-                </div>
-                <h3 className="text-lg font-black text-slate-900 tracking-tight">{item.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Security Banner */}
-          <section className="bg-emerald-950 text-white rounded-[3rem] p-10 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 shadow-2xl">
-            <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-10 h-10 text-emerald-400" />
-            </div>
-            <div className="space-y-2 text-center md:text-left">
-              <h4 className="text-xl font-black tracking-tight">Kerahasiaan & Keamanan 100%</h4>
-              <p className="text-[11px] text-emerald-200/50 leading-relaxed font-mono uppercase tracking-widest">
-                Seluruh transaksi dan data pribadi jamaah diproses melalui sistem cloud terenkripsi standar industri.
+            <div className="space-y-4 text-xs text-slate-600 leading-relaxed font-normal">
+              <p>
+                Sebagai salah satu masjid utama yang terletak strategis di Kelurahan Lapadde, Kecamatan Ujung, Kota Parepare, Masjid Jami Al Abrar terus mengalami lonjakan jamaah dan dinamika kepengurusan. Seiring berjalannya waktu, metode pencatatan manual untuk laporan keuangan, penyebaran selebaran kertas untuk jadwal petugas Jumat, serta papan pengumuman fisik dinilai kurang memadai untuk memenuhi mobilitas tinggi kejamaahan era modern.
+              </p>
+              <p>
+                Menjawab tantangan tersebut, Badan Kesejahteraan/Takmir Masjid Al Abrar pada tahun 2024 berkomitmen meluncurkan <strong className="text-emerald-700">Sistem Digitalisasi Terpadu</strong>. Platform ini menghubungkan takmir dan jamaah dalam satu ekosistem cloud, memastikan transparansi penuh atas kas umat, serta menjamin keakuratan jadwal ibadah dan program syiar sepanjang tahun.
               </p>
             </div>
           </section>
 
+          {/* Three Pillars of Al Abrar Digital Hub */}
+          <section className="space-y-6">
+            <h3 className="text-lg font-black text-slate-900 tracking-tight text-center">
+              🔑 Tiga Pilar Utama Digitalisasi
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { 
+                  title: 'Transparansi Kas Digital', 
+                  desc: 'Melalui transparansi keuangan realtime di menu Kas, jamaah dapat memantau saldo, bukti pengeluaran, serta rincian donatur tetap kapan saja. Solusi ini memperkuat sirkulasi amanah umat tanpa keraguan.',
+                  icon: '📊'
+                },
+                { 
+                  title: 'Syiar & Penjadwalan Cerdas', 
+                  desc: 'Mendigitalisasi alarm adzan, tabel petugas khatib Jumat otomatis, dokumentasi ringkasan khutbah, dan publikasi kajian harian demi memastikan efisiensi khidmat peribadatan.',
+                  icon: '🕌'
+                },
+                { 
+                  title: 'Databases Jamaah & Aset', 
+                  desc: 'Integrasi aspirasi jamaah, inventarisasi aset masjid berbasis digital, serta registrasi keanggotaan jamaah untuk meningkatkan sinergi sosial dan ukhuwah antar-warga Lapadde.',
+                  icon: '👥'
+                }
+              ].map((item, i) => (
+                <div key={i} className="bg-white border border-slate-200 rounded-[2.5rem] p-8 space-y-4 shadow-sm hover:border-emerald-250 transition-all text-left group">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-base font-black text-slate-900 tracking-tight">{item.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                    {item.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
           {/* FAQs */}
           <section className="space-y-6 pt-4">
             <div className="flex items-center gap-3 px-1">
@@ -193,11 +173,11 @@ export default function InfoMasjid({ activeSubTab: propSubTab }: InfoMasjidProps
               </div>
               <div className="text-left">
                 <h3 className="text-xl font-black text-slate-800 tracking-tight">Tanya Jawab (FAQ)</h3>
-                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Informasi Umum Layanan Masjid</p>
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Informasi Umum Layanan Digitalisasi</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-3 text-left">
               {faqs.map((faq, idx) => (
                 <div 
                   key={idx}
