@@ -185,12 +185,35 @@ export default function DonationOpen({
               <p className="text-slate-500 text-xs">Pilih program yang ingin Anda dukung dengan sedekah terbaik Anda.</p>
             </div>
             {isAdmin && (
-              <button 
-                onClick={handleAddCampaign}
-                className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
-              >
-                <Plus className="h-4 w-4 text-emerald-400" /> Tambah Program
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => {
+                    if (confirm('Anda yakin ingin mereset total donasi menjadi 0 dan menghapus riwayat donatur?')) {
+                      // 1. Clear donor_logs
+                      const ids = donors.map(d => d.id).filter(Boolean);
+                      clearCollection('donor_logs', ids);
+                      
+                      // 2. Reset campaigns raised to 0
+                      campaigns.forEach(c => {
+                        if (c.id) {
+                          updateDocument('campaigns', c.id, { raised: 0 });
+                        }
+                      });
+
+                      onAddLog('Data Direset', 'Seluruh data donasi telah dikosongkan.', 'system');
+                    }
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-rose-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-rose-700 transition shadow-lg"
+                >
+                  <Trash className="h-4 w-4" /> Reset Semua
+                </button>
+                <button 
+                  onClick={handleAddCampaign}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
+                >
+                  <Plus className="h-4 w-4 text-emerald-400" /> Tambah Program
+                </button>
+              </div>
             )}
           </div>
 

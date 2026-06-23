@@ -28,7 +28,7 @@ import ProfessionalToasts from './components/ProfessionalToasts';
 import AudioUploader from './components/AudioUploader';
 import AdminLogin from './components/AdminLogin';
 import QrisUploader from './components/QrisUploader';
-import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign } from './types';
+import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign, RoutineEntry } from './types';
 import { 
   DEFAULT_SLIDES,
   DEFAULT_KAJIAN,
@@ -153,6 +153,7 @@ export default function App() {
   const [kajian, setKajian] = useState<KajianEntry[]>([]);
   const [jumat, setJumat] = useState<JumatEntry[]>([]);
   const [ramadan, setRamadan] = useState<RamadanEntry[]>([]);
+  const [routine, setRoutine] = useState<RoutineEntry[]>([]);
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
 
   // High-Level Integrated Navigation Hub Tab selection
@@ -235,6 +236,10 @@ export default function App() {
       }
     });
 
+    const unsubRoutine = subscribeToCollection<RoutineEntry>('routine_schedule', (data) => {
+      setRoutine(data);
+    });
+
     const unsubCampaigns = subscribeToCollection<DonationCampaign>('campaigns', (data) => {
       if (data.length > 0) setCampaigns(data);
       else DEFAULT_CAMPAIGNS.forEach(c => addDocument('campaigns', c));
@@ -315,6 +320,7 @@ export default function App() {
       unsubKajian();
       unsubJumat();
       unsubRamadan();
+      unsubRoutine();
       unsubCampaigns();
       unsubTx();
       unsubDonors();
@@ -946,6 +952,7 @@ export default function App() {
                     // Bulk update if needed
                   }}
                   ramadan={ramadan}
+                  routine={routine}
                 />
               </div>
             )}

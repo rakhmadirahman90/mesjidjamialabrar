@@ -152,3 +152,12 @@ export interface RamadanEntry {
   icon: string;
   category: 'Ibadah' | 'Sosial' | 'Edukasi';
 }
+
+export interface RoutineEntry {
+  id: string;
+  title: string;
+  time: string;
+  day: string;
+  description: string;
+  category: 'Harian' | 'Bulanan';
+}
