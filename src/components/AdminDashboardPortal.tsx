@@ -484,7 +484,6 @@ export default function AdminDashboardPortal({
                     <ManajemenJamaah 
                       isAdmin={true}
                       onAddLog={addLog} 
-                      onShowLogin={() => {}}
                     />
                   </div>
                 </div>
@@ -618,7 +617,6 @@ export default function AdminDashboardPortal({
                 <KeuanganMasjid 
                   isAdmin={true} 
                   onAddLog={addLog} 
-                  onShowLogin={() => {}} 
                 />
               </div>
             </div>
@@ -636,7 +634,6 @@ export default function AdminDashboardPortal({
                 <InventarisMasjid 
                   isAdmin={true} 
                   onAddLog={addLog} 
-                  onShowLogin={() => {}} 
                 />
               </div>
             </div>
@@ -736,7 +733,10 @@ export default function AdminDashboardPortal({
                     </button>
                     
                     <button
-                      onClick={seedDummyData}
+                      onClick={() => {
+                        console.log('Seed button clicked');
+                        seedDummyData();
+                      }}
                       className="py-3 bg-emerald-600 hover:bg-emerald-500 hover:text-slate-950 text-white rounded-xl text-[10px] font-black transition flex items-center justify-center gap-2 active:scale-95 uppercase tracking-wider"
                     >
                       ⚡ Muat Data Dummy

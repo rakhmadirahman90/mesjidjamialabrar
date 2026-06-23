@@ -163,6 +163,7 @@ export default function App() {
   // Submenu State synchronized with child components via event listeners
   const [curJadwalSub, setCurJadwalSub] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
   const [curKeuanganSub, setCurKeuanganSub] = useState<'kas_utama' | 'donatur_tetap'>('kas_utama');
+  const [curDonasiSub, setCurDonasiSub] = useState<'online' | 'donatur_tetap'>('online');
   const [curTentangSub, setCurTentangSub] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap' | 'jamaah'>('info_umum');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
@@ -175,6 +176,9 @@ export default function App() {
         }
         if (detail.tab === 'keuangan' && detail.subtab) {
           setCurKeuanganSub(detail.subtab);
+        }
+        if (detail.tab === 'donasi' && detail.subtab) {
+          setCurDonasiSub(detail.subtab);
         }
         if (detail.tab === 'profil' && detail.subtab) {
           setCurTentangSub(detail.subtab as any);
@@ -189,6 +193,24 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     return localStorage.getItem('abrar_is_admin') === 'true';
   });
+
+  const clickCountRef = useRef(0);
+  const handleLogoClick = () => {
+    clickCountRef.current += 1;
+    if (clickCountRef.current >= 5) {
+      setActiveTab('admin');
+      clickCountRef.current = 0;
+      return true;
+    }
+    // Simple debounced reset
+    const timeout = (window as any)._logoReset;
+    if (timeout) clearTimeout(timeout);
+    (window as any)._logoReset = setTimeout(() => {
+        clickCountRef.current = 0;
+    }, 3000);
+    return false;
+  };
+
   const [adminPin, setAdminPin] = useState<string>('123456');
   const [loginError, setLoginError] = useState<string>('');
   const [showPinChange, setShowPinChange] = useState<boolean>(false);
@@ -217,7 +239,7 @@ export default function App() {
           setAnnouncement(data.announcement);
           setAnnouncementInput(data.announcement);
         }
-        if (data.adminPin) setAdminPin(data.adminPin);
+        if (data.adminPin) setAdminPin(String(data.adminPin));
         if (data.prayers) setPrayers(data.prayers);
         if (data.showAnnouncement !== undefined) {
           setShowAnnouncement(data.showAnnouncement);
@@ -374,7 +396,7 @@ export default function App() {
 
   const handleAdminLogin = (userStr: string, passStr: string) => {
     const isUserValid = userStr.trim().toLowerCase() === 'admin' || userStr.trim().toLowerCase() === 'admin_abrar';
-    const isPassValid = passStr.trim() === adminPin || passStr.trim() === 'admin123';
+    const isPassValid = passStr.trim() === String(adminPin).trim() || passStr.trim().toLowerCase() === 'admin123';
 
     if (isUserValid && isPassValid) {
       setIsAdmin(true);
@@ -497,7 +519,7 @@ export default function App() {
   };
 
   const seedDummyData = async () => {
-    if (!confirm('Apakah Anda yakin ingin memuat data dummy (Keuangan, Ramadan & Kegiatan)?')) return;
+    addLog('Seed Data Dimulai', 'Sistem sedang memproses pemuatan data dummy ke database cloud...', 'info');
     try {
       // 1. Ramadan Schedule
       const dummyRamadan: RamadanEntry[] = [
@@ -526,14 +548,16 @@ export default function App() {
       ));
 
       // 5. Permanent Donors (from images)
+      // First clear the old permanent donors to ensure a fresh reset
+      await deleteAllInCollection('permanent_donors');
       await Promise.all(DUMMY_PERMANENT_DONORS.map((donor, idx) => 
         upsertDocument('permanent_donors', `seed_donor_${idx}`, donor)
       ));
       
-      addLog('Seed Data Berhasil', 'Data Keuangan, Ramadan, Kegiatan & Kajian berhasil dimuat ke database.', 'success');
+      addLog('Seed Data Berhasil', 'Data Keuangan, Ramadan, Kegiatan, Kajian & Donatur Tetap berhasil dimuat ke database.', 'success');
     } catch (e) {
-      console.error(e);
-      addLog('Seed Data Gagal', 'Terjadi kesalahan saat memuat data ke database.', 'alert');
+      console.error('Seed Error:', e);
+      addLog('Seed Data Gagal', 'Terjadi kesalahan teknis saat memuat data ke basis data.', 'alert');
     }
   };
 
@@ -907,6 +931,14 @@ export default function App() {
       { label: 'Visi dan Misi', key: 'visi_misi', icon: '🎯', desc: 'Visi utama dan misi pelayanan ketaqwaan' },
       { label: 'Pengurus Lengkap', key: 'pengurus_lengkap', icon: '👥', desc: 'Susunan seluruh pengurus inti dan fungsional' },
       { label: 'Jamaah Masjid', key: 'jamaah', icon: '👥', desc: 'Manajemen database dan aspirasi jamaah' }
+    ],
+    keuangan: [
+      { label: 'Kas Utama', key: 'kas_utama', icon: '💰', desc: 'Laporan pemasukan dan pengeluaran harian' },
+      { label: 'Donatur Tetap', key: 'donatur_tetap', icon: '📋', desc: 'Papan kontribusi bulanan donatur tetap 2026' }
+    ],
+    donasi: [
+      { label: 'Pilihan Program', key: 'online', icon: '💖', desc: 'Salurkan sedekah & jariyah terbaik' },
+      { label: 'Donatur Tetap', key: 'donatur_tetap', icon: '📋', desc: 'Papan kontribusi bulanan donatur tetap 2026' }
     ]
   };
 
@@ -923,70 +955,6 @@ export default function App() {
     setActiveDropdown(null);
   };
 
-  if (activeTab === 'admin' && isAdmin) {
-    return (
-      <AdminDashboardPortal
-        onLogout={handleAdminLogout}
-        announcement={announcement}
-        announcementInput={announcementInput}
-        setAnnouncementInput={setAnnouncementInput}
-        showAnnouncement={showAnnouncement}
-        onUpdateAnnouncement={handleUpdateAnnouncement}
-        onToggleAnnouncement={handleToggleAnnouncement}
-        adminPin={adminPin}
-        showPinChange={showPinChange}
-        setShowPinChange={setShowPinChange}
-        newPinValue={newPinValue}
-        setNewPinValue={setNewPinValue}
-        onPinChange={handlePinChange}
-        onResetDefaults={handleResetDefaults}
-        onResetAllData={handleResetAllData}
-        seedDummyData={seedDummyData}
-        onClearLogs={() => {
-          const ids = logs.map(l => (l as any).id).filter(Boolean);
-          clearCollection('activity_logs', ids);
-        }}
-        addLog={addLog}
-        logs={logs}
-        prayers={prayers}
-        nextDetails={nextDetails}
-        notificationPermission={notificationPermission}
-        selectedAudio={selectedAudio}
-        isMuted={isMuted}
-        volume={volume}
-        isAudioPlaying={isAudioPlaying}
-        testNotificationTimeLeft={testNotificationTimeLeft}
-        showConfigInfo={showConfigInfo}
-        editingPrayer={editingPrayer}
-        editTimeValue={editTimeValue}
-        onSetShowConfigInfo={setShowConfigInfo}
-        onTriggerQuickTest={triggerQuickTest}
-        onRequestNotificationPermission={requestNotificationPermission}
-        onSetSelectedAudio={setSelectedAudio}
-        onSetIsMuted={setIsMuted}
-        onSetVolume={setVolume}
-        onToggleSoundPlay={toggleSoundPlay}
-        onStartEditing={startEditing}
-        onSetEditTimeValue={setEditTimeValue}
-        onSavePrayerEdit={savePrayerEdit}
-        onCancelEdit={() => setEditingPrayer(null)}
-        onDeleteLog={deleteLog}
-        slides={slides}
-        kajian={kajian}
-        jumat={jumat}
-        ramadan={ramadan}
-        routine={routine}
-        campaigns={campaigns}
-        onDonationSuccess={(title, msg, _amount) => {
-          addLog(title, msg, 'success');
-          triggerAudioPlayback();
-        }}
-        triggerAudioPlayback={triggerAudioPlayback}
-        detailedBoard={detailedBoard}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
@@ -999,7 +967,10 @@ export default function App() {
             <div 
               className="flex items-center gap-2 sm:gap-3 cursor-pointer group" 
               onClick={() => {
-                setActiveTab('beranda');
+                const triggered = handleLogoClick();
+                if (!triggered) {
+                  setActiveTab('beranda');
+                }
                 setActiveDropdown(null);
               }}
             >
@@ -1104,6 +1075,7 @@ export default function App() {
                              .map((sub) => {
                                const isSelected = tab.id === 'jadwal' ? curJadwalSub === sub.key
                                  : tab.id === 'keuangan' ? curKeuanganSub === sub.key
+                                 : tab.id === 'donasi' ? curDonasiSub === sub.key
                                  : tab.id === 'profil' ? curTentangSub === sub.key
                                  : false;
                                return (
@@ -1207,6 +1179,7 @@ export default function App() {
                 .map(sub => {
                   const isSelected = activeTab === 'jadwal' ? curJadwalSub === sub.key
                     : activeTab === 'keuangan' ? curKeuanganSub === sub.key
+                    : activeTab === 'donasi' ? curDonasiSub === sub.key
                     : activeTab === 'profil' ? curTentangSub === sub.key
                     : false;
                   return (
@@ -1315,7 +1288,6 @@ export default function App() {
                   <ManajemenJamaah 
                     isAdmin={false}
                     onAddLog={addLog} 
-                    onShowLogin={() => setActiveTab('admin')}
                   />
                 ) : (
                   <InfoMasjid 
@@ -1410,33 +1382,63 @@ export default function App() {
             )}
             
             {activeTab === 'donasi' && (
-              <DonationOpen 
-                isAdmin={false}
-                campaigns={campaigns}
-                onUpdateCampaigns={() => {
-                  // Handled by subcomponent usually
-                }}
-                onDonationSuccess={(title, msg, _amount) => {
-                  addLog(title, msg, 'success');
-                  triggerAudioPlayback();
-                }} 
-                onAddLog={addLog}
-              />
+              <div className="animate-fade-in space-y-6">
+                <div className="mb-4 text-left px-2">
+                  <span className="inline-block px-3 py-1 bg-red-100 text-red-800 font-bold text-[10px] uppercase tracking-widest rounded-full mb-2">
+                    {curDonasiSub === 'online' ? 'Layanan Donasi Digital' : 'Papan Donatur Tetap'}
+                  </span>
+                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+                    {curDonasiSub === 'online' ? 'Saluran Infaq & Sedekah' : 'Kontribusi Donatur Tetap Al-Abrar'}
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium tracking-wide mt-1">
+                    {curDonasiSub === 'online' ? 'Dukung program pembangunan dan operasional masjid melalui penyaluran dana yang transparan dan amanah.' : 'Daftar partisipasi rutin bulanan dari para donatur setia yang telah berkomitmen membantu syiar masjid.'}
+                  </p>
+                </div>
+                
+                {curDonasiSub === 'online' ? (
+                  <DonationOpen 
+                    isAdmin={false}
+                    campaigns={campaigns}
+                    onUpdateCampaigns={() => {}}
+                    onDonationSuccess={(title, msg, _amount) => {
+                      addLog(title, msg, 'success');
+                      triggerAudioPlayback();
+                    }} 
+                    onAddLog={addLog}
+                  />
+                ) : (
+                  <KeuanganMasjid 
+                    isAdmin={false} 
+                    onAddLog={addLog} 
+                  />
+                )}
+              </div>
             )}
 
             {activeTab === 'keuangan' && (
-              <KeuanganMasjid 
-                isAdmin={false} 
-                onAddLog={addLog} 
-                onShowLogin={() => setActiveTab('admin')} 
-              />
+              <div className="animate-fade-in space-y-6">
+                <div className="mb-4 text-left px-2">
+                  <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 font-bold text-[10px] uppercase tracking-widest rounded-full mb-2">
+                    {curKeuanganSub === 'kas_utama' ? 'Laporan Keuangan' : 'Papan Donatur Tetap'}
+                  </span>
+                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+                    {curKeuanganSub === 'kas_utama' ? 'Jurnal Kas Masuk & Keluar' : 'Kontribusi Donatur Tetap Al-Abrar'}
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium tracking-wide mt-1">
+                    {curKeuanganSub === 'kas_utama' ? 'Catatan mutasi keuangan masjid yang akuntabel, transparan, dan dapat diperiksa oleh seluruh jamaah.' : 'Daftar partisipasi rutin bulanan dari para donatur setia yang telah berkomitmen membantu syiar masjid.'}
+                  </p>
+                </div>
+                <KeuanganMasjid 
+                  isAdmin={false} 
+                  onAddLog={addLog} 
+                />
+              </div>
             )}
 
             {activeTab === 'inventaris' && (
               <InventarisMasjid 
                 isAdmin={false} 
                 onAddLog={addLog} 
-                onShowLogin={() => setActiveTab('admin')} 
               />
             )}
 
@@ -1448,11 +1450,10 @@ export default function App() {
               <ManajemenJamaah 
                 isAdmin={false}
                 onAddLog={addLog} 
-                onShowLogin={() => setActiveTab('admin')}
               />
             )}
 
-            {activeTab === 'admin' && (
+            {activeTab === 'admin' && !isAdmin && (
               <div className="animate-fade-in space-y-6">
                 <AdminLogin 
                   onLogin={handleAdminLogin} 
@@ -1466,26 +1467,87 @@ export default function App() {
 
       </main>
 
-      {/* Footer Area */}
+    {activeTab === 'admin' && isAdmin ? (
+      <AdminDashboardPortal
+        onLogout={handleAdminLogout}
+        announcement={announcement}
+        announcementInput={announcementInput}
+        setAnnouncementInput={setAnnouncementInput}
+        showAnnouncement={showAnnouncement}
+        onUpdateAnnouncement={handleUpdateAnnouncement}
+        onToggleAnnouncement={handleToggleAnnouncement}
+        adminPin={adminPin}
+        showPinChange={showPinChange}
+        setShowPinChange={setShowPinChange}
+        newPinValue={newPinValue}
+        setNewPinValue={setNewPinValue}
+        onPinChange={handlePinChange}
+        onResetDefaults={handleResetDefaults}
+        onResetAllData={handleResetAllData}
+        seedDummyData={seedDummyData}
+        onClearLogs={() => {
+          const ids = logs.map(l => (l as any).id).filter(Boolean);
+          clearCollection('activity_logs', ids);
+        }}
+        addLog={addLog}
+        logs={logs}
+        prayers={prayers}
+        nextDetails={nextDetails}
+        notificationPermission={notificationPermission}
+        selectedAudio={selectedAudio}
+        isMuted={isMuted}
+        volume={volume}
+        isAudioPlaying={isAudioPlaying}
+        testNotificationTimeLeft={testNotificationTimeLeft}
+        showConfigInfo={showConfigInfo}
+        editingPrayer={editingPrayer}
+        editTimeValue={editTimeValue}
+        onSetShowConfigInfo={setShowConfigInfo}
+        onTriggerQuickTest={triggerQuickTest}
+        onRequestNotificationPermission={requestNotificationPermission}
+        onSetSelectedAudio={setSelectedAudio}
+        onSetIsMuted={setIsMuted}
+        onSetVolume={setVolume}
+        onToggleSoundPlay={toggleSoundPlay}
+        onStartEditing={startEditing}
+        onSetEditTimeValue={setEditTimeValue}
+        onSavePrayerEdit={savePrayerEdit}
+        onCancelEdit={() => setEditingPrayer(null)}
+        onDeleteLog={deleteLog}
+        slides={slides}
+        kajian={kajian}
+        jumat={jumat}
+        ramadan={ramadan}
+        routine={routine}
+        campaigns={campaigns}
+        onDonationSuccess={(title, msg, _amount) => {
+          addLog(title, msg, 'success');
+          triggerAudioPlayback();
+        }}
+        triggerAudioPlayback={triggerAudioPlayback}
+        detailedBoard={detailedBoard}
+      />
+    ) : (
       <footer className="fixed bottom-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md text-emerald-250 border-t border-emerald-900/50 py-4 px-4 z-40" id="footer_section">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-center">
           <p className="text-emerald-400/80 text-[10px] sm:text-xs font-bold">© 2026 Masjid Jami Al Abrar. All rights reserved.</p>
         </div>
       </footer>
+    )}
 
-      {/* Professional Floating Notifications */}
-      <ProfessionalToasts logs={activeToasts} onRemove={removeToast} />
-      <ConfirmationModal 
-        isOpen={showPinConfirm}
-        title="Ganti PIN"
-        message="Anda yakin akan mengganti PIN akses Admin? Pastikan Anda mengingat PIN baru ini untuk menghindari terkunci dari fitur Admin."
-        onConfirm={() => {
-            handlePinChange(newPinValue);
-            setShowPinConfirm(false);
-            setShowPinChange(false);
-        }}
-        onCancel={() => setShowPinConfirm(false)}
-      />
-    </div>
-  );
+    {/* Professional Floating Notifications */}
+    <ProfessionalToasts logs={activeToasts} onRemove={removeToast} />
+    <ConfirmationModal 
+      isOpen={showPinConfirm}
+      title="Ganti PIN"
+      message="Anda yakin akan mengganti PIN akses Admin? Pastikan Anda mengingat PIN baru ini untuk menghindari terkunci dari fitur Admin."
+      onConfirm={() => {
+          handlePinChange(newPinValue);
+          setShowPinConfirm(false);
+          setShowPinChange(false);
+      }}
+      onCancel={() => setShowPinConfirm(false)}
+    />
+  </div>
+);
 }

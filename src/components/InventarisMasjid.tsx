@@ -15,12 +15,10 @@ const CATEGORY_PRESETS: {[key: string]: string} = {
 
 export default function InventarisMasjid({ 
   isAdmin, 
-  onAddLog, 
-  onShowLogin 
+  onAddLog
 }: { 
   isAdmin: boolean; 
   onAddLog: (title: string, msg: string, type: 'info' | 'success' | 'alert' | 'system') => void;
-  onShowLogin: () => void;
 }) {
   const [assets, setAssets] = useState<MosqueAsset[]>([]);
 
@@ -60,7 +58,7 @@ export default function InventarisMasjid({
   const handleAddAsset = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin) {
-      onShowLogin();
+      onAddLog('Akses Terbatas', 'Hanya administrator yang dapat mendaftarkan aset baru.', 'alert');
       return;
     }
 
@@ -109,7 +107,7 @@ export default function InventarisMasjid({
 
   const handleUpdateCondition = (id: string, nextCond: 'Sangat Baik' | 'Baik' | 'Rusak Ringan' | 'Rusak Berat') => {
     if (!isAdmin) {
-      onShowLogin();
+      onAddLog('Akses Terbatas', 'Hanya administrator yang dapat memperbarui kondisi aset.', 'alert');
       return;
     }
     const asset = assets.find(a => a.id === id);
@@ -121,7 +119,7 @@ export default function InventarisMasjid({
 
   const handleRemoveAsset = (id: string, name: string) => {
     if (!isAdmin) {
-      onShowLogin();
+      onAddLog('Akses Terbatas', 'Hanya administrator yang dapat menghapus data aset.', 'alert');
       return;
     }
 

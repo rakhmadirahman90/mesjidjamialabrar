@@ -6,12 +6,10 @@ import { parseNumber } from '../lib/utils';
 
 export default function ManajemenJamaah({ 
   isAdmin,
-  onAddLog,
-  onShowLogin
+  onAddLog
 }: { 
   isAdmin: boolean;
   onAddLog: (title: string, msg: string, type: 'info' | 'success' | 'alert' | 'system') => void;
-  onShowLogin: () => void;
 }) {
   const [jamaahList, setJamaahList] = useState<Congregant[]>([]);
 
@@ -83,7 +81,7 @@ export default function ManajemenJamaah({
 
   const handleUpdateAttendance = (id: string, nextAtt: 'Aktif Jamaah' | 'Jarang' | 'Sakit') => {
     if (!isAdmin) {
-      onShowLogin();
+      onAddLog('Akses Terbatas', 'Hanya administrator yang dapat memperbarui status kehadiran jamaah.', 'alert');
       return;
     }
     const jamaah = jamaahList.find(j => j.id === id);
@@ -95,7 +93,7 @@ export default function ManajemenJamaah({
    
   const handleRemoveJamaah = (id: string, name: string) => {
     if (!isAdmin) {
-      onShowLogin();
+      onAddLog('Akses Terbatas', 'Hanya administrator yang dapat menghapus data jamaah.', 'alert');
       return;
     }
     if (confirm(`Hapus data jamaah "${name}" secara permanen?`)) {

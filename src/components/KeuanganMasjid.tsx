@@ -8,12 +8,10 @@ import { DUMMY_TRANSACTIONS, DUMMY_PERMANENT_DONORS } from '../data/dummyData';
 
 export default function KeuanganMasjid({ 
   isAdmin, 
-  onAddLog, 
-  onShowLogin 
+  onAddLog 
 }: { 
   isAdmin: boolean; 
   onAddLog: (title: string, msg: string, type: 'info' | 'success' | 'alert' | 'system') => void;
-  onShowLogin: () => void;
 }) {
   // Database transactions state locally backed up in local storage - Exact Match of Sheets 1 & 2
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -100,7 +98,7 @@ export default function KeuanganMasjid({
   const handleAddTransaction = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin) {
-      onShowLogin();
+      onAddLog('Akses Terbatas', 'Hanya administrator yang dapat mencatatkan transaksi keuangan.', 'alert');
       return;
     }
 
@@ -140,7 +138,7 @@ export default function KeuanganMasjid({
 
   const handleRemoveTransaction = (id: string, notes: string) => {
     if (!isAdmin) {
-      onShowLogin();
+      onAddLog('Akses Terbatas', 'Hanya administrator yang dapat menghapus catatan transaksi.', 'alert');
       return;
     }
     if (confirm(`Hapus transaksi "${notes}"?`)) {
