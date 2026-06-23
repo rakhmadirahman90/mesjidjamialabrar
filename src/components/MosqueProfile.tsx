@@ -339,7 +339,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
             Masjid Jami <span className="text-amber-400">Al Abrar</span> Lapadde
           </h1>
           <p className="text-emerald-100/90 text-sm sm:text-base leading-relaxed">
-            Jl. Jenderal Sudirman No. 45, Kel. Lapadde, Kecamatan Ujung, Kota Parepare, Sulawesi Selatan.
+            Jl jend A Yani Km 5 Kecamatan ujung kelurahan lapadde.
           </p>
           
           <div className="flex flex-wrap gap-4 pt-2 text-xs">

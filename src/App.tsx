@@ -27,7 +27,7 @@ import AdminLogin from './components/AdminLogin';
 import GaleriMasjid from './components/GaleriMasjid';
 import KontakMasjid from './components/KontakMasjid';
 import AdminDashboardPortal from './components/AdminDashboardPortal';
-import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign, RoutineEntry } from './types';
+import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign, RoutineEntry, DetailedBoardMember } from './types';
 import { 
   DEFAULT_SLIDES,
   DEFAULT_KAJIAN,
@@ -38,7 +38,8 @@ import {
   DUMMY_PERMANENT_DONORS,
   DUMMY_ASSETS,
   DUMMY_CONGREGANTS,
-  DUMMY_DONORS
+  DUMMY_DONORS,
+  DUMMY_DETAILED_BOARD
 } from './data/dummyData';
 import { 
   subscribeToCollection, 
@@ -155,6 +156,7 @@ export default function App() {
   const [ramadan, setRamadan] = useState<RamadanEntry[]>([]);
   const [routine, setRoutine] = useState<RoutineEntry[]>([]);
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
+  const [detailedBoard, setDetailedBoard] = useState<DetailedBoardMember[]>([]);
 
   // High-Level Integrated Navigation Hub Tab selection
   const [activeTab, setActiveTab] = useState<'beranda'|'profil'|'jadwal'|'donasi'|'keuangan'|'inventaris'|'jamaah'|'tentang'|'admin'|'galeri'|'kontak'>('beranda');
@@ -345,6 +347,14 @@ export default function App() {
       }
     });
 
+    const unsubDetailedBoard = subscribeToCollection('mosque_detailed_board', (data: any) => {
+      if (!data || data.length === 0) {
+        DUMMY_DETAILED_BOARD.forEach(b => addDocument('mosque_detailed_board', b));
+      } else {
+        setDetailedBoard(data);
+      }
+    });
+
     return () => {
       unsubConfig();
       unsubLogs();
@@ -359,6 +369,7 @@ export default function App() {
       unsubAssets();
       unsubCon();
       unsubCampDonors();
+      unsubDetailedBoard();
     };
   }, []);
 
@@ -487,29 +498,43 @@ export default function App() {
   };
 
   const seedDummyData = async () => {
-    if (!confirm('Apakah Anda yakin ingin memuat data dummy (Ramadan & Kegiatan)?')) return;
+    if (!confirm('Apakah Anda yakin ingin memuat data dummy (Keuangan, Ramadan & Kegiatan)?')) return;
     try {
+      // 1. Ramadan Schedule
       const dummyRamadan: RamadanEntry[] = [
         { id: 'r1', title: 'Tarawih', time: '20:00', description: 'Tarawih berjamaah', icon: '🌙', category: 'Ibadah' },
         { id: 'r2', title: 'Buka Bersama', time: '18:00', description: 'Buka puasa bersama', icon: '🍲', category: 'Sosial' }
       ];
       await Promise.all(dummyRamadan.map(r => upsertDocument('ramadan_schedule', r.id, r)));
       
+      // 2. Routine Schedule
       const dummyRoutine: RoutineEntry[] = [
         { id: 'k1', title: 'Bersih Masjid', time: '07:00', day: 'Jumat', description: 'Gotong royong membersihkan masjid', category: 'Bulanan' },
         { id: 'k2', title: 'Pengajian Rutin', time: '19:30', day: 'Kamis', description: 'Kajian kitab bersama ustadz setempat', category: 'Harian' }
       ];
       await Promise.all(dummyRoutine.map(r => upsertDocument('routine_schedule', r.id, r)));
       
+      // 3. Kajian Schedule
       const dummyKajian: KajianEntry[] = [
         { id: 'kj1', title: 'Tafsir Jalalain', lecturer: 'Ustadz Ahmad', theme: 'Memahami QS. Al-Baqarah', time: '05:30', day: 'Setiap Hari', category: 'Ba\'da Subuh' },
         { id: 'kj2', title: 'Kajian Fiqih', lecturer: 'KH. Mahmud', theme: 'Fiqih Shalat Berjamaah', time: '19:00', day: 'Senin', category: 'Ba\'da Maghrib' }
       ];
       await Promise.all(dummyKajian.map(r => upsertDocument('kajian_schedule', r.id, r)));
+
+      // 4. Financial Transactions (from images)
+      await Promise.all(DUMMY_TRANSACTIONS.map((tx, idx) => 
+        upsertDocument('financial_transactions', tx.id || `seed_tx_${idx}`, tx)
+      ));
+
+      // 5. Permanent Donors (from images)
+      await Promise.all(DUMMY_PERMANENT_DONORS.map((donor, idx) => 
+        upsertDocument('permanent_donors', `seed_donor_${idx}`, donor)
+      ));
       
-      addLog('Seed Data', 'Data dummy Ramadan, Kegiatan & Kajian berhasil dimuat.', 'success');
+      addLog('Seed Data Berhasil', 'Data Keuangan, Ramadan, Kegiatan & Kajian berhasil dimuat ke database.', 'success');
     } catch (e) {
-      addLog('Seed Data Gagal', 'Terjadi kesalahan saat memuat data.', 'alert');
+      console.error(e);
+      addLog('Seed Data Gagal', 'Terjadi kesalahan saat memuat data ke database.', 'alert');
     }
   };
 
@@ -958,6 +983,7 @@ export default function App() {
           triggerAudioPlayback();
         }}
         triggerAudioPlayback={triggerAudioPlayback}
+        detailedBoard={detailedBoard}
       />
     );
   }
@@ -984,9 +1010,9 @@ export default function App() {
               <div className="text-left leading-tight">
                 <span className="text-[7px] sm:text-[8px] font-black tracking-[0.25em] text-emerald-400 uppercase leading-none block mb-0.5">Pusat Ibadah</span>
                 <h1 className="text-[11px] xs:text-xs sm:text-sm font-extrabold tracking-wider text-white uppercase whitespace-nowrap">
-                  Mesjid Jami Al Abrar <span className="text-emerald-400">Parepare</span>
+                  Masjid Jami Al Abrar <span className="text-emerald-400">Parepare</span>
                 </h1>
-                <span className="text-[7px] sm:text-[8px] font-bold text-emerald-400/50 tracking-[0.2em] uppercase block mt-0.5 hidden sm:block">Sistem Mesjid Cerdas</span>
+                <span className="text-[7px] sm:text-[8px] font-bold text-emerald-400/50 tracking-[0.2em] uppercase block mt-0.5 hidden sm:block">Sistem Masjid Cerdas</span>
               </div>
             </div>
 
@@ -1010,15 +1036,15 @@ export default function App() {
 
           {/* Desktop Core Navigation Links (Uppercased, spacing elegant) */}
           <nav className="hidden xl:flex items-center justify-center gap-0.5 lg:gap-1 tracking-wider text-xs font-bold font-sans">
-            {[
-              { id: 'beranda', label: 'Home', hasSub: false },
-              { id: 'profil', label: 'Profil', hasSub: true },
-              { id: 'jadwal', label: 'Jadwal', hasSub: true },
-              { id: 'galeri', label: 'Galeri', hasSub: false },
-              { id: 'keuangan', label: 'Kas', hasSub: false },
-              { id: 'inventaris', label: 'Aset', hasSub: false },
-              { id: 'kontak', label: 'Kontak', hasSub: false },
-            ].map((tab) => {
+          {[
+            { id: 'beranda', label: 'Home', hasSub: false },
+            { id: 'profil', label: 'Profil', hasSub: true },
+            { id: 'jadwal', label: 'Jadwal', hasSub: true },
+            { id: 'galeri', label: 'Galeri', hasSub: false },
+            { id: 'keuangan', label: 'Kas', hasSub: false },
+            { id: 'inventaris', label: 'Aset', hasSub: false },
+            { id: 'kontak', label: 'Kontak', hasSub: false },
+          ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <div
@@ -1295,6 +1321,7 @@ export default function App() {
                 ) : (
                   <InfoMasjid 
                     activeSubTab={curTentangSub} 
+                    detailedBoard={detailedBoard}
                   />
                 )}
               </>
@@ -1442,15 +1469,8 @@ export default function App() {
 
       {/* Footer Area */}
       <footer className="fixed bottom-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md text-emerald-250 border-t border-emerald-900/50 py-4 px-4 z-40" id="footer_section">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between">
-          <p className="text-emerald-400/80 text-[10px] font-bold tracking-[0.2em] uppercase">@2026 Mesjid Jami Al Abrar Parepare</p>
-          <button 
-            onClick={() => setActiveTab('admin')}
-            className="text-emerald-400/50 hover:text-emerald-300 transition-colors"
-            title="Admin Access"
-          >
-            <Settings className="h-4 w-4" />
-          </button>
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-center">
+          <p className="text-emerald-400/80 text-[10px] sm:text-xs font-bold">© 2026 Masjid Jami Al Abrar. All rights reserved.</p>
         </div>
       </footer>
 

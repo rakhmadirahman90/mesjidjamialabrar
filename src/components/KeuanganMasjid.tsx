@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown, Wallet, PlusCircle, ClipboardCheck, Users, Se
 import { ConfirmationModal } from './ConfirmationModal';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 import { parseNumber } from '../lib/utils';
+import { DUMMY_TRANSACTIONS, DUMMY_PERMANENT_DONORS } from '../data/dummyData';
 
 export default function KeuanganMasjid({ 
   isAdmin, 
@@ -46,11 +47,19 @@ export default function KeuanganMasjid({
   // Firebase sync
   useEffect(() => {
     const unsubTx = subscribeToCollection<Transaction>('financial_transactions', (data) => {
-      setTransactions(data);
+      if (data.length === 0) {
+        setTransactions(DUMMY_TRANSACTIONS as Transaction[]);
+      } else {
+        setTransactions(data);
+      }
     }, 'date', 'desc');
 
     const unsubDonors = subscribeToCollection<PermanentDonor>('permanent_donors', (data) => {
-      setPermanentDonors(data);
+      if (data.length === 0) {
+        setPermanentDonors(DUMMY_PERMANENT_DONORS as PermanentDonor[]);
+      } else {
+        setPermanentDonors(data);
+      }
     }, 'no', 'asc');
 
     return () => {
@@ -805,16 +814,16 @@ export default function KeuanganMasjid({
             {/* Right Side: Admin input card / stats */}
             <div className="lg:col-span-4 space-y-6">
               
-              {/* Form to submit new Ledger entry */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4">
-                <h3 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5 uppercase tracking-wide text-left">
-                  <span>✍️</span> Catat Transaksi Baru
-                </h3>
-                <p className="text-[11px] text-slate-500 leading-relaxed text-left">
-                  Formulir penambahan mutasi keuangan masjid secara langsung ke kas digital Masjid Al Abrar.
-                </p>
+              {/* Form to submit new Ledger entry - ONLY VISIBLE TO ADMINS */}
+              {isAdmin && (
+                <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4">
+                  <h3 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5 uppercase tracking-wide text-left">
+                    <span>✍️</span> Catat Transaksi Baru
+                  </h3>
+                  <p className="text-[11px] text-slate-500 leading-relaxed text-left">
+                    Formulir penambahan mutasi keuangan masjid secara langsung ke kas digital Masjid Al Abrar.
+                  </p>
 
-                {isAdmin ? (
                   <form onSubmit={handleAddTransaction} className="space-y-4 pt-2">
                     
                     <div className="space-y-1.5 text-left">
@@ -896,20 +905,8 @@ export default function KeuanganMasjid({
                     </button>
 
                   </form>
-                ) : (
-                  <div className="pt-4 pb-2 text-center text-slate-500 space-y-4">
-                    <p className="text-xs bg-slate-50 p-4 border border-dashed border-slate-200 rounded-2xl leading-relaxed">
-                      🔐 Penambahan ataupun pencatatan mutasi keuangan baru hanya diizinkan bagi <strong>Admin Pelaksana Masjid Al Abrar</strong>.
-                    </p>
-                    <button
-                      onClick={onShowLogin}
-                      className="py-2.5 px-6 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-emerald-950 transition inline-block shadow cursor-pointer"
-                    >
-                      Masuk Sebagai Admin
-                    </button>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Quick Static Information graphic */}
               <div className="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800 space-y-4 text-left">

@@ -188,7 +188,7 @@ export default function KontakMasjid({ isAdmin = false }: KontakMasjidProps) {
                   <div className="space-y-1 text-left">
                     <h4 className="text-sm font-black tracking-wide text-white">Lokasi Utama</h4>
                     <p className="text-xs text-emerald-100/80 leading-relaxed font-semibold">
-                      Jl. S. Saddang No. 1, Kelurahan Ujung Sabbang, Kecamatan Ujung, Kota Parepare, Sulawesi Selatan 91111
+                      Jl jend A Yani Km 5 Kecamatan ujung kelurahan lapadde
                     </p>
                   </div>
                 </div>

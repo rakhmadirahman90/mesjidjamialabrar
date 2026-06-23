@@ -6,7 +6,8 @@ import {
   SlideItem,
   KajianEntry,
   JumatEntry,
-  PrayerTime
+  PrayerTime,
+  DetailedBoardMember
 } from '../types';
 
 export interface PermanentDonor {
@@ -137,84 +138,311 @@ export const DEFAULT_PRAYERS: PrayerTime[] = [
 
 export const DUMMY_TRANSACTIONS: Partial<Transaction>[] = [
   {
-    date: '2026-06-20',
-    category: 'Kotak Jumat',
-    type: 'debit',
-    amount: 4250000,
-    notes: 'Infaq Jumat Berkah Pekan-3 Juni 2026',
-    registeredBy: 'SADIK (Bendahara)'
-  },
-  {
-    date: '2026-06-18',
-    category: 'Operasional Listrik',
-    type: 'kredit',
-    amount: 1850000,
-    notes: 'Bayar Tagihan Listrik PLN 3500 VA (Abonemen + Pemakaian)',
-    registeredBy: 'SADIK (Bendahara)'
-  },
-  {
-    date: '2026-06-15',
-    category: 'Kebersihan',
-    type: 'kredit',
-    amount: 750000,
-    notes: 'Pembelian Sabun Pel, Karbol, dan Tisue Kamar Mandi',
-    registeredBy: 'SADIK (Bendahara)'
-  },
-  {
-    date: '2026-06-10',
+    id: 't0',
+    date: '2026-06-04',
     category: 'Donasi Insidental',
     type: 'debit',
-    amount: 12000000,
-    notes: 'Infaq dari Keluarga Alm. H. Mustafa untuk Perbaikan Atas',
+    amount: 14711000,
+    notes: 'Saldo Awal (Limpahan Kas Pekan Sebelumnya per 5-6-26)',
     registeredBy: 'SADIK (Bendahara)'
   },
   {
+    id: 't1',
     date: '2026-06-05',
     category: 'Kotak Jumat',
     type: 'debit',
-    amount: 3890000,
-    notes: 'Infaq Jumat Berkah Pekan-1 Juni 2026',
+    amount: 1210000,
+    notes: 'Kotak Amal Jumat Tanggal 5-6-26',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't2',
+    date: '2026-06-12',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 918000,
+    notes: 'Kotak Amal Harian Tanggal 5 s/d 12-6-26',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't3',
+    date: '2026-06-12',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 50000,
+    notes: 'Melalui Amplop: Tanpa Nama',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't4',
+    date: '2026-06-05',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 375000,
+    notes: 'Donatur: BAHAR DARENG (Bulan 4,5,6)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't5',
+    date: '2026-06-05',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: NY. HJ. ANI DANILHAYA (Bulan 9,10)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't6',
+    date: '2026-06-05',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: H. YODI HAYA (Bulan 9,10)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't7',
+    date: '2026-06-05',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: HAMBA ALLAH (Bulan 6)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't8',
+    date: '2026-06-05',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: H. AMIR SABANA (Bulan 7)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't9',
+    date: '2026-06-05',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 50000,
+    notes: 'Donatur: SAYYED SUNARDJO (Bulan 4)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't10',
+    date: '2026-06-12',
+    category: 'Lainnya',
+    type: 'kredit',
+    amount: 1700000,
+    notes: 'PEMBINAAN IBADAH (12-6-26)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't11',
+    date: '2026-06-12',
+    category: 'Santunan Anak Yatim',
+    type: 'kredit',
+    amount: 100000,
+    notes: 'SUMBANGAN SOSIAL (12-6-26)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't12',
+    date: '2026-06-12',
+    category: 'Lainnya',
+    type: 'kredit',
+    amount: 350000,
+    notes: 'YASINAN (12-6-26)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't13',
+    date: '2026-06-12',
+    category: 'Kotak Jumat',
+    type: 'debit',
+    amount: 1044000,
+    notes: 'Kotak Amal Jumat Tanggal 12-6-26',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't14',
+    date: '2026-06-19',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 967000,
+    notes: 'Kotak Amal Harian Tanggal 12 s/d 19-6-26',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't15',
+    date: '2026-06-19',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 200000,
+    notes: 'Melalui Amplop: ANGGI',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't16',
+    date: '2026-06-19',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 20000,
+    notes: 'Melalui Amplop: KADIR',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't17',
+    date: '2026-06-19',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 50000,
+    notes: 'Melalui Amplop: TANPA NAMA (Pemasukan 1)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't18',
+    date: '2026-06-19',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 50000,
+    notes: 'Melalui Amplop: TANPA NAMA (Pemasukan 2)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't19',
+    date: '2026-06-19',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 10000,
+    notes: 'Melalui Amplop: TANPA NAMA (Pemasukan 3)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't20',
+    date: '2026-06-19',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 2438000,
+    notes: 'ISI CELENGAN MALAM SYUHADA',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't21',
+    date: '2026-06-12',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: DRS. H. SYAMSUL EYBER AT (Bulan 6)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't22',
+    date: '2026-06-12',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: ALMARHUM DR. H. ABD. WAHID (Bulan 6)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't23',
+    date: '2026-06-12',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: HJ. JUSNI (Bulan 6)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't24',
+    date: '2026-06-12',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: NURDIN (Bulan 6)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't25',
+    date: '2026-06-12',
+    category: 'Donasi Insidental',
+    type: 'debit',
+    amount: 100000,
+    notes: 'Donatur: SAJERA (Bulan 6)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't26',
+    date: '2026-06-19',
+    category: 'Lainnya',
+    type: 'kredit',
+    amount: 1700000,
+    notes: 'PEMBINAAN IBADAH (19-6-26)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't27',
+    date: '2026-06-19',
+    category: 'Lainnya',
+    type: 'kredit',
+    amount: 100000,
+    notes: 'BALIHO SYUHADA (19-6-26)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't28',
+    date: '2026-06-19',
+    category: 'Lainnya',
+    type: 'kredit',
+    amount: 449000,
+    notes: 'AIR MINERAL CEBO 3 POS, 20 DOS (GAPAS)',
+    registeredBy: 'SADIK (Bendahara)'
+  },
+  {
+    id: 't29',
+    date: '2026-06-19',
+    category: 'Lainnya',
+    type: 'kredit',
+    amount: 4500000,
+    notes: 'Konsumsi Y/Syuhada + ceramah',
     registeredBy: 'SADIK (Bendahara)'
   }
 ];
 
 export const DUMMY_PERMANENT_DONORS: Partial<PermanentDonor>[] = [
-  {
-    no: 1,
-    name: 'H. Rusli Maidin',
-    amount: 250000,
-    monthlyPayments: {
-      'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true,
-      'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false
-    }
-  },
-  {
-    no: 2,
-    name: 'Drs. H. Syamsul Kiber',
-    amount: 150000,
-    monthlyPayments: {
-      'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': false,
-      'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false
-    }
-  },
-  {
-    no: 3,
-    name: 'Ustadz Nur Hadi',
-    amount: 500000,
-    monthlyPayments: {
-      'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true,
-      'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false
-    }
-  },
-  {
-    no: 4,
-    name: 'H. Amir Sabana',
-    amount: 200000,
-    monthlyPayments: {
-      'Jan': true, 'Peb': true, 'Maret': true, 'April': false, 'Mei': false, 'Jun': false,
-      'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false
-    }
-  }
+  { no: 1, name: 'H/K', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 2, name: 'HJ. ATIRAH', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 3, name: 'DRS. ABD. RAHMAN SULO', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': false, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 4, name: 'DRS. H. AT. SYAMSUL EYBER', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 5, name: 'HJ. NORMA', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 6, name: 'MUSTAFA LAIDDA', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 7, name: 'HAMBA ALLAH', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 8, name: 'ALMR. Drs. SYAMSUDDIN. P', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 9, name: 'AZIS', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 10, name: 'H. AMIR SABANA', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 11, name: 'DR. H. ABD. WAHID THAHIR', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 12, name: 'HJ. JUSNI', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 13, name: 'HAMBA ALLAH', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 14, name: 'NURDIN', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 15, name: 'SAJERA', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 16, name: 'FADIL AH JULIA NINGSIH', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 17, name: 'MUHAMMAD ALKAUTSAR', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 18, name: 'DARWIS RESSA & NYONYA', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': false, 'Mei': false, 'Jun': false, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 19, name: 'BURHAN', amount: 100000, monthlyPayments: { 'Jan': false, 'Peb': false, 'Maret': false, 'April': false, 'Mei': false, 'Jun': false, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 20, name: 'HAFIZHA', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 21, name: 'NUR ASMAN ASKAN', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': true, 'Sept': true, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 22, name: 'BAHAR DARENG', amount: 125000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 23, name: 'HJ. KARIAH', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 24, name: 'ABDULLAH JALIL', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': false, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 25, name: 'Drs. H. MUH. SABIR', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 26, name: 'SAYYED SUNARDJO', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': false, 'Jun': false, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 27, name: 'H. MUH. TAUFIK, T', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 28, name: 'SYAMSIR N', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 29, name: 'ANISAH', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': false, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 30, name: 'Ny. HJ. ANI DANILHAYA', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': true, 'Sept': true, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 31, name: 'HJ. HASNAH ABBAS', amount: 100000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 32, name: 'H. YODI HAYA', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': true, 'Sept': true, 'Okt': false, 'Nop': false, 'Des': false } },
+  { no: 33, name: 'DR. ARQAM MAJID', amount: 50000, monthlyPayments: { 'Jan': true, 'Peb': true, 'Maret': true, 'April': true, 'Mei': true, 'Jun': true, 'Jul': true, 'Agust': false, 'Sept': false, 'Okt': false, 'Nop': false, 'Des': false } }
 ];
 
 export const DUMMY_ASSETS: Partial<MosqueAsset>[] = [
@@ -329,3 +557,200 @@ export const DUMMY_DONORS = [
     timestamp: new Date().toISOString()
   }
 ];
+
+export const DUMMY_DETAILED_BOARD: DetailedBoardMember[] = [
+  // PENASEHAT
+  {
+    name: 'Camat Ujung',
+    role: 'Pelindung Utama',
+    category: 'penasehat',
+    sectionName: 'Dewan Pelindung / Penasehat',
+    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0812-1111-2222'
+  },
+  {
+    name: 'Kepala KUA Kec. Ujung',
+    role: 'Penasehat Syariah',
+    category: 'penasehat',
+    sectionName: 'Dewan Pelindung / Penasehat',
+    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0813-2222-3333'
+  },
+  {
+    name: 'Lurah Lapadde',
+    role: 'Penasehat Kewilayahan',
+    category: 'penasehat',
+    sectionName: 'Dewan Pelindung / Penasehat',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0811-3333-4444'
+  },
+  {
+    name: 'dr. H. Nurdin Samad, Sp.PD.',
+    role: 'Penasehat Medis & Sosial',
+    category: 'penasehat',
+    sectionName: 'Dewan Pelindung / Penasehat',
+    imageUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0852-4444-5555'
+  },
+  {
+    name: 'Prof. Dr. Drs. H. Amaluddin, M.Hum',
+    role: 'Penasehat Akademis & Keumatan',
+    category: 'penasehat',
+    sectionName: 'Dewan Pelindung / Penasehat',
+    imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0812-5555-6666'
+  },
+
+  // INTI / HARIAN
+  {
+    name: 'Kapt. Purn. H. Amir Sabana',
+    role: 'Ketua Umum',
+    category: 'inti',
+    sectionName: 'Pengurus Harian Utama',
+    imageUrl: 'https://images.unsplash.com/photo-1566753323558-f4e0952af115?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0812-4455-1211'
+  },
+  {
+    name: 'Abdullah Jalil, SE., SH., M.Si',
+    role: 'Wakil Ketua I',
+    category: 'inti',
+    sectionName: 'Pengurus Harian Utama',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0852-5566-7788'
+  },
+  {
+    name: 'Drs. H. Muh. Sabir',
+    role: 'Wakil Ketua II',
+    category: 'inti',
+    sectionName: 'Pengurus Harian Utama',
+    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0811-9988-1243'
+  },
+  {
+    name: 'M. Darwis, SE',
+    role: 'Sekretaris Umum',
+    category: 'inti',
+    sectionName: 'Pengurus Harian Utama',
+    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0852-1122-3344'
+  },
+  {
+    name: 'Hardika',
+    role: 'Bendahara Umum',
+    category: 'inti',
+    sectionName: 'Pengurus Harian Utama',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0811-9988-7766'
+  },
+
+  // IDARAH
+  {
+    name: 'H. Mistang Hamid, SE',
+    role: 'Koordinator Seksi Dana',
+    category: 'idarah',
+    sectionName: 'Seksi Dana & Pendanaan',
+    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0812-7777-8888'
+  },
+  {
+    name: 'H. Yodi Haya, S.E., M.M',
+    role: 'Anggota Seksi Dana',
+    category: 'idarah',
+    sectionName: 'Seksi Dana & Pendanaan',
+    imageUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0813-8888-9999'
+  },
+  {
+    name: 'Darwis Ressa',
+    role: 'Koordinator Seksi Ekonomi',
+    category: 'idarah',
+    sectionName: 'Seksi Ekonomi Umat & Usaha',
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0811-6677-8899'
+  },
+  {
+    name: 'Amiruddin, SE',
+    role: 'Koordinator Seksi Kemasyarakatan',
+    category: 'idarah',
+    sectionName: 'Seksi Kemasyarakatan & Kesehatan',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0852-8899-0011'
+  },
+
+  // IMARAH
+  {
+    name: 'Drs. Abd. Hakim Latief, M.Pd.I',
+    role: 'Imam Utama Masjid',
+    category: 'imarah',
+    sectionName: 'Imam & Khidmat Peribadatan',
+    imageUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0821-2222-1111'
+  },
+  {
+    name: 'Nurdin Nawawi',
+    role: 'Imam Rawatib',
+    category: 'imarah',
+    sectionName: 'Imam & Khidmat Peribadatan',
+    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0853-2222-1111'
+  },
+  {
+    name: 'Endeng Suparman',
+    role: 'Koordinator PHBI',
+    category: 'imarah',
+    sectionName: 'Seksi Hari Besar Islam (PHBI)',
+    imageUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0812-4444-2222'
+  },
+  {
+    name: 'Mariyani, S.Ag., M.Pd.I',
+    role: 'Kepala TPA Al Abrar',
+    category: 'imarah',
+    sectionName: 'Seksi Pendidikan, TPA & Perpustakaan',
+    imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0813-5555-1111'
+  },
+  {
+    name: 'Nurhayati, S.Pd.',
+    role: 'Koordinator Majelis Taklim',
+    category: 'imarah',
+    sectionName: 'Seksi Pembinaan Wanita (Majelis Taklim)',
+    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0852-6666-2222'
+  },
+
+  // RIAYAH
+  {
+    name: 'Drs. Muhammadong',
+    role: 'Koordinator Seksi Pembangunan',
+    category: 'riayah',
+    sectionName: 'Seksi Pembangunan & Pemeliharaan Fisik',
+    imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0812-9999-1111'
+  },
+  {
+    name: 'Arifin',
+    role: 'Koordinator Seksi Perlengkapan',
+    category: 'riayah',
+    sectionName: 'Seksi Perlengkapan & Aset Inventaris',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0811-9999-2222'
+  },
+  {
+    name: 'Anas',
+    role: 'Koordinator Kebersihan',
+    category: 'riayah',
+    sectionName: 'Seksi Kebersihan & Kesehatan Jurnal',
+    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0852-9999-3333'
+  },
+  {
+    name: 'H. Syahrir',
+    role: 'Koordinator Keamanan',
+    category: 'riayah',
+    sectionName: 'Seksi Keamanan & Ketertiban',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=256&h=256&auto=format&fit=crop',
+    phone: '0813-9999-4444'
+  }
+];
+

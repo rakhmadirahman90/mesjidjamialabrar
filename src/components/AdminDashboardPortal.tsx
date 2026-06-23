@@ -30,6 +30,7 @@ import QrisUploader from './QrisUploader';
 import GaleriMasjid from './GaleriMasjid';
 import KontakMasjid from './KontakMasjid';
 import { AdminDashboardPortalProps } from '../types';
+import ManajemenPengurusLengkap from './ManajemenPengurusLengkap';
 
 export default function AdminDashboardPortal({
   onLogout,
@@ -81,7 +82,8 @@ export default function AdminDashboardPortal({
   routine,
   campaigns,
   onDonationSuccess,
-  triggerAudioPlayback
+  triggerAudioPlayback,
+  detailedBoard
 }: AdminDashboardPortalProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'beranda' | 'profil' | 'jadwal' | 'galeri' | 'donasi' | 'keuangan' | 'inventaris' | 'kontak' | 'keamanan'>('overview');
   const [localTime, setLocalTime] = useState(new Date());
@@ -487,6 +489,21 @@ export default function AdminDashboardPortal({
                   </div>
                 </div>
 
+                {/* Section Pengurus Lengkap */}
+                <div className="p-3 xs:p-4 sm:p-5 bg-[#020d08] border border-emerald-500/10 rounded-2xl space-y-4">
+                  <div className="border-b border-emerald-500/10 pb-2 text-left">
+                    <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider">● Database Pengurus Lengkap & Foto</h4>
+                    <p className="text-[10px] text-slate-400">Manajemen struktur organisasi lengkap dengan dukungan unggah foto profil tiap bidang.</p>
+                  </div>
+                  
+                  <div className="p-1 rounded-xl bg-slate-950/50">
+                    <ManajemenPengurusLengkap 
+                      detailedBoard={detailedBoard}
+                      onAddLog={addLog}
+                    />
+                  </div>
+                </div>
+
                 {/* Section Sejarah, Visi Misi, Pengurus */}
                 <div className="p-3 xs:p-4 sm:p-5 bg-[#020d08] border border-emerald-500/10 rounded-2xl text-left space-y-4">
                   <div className="border-b border-emerald-500/10 pb-2">
@@ -496,7 +513,7 @@ export default function AdminDashboardPortal({
                   
                   <div className="p-1.5 bg-slate-950/20 border border-emerald-500/5 rounded-xl">
                     <span className="text-[9px] font-bold text-amber-500 uppercase bg-amber-500/10 border border-amber-550/10 px-2 py-0.5 rounded-full inline-block mb-3">Live Sandbox View</span>
-                    <InfoMasjid activeSubTab="info_umum" />
+                    <InfoMasjid activeSubTab="info_umum" detailedBoard={detailedBoard} />
                   </div>
                 </div>
               </div>

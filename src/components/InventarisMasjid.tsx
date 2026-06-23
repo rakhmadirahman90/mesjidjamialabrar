@@ -399,20 +399,18 @@ export default function InventarisMasjid({
 
           </div>
 
-        </div>
-
-        {/* Right Side: Admin register new asset form */}
+            {/* Right Side: Admin register new asset form - ONLY VISIBLE TO ADMINS */}
         <div className="lg:col-span-4 space-y-6">
           
-          <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4">
-            <h3 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5 uppercase tracking-wide">
-              <span>✍️</span> Daftarkan Aset Baru
-            </h3>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
-              Mendaftarkan pengadaan barang atau sumbangan sarana fisik tak-bergerak baru ke database Masjid.
-            </p>
+          {isAdmin && (
+            <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4">
+              <h3 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5 uppercase tracking-wide">
+                <span>✍️</span> Daftarkan Aset Baru
+              </h3>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Mendaftarkan pengadaan barang atau sumbangan sarana fisik tak-bergerak baru ke database Masjid.
+              </p>
 
-            {isAdmin ? (
               <form onSubmit={handleAddAsset} className="space-y-4 pt-2">
                 
                 <div className="space-y-1.5">
@@ -582,20 +580,9 @@ export default function InventarisMasjid({
                 </button>
 
               </form>
-            ) : (
-              <div className="pt-4 pb-2 text-center text-slate-500 space-y-4">
-                <p className="text-xs bg-slate-50 p-4 border border-dashed border-slate-200 rounded-2xl leading-relaxed">
-                  🔐 Pendaftaran maupun modifikasi kondisi inventaris baru hanya diizinkan bagi <strong>Admin Pelaksana Masjid Al Abrar</strong>.
-                </p>
-                <button
-                  onClick={onShowLogin}
-                  className="py-2.5 px-6 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-emerald-950 transition inline-block shadow"
-                >
-                  Masuk Sebagai Admin
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
           {/* Quick static rules card */}
           <div className="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800 space-y-4">

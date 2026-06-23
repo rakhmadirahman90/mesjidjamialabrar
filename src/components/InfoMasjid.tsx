@@ -6,16 +6,19 @@ import {
   Search, 
   Award, 
   Users, 
-  Landmark 
+  Landmark,
+  User
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { DetailedBoardMember } from '../types';
 
 interface InfoMasjidProps {
   activeSubTab?: 'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap';
   setActiveSubTab?: (sub: 'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap') => void;
+  detailedBoard?: DetailedBoardMember[];
 }
 
-export default function InfoMasjid({ activeSubTab: propSubTab }: InfoMasjidProps) {
+export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [] }: InfoMasjidProps) {
   const [internalSubTab, setInternalSubTab] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap'>('info_umum');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,46 +55,6 @@ export default function InfoMasjid({ activeSubTab: propSubTab }: InfoMasjidProps
       a: "Sistem kami menggunakan enkripsi standar industri. Anda juga memiliki opsi untuk berdonasi sebagai 'Hamba Allah' jika ingin menjaga privasi (Anonim)."
     }
   ];
-
-  // Complete Detailed Committee list
-  const structuredBoard = {
-    penasehat: [
-      'Camat Ujung', 
-      'Kepala KUA Kec. Ujung', 
-      'Lurah Lapadde', 
-      'dr. H. Nurdin Samad, Sp.PD., FINASIM', 
-      'Prof. Dr. Drs. H. Amaluddin, M.Hum',
-      'Drs. H. AT. Syamsul Eyber', 
-      'Dr. H. Surianto Abdul Muijib, S.Ag., MM.', 
-      'Dr. H. Muh Natsir, M.Pd'
-    ],
-    inti: [
-      { role: 'Ketua Umum', name: 'Kapt. Purn. H. Amir Sabana' },
-      { role: 'Wakil Ketua I', name: 'Abdullah Jalil, SE., SH., M.Si' },
-      { role: 'Wakil Ketua II', name: 'Drs. H. Muh. Sabir' },
-      { role: 'Sekretaris Umum', name: 'M. Darwis, SE' },
-      { role: 'Wakil Sekretaris', name: 'Muhazil' },
-      { role: 'Bendahara Umum', name: 'Hardika' },
-      { role: 'Wakil Bendahara', name: 'Ismail Majju, S.Pd.' }
-    ],
-    idarah: [
-      { section: 'Seksi Dana & Pendanaan', members: ['H. Mistang Hamid, SE (Koordinator)', 'H. Yodi Haya, S.E., M.M', 'H. Ade Musytahun Wahid, S.Si., M.M', 'Askar', 'Mujetahidin', 'Abd. Aziz', 'A. Maappasessu', 'Supriadi'] },
-      { section: 'Seksi Ekonomi Umat & Usaha', members: ['Darwis Ressa (Koordinator)', 'Ruslan, S.E', 'Drs. Kusnan Sossong, M.Si', 'Nasruddin, S.E', 'Darnawan, S.E', 'Akbar'] },
-      { section: 'Seksi Kemasyarakatan & Kesehatan', members: ['Amiruddin, SE (Koordinator)', 'Ekawati, Amd.Keb', 'Hj. Helmyria Mappasessu, Amd.Keb', 'Zakat & Fitrah (Dilayani Pegawai Syara\')', 'Pemuda Remaja Masjid (PRISMA): M. Rafly Jafar, Muh. Aswan, Muh. Saki, Risma'] }
-    ],
-    imarah: [
-      { section: 'Imam & Khidmat Peribadatan', members: ['Drs. Abd. Hakim Latief, M.Pd.I (Imam Utama)', 'Nurdin Nawawi (Imam Rawatib)', 'M. Darwis, SE (Khatib)', 'Rahman B Umar (Muadzin)', 'Anas (Pelayan/Marbot)', 'Hardika (Pelayan)'] },
-      { section: 'Seksi Hari Besar Islam (PHBI)', members: ['Endeng Suparman (Koordinator)', 'Basri Bas', 'Arsyad Adam', 'Amir Lawang', 'Muh. Ilham', 'Sayyed Sunarjo', 'Bahar'] },
-      { section: 'Seksi Pendidikan, TPA & Perpustakaan', members: ['H. Ahmad Toufik Tahir, S.Ag., MM', 'Drs. Buneyamin Firdaus, S.Pd.', 'Abdullah, S.Pd.', 'Muaris', 'Mariyani, S.Ag., M.Pd.I (Kepala TPA)', 'Hj. Norma (Pengajar)'] },
-      { section: 'Seksi Pembinaan Wanita (Majelis Taklim)', members: ['Nurhayati, S.Pd. (Koordinator)', 'Hj. Sudarti Baha, S.Pd', 'Dra. Hj. Anisa', 'Dra. Hj. Saribanong', 'Hj. Nurhayati Husain', 'Hj. Ida', 'Siti Rahmah'] }
-    ],
-    riayah: [
-      { section: 'Seksi Pembangunan & Pemeliharaan Fisik', members: ['Drs. Muhammadong (Koordinator)', 'Syamsir Nali', 'Syarif', 'H. Muh. Yunus', 'Sultan, S.Pd'] },
-      { section: 'Seksi Perlengkapan & Aset Inventaris', members: ['Arifin (Koordinator)', 'Adam', 'Bahar Dareng', 'Burhan', 'H. Supu', 'Muhammad Adha'] },
-      { section: 'Seksi Kebersihan & Kesehatan Jurnal', members: ['Anas (Koordinator)', 'Abd. Hamid', 'Burhan', 'Langgoe', 'Abdulla Rajab'] },
-      { section: 'Seksi Keamanan & Ketertiban', members: ['H. Syahrir (Koordinator)', 'Darwis Baha', 'Nurdin', 'Mustamin', 'Hasnawati Sakka', 'Muh. Yasin', 'Bambang'] }
-    ]
-  };
 
   return (
     <div className="w-full py-2 space-y-6 sm:space-y-8 animate-fade-in" id="info_masjid_view">
@@ -388,144 +351,88 @@ export default function InfoMasjid({ activeSubTab: propSubTab }: InfoMasjidProps
             />
           </div>
 
-          {/* A. PENASEHAT (ONLY SHOW IF NOT FILTERED OR MATCHES) */}
-          {('penasehat'.includes(searchTerm) || structuredBoard.penasehat.some(p => p.toLowerCase().includes(searchTerm))) && (
-            <section className="bg-slate-50 rounded-2xl p-6 border border-slate-200/60 shadow-sm space-y-4">
-              <h3 className="text-xs font-black uppercase text-blue-800 tracking-widest flex items-center gap-2 mb-1">
-                ⭐ Dewan Pelindung / Penasehat Takmir
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {structuredBoard.penasehat
-                  .filter(p => p.toLowerCase().includes(searchTerm))
-                  .map((p, idx) => (
-                    <div key={idx} className="bg-white border rounded-xl px-4 py-3 text-xs font-semibold text-slate-700 shadow-sm flex items-center gap-3">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span>
-                      <span>{p}</span>
-                    </div>
-                  ))}
-              </div>
-            </section>
-          )}
+          {/* Category Sections Based on detailedBoard */}
+          {[
+            { id: 'penasehat', label: 'Dewan Pelindung / Penasehat', icon: '⭐', colorClass: 'text-blue-800', borderClass: 'border-blue-500' },
+            { id: 'inti', label: 'Jajaran Pengurus Inti (Harian)', icon: '👥', colorClass: 'text-emerald-700', borderClass: 'border-emerald-600' },
+            { id: 'idarah', label: 'Bidang Idarah (Administrasi & Dana)', icon: '📁', colorClass: 'text-amber-700', borderClass: 'border-amber-500' },
+            { id: 'imarah', label: 'Bidang Imarah (Kemakmuran & Ibadah)', icon: '🕌', colorClass: 'text-emerald-600', borderClass: 'border-emerald-600' },
+            { id: 'riayah', label: 'Bidang Riayah (Sarana & Prasarana)', icon: '🛠️', colorClass: 'text-sky-700', borderClass: 'border-sky-600' }
+          ].map((cat) => {
+            const members = detailedBoard.filter(m => m.category === cat.id);
+            const filteredMembers = members.filter(m => 
+              m.name.toLowerCase().includes(searchTerm) || 
+              m.role.toLowerCase().includes(searchTerm) ||
+              (m.sectionName && m.sectionName.toLowerCase().includes(searchTerm))
+            );
 
-          {/* B. PENGURUS INTI (HARIAN IDARAH) */}
-          {('pengurus inti harian sekretariat bendahara ketua'.includes(searchTerm) || structuredBoard.inti.some(p => p.name.toLowerCase().includes(searchTerm) || p.role.toLowerCase().includes(searchTerm))) && (
-            <section className="bg-white rounded-3xl p-6 border shadow-sm space-y-4">
-              <h3 className="text-xs font-black uppercase text-emerald-700 tracking-widest flex items-center gap-2 mb-1">
-                👥 Jajaran Pengurus Inti (Harian)
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {structuredBoard.inti
-                  .filter(p => p.name.toLowerCase().includes(searchTerm) || p.role.toLowerCase().includes(searchTerm))
-                  .map((i, idx) => (
-                    <div key={idx} className="bg-slate-50/60 border rounded-2xl p-4 shadow-sm flex flex-col justify-center text-left">
-                      <span className="text-[9px] font-black tracking-wider text-emerald-700 uppercase font-mono mb-1">{i.role}</span>
-                      <span className="text-sm font-black text-slate-800">{i.name}</span>
-                    </div>
-                  ))}
-              </div>
-            </section>
-          )}
+            if (filteredMembers.length === 0 && searchTerm) return null;
+            if (members.length === 0) return null;
 
-          {/* C. SEKSI-SEKSI DETAIL BERDASARKAN BIDANG */}
-          <div className="space-y-6">
-            
-            {/* Bidang Idarah Section */}
-            <section className="space-y-4">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 pl-1 border-l-4 border-amber-500 py-0.5">
-                📁 Bidang Idarah (Administrasi & Pendanaan)
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {structuredBoard.idarah.map((sec, idx) => {
-                  const filteredMembers = sec.members.filter(m => m.toLowerCase().includes(searchTerm));
-                  if (!sec.section.toLowerCase().includes(searchTerm) && filteredMembers.length === 0) return null;
-                  return (
-                    <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm space-y-3">
-                      <h4 className="text-xs font-black text-amber-700 uppercase tracking-widest">{sec.section}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {sec.members.map((m, mIdx) => (
-                          <span 
-                            key={mIdx} 
-                            className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold ${
-                              m.toLowerCase().includes(searchTerm) && searchTerm !== ''
-                                ? 'bg-amber-100 border-amber-300 text-amber-950 font-black'
-                                : 'bg-slate-50 text-slate-700 border-slate-100'
-                            }`}
-                          >
-                            {m}
-                          </span>
-                        ))}
+            return (
+              <section key={cat.id} className="space-y-4">
+                <h3 className={`text-sm font-black uppercase tracking-wider text-slate-800 pl-1 border-l-4 ${cat.borderClass} py-0.5 flex items-center gap-2`}>
+                  {cat.icon} {cat.label}
+                </h3>
+                
+                {/* Grouping by sectionName if available for idarah, imarah, riayah */}
+                {['idarah', 'imarah', 'riayah'].includes(cat.id) ? (
+                  <div className="grid grid-cols-1 gap-4">
+                    {Array.from(new Set(filteredMembers.map(m => m.sectionName || 'Struktur Pelaksana'))).map((section, sIdx) => (
+                      <div key={sIdx} className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm space-y-3">
+                        <h4 className={`text-xs font-black uppercase tracking-widest ${cat.colorClass}`}>{section}</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {filteredMembers.filter(m => (m.sectionName || 'Struktur Pelaksana') === section).map((m, mIdx) => (
+                            <div key={mIdx} className="flex flex-col items-center text-center group">
+                              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100 group-hover:border-emerald-500 transition-colors duration-300 shadow-sm mb-2">
+                                {m.imageUrl ? (
+                                  <img 
+                                    src={m.imageUrl} 
+                                    alt={m.name} 
+                                    className="w-full h-full object-cover" 
+                                    referrerPolicy="no-referrer"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
+                                    <User className="h-6 w-6" />
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[10px] font-black text-slate-800 leading-tight block truncate w-full">{m.name}</span>
+                              <span className={`text-[8px] font-black uppercase tracking-tighter ${cat.colorClass} mt-0.5 block truncate w-full`}>{m.role}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* Bidang Imarah Section */}
-            <section className="space-y-4">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 pl-1 border-l-4 border-emerald-600 py-0.5">
-                🕌 Bidang Imarah (Kemakmuran & Peribadatan)
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {structuredBoard.imarah.map((sec, idx) => {
-                  const filteredMembers = sec.members.filter(m => m.toLowerCase().includes(searchTerm));
-                  if (!sec.section.toLowerCase().includes(searchTerm) && filteredMembers.length === 0) return null;
-                  return (
-                    <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm space-y-3">
-                      <h4 className="text-xs font-black text-emerald-600 uppercase tracking-widest">{sec.section}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {sec.members.map((m, mIdx) => (
-                          <span 
-                            key={mIdx} 
-                            className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold ${
-                              m.toLowerCase().includes(searchTerm) && searchTerm !== ''
-                                ? 'bg-emerald-100 border-emerald-300 text-emerald-950 font-black'
-                                : 'bg-slate-50 text-slate-700 border-slate-100'
-                            }`}
-                          >
-                            {m}
-                          </span>
-                        ))}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {filteredMembers.map((m, idx) => (
+                      <div key={idx} className="bg-white border rounded-2xl p-4 shadow-sm flex flex-col items-center text-center group hover:shadow-md transition-shadow duration-300">
+                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100 group-hover:border-blue-500 transition-colors duration-300 shadow-sm mb-2">
+                          {m.imageUrl ? (
+                            <img 
+                              src={m.imageUrl} 
+                              alt={m.name} 
+                              className="w-full h-full object-cover" 
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
+                              <User className="h-6 w-6" />
+                            </div>
+                          )}
+                        </div>
+                        <span className={`text-[8px] font-black tracking-wider ${cat.colorClass} uppercase font-mono mb-1 truncate w-full`}>{m.role}</span>
+                        <span className="text-[10px] font-black text-slate-800 leading-tight truncate w-full">{m.name}</span>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* Bidang Riayah Section */}
-            <section className="space-y-4">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 pl-1 border-l-4 border-blue-600 py-0.5">
-                🛠️ Bidang Riayah (Sarana, Prasarana & Keamanan)
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {structuredBoard.riayah.map((sec, idx) => {
-                  const filteredMembers = sec.members.filter(m => m.toLowerCase().includes(searchTerm));
-                  if (!sec.section.toLowerCase().includes(searchTerm) && filteredMembers.length === 0) return null;
-                  return (
-                    <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm space-y-3">
-                      <h4 className="text-xs font-black text-blue-600 uppercase tracking-widest">{sec.section}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {sec.members.map((m, mIdx) => (
-                          <span 
-                            key={mIdx} 
-                            className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold ${
-                              m.toLowerCase().includes(searchTerm) && searchTerm !== ''
-                                ? 'bg-blue-100 border-blue-300 text-blue-950 font-black'
-                                : 'bg-slate-50 text-slate-700 border-slate-100'
-                            }`}
-                          >
-                            {m}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-          </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </div>
       )}
 

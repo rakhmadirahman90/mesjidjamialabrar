@@ -219,4 +219,17 @@ export interface AdminDashboardPortalProps {
   campaigns: DonationCampaign[];
   onDonationSuccess: (title: string, msg: string, amount: number) => void;
   triggerAudioPlayback: () => void;
+  detailedBoard: DetailedBoardMember[];
 }
+
+// 12. Detailed Board Member Interface
+export interface DetailedBoardMember {
+  id?: string;
+  name: string;
+  role: string;
+  category: 'penasehat' | 'inti' | 'idarah' | 'imarah' | 'riayah';
+  sectionName?: string;
+  imageUrl?: string;
+  phone?: string;
+}
+

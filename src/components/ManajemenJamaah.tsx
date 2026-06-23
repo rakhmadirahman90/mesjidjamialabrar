@@ -398,19 +398,31 @@ export default function ManajemenJamaah({
                             </div>
                           ) : (
                             <div className="flex flex-col items-end gap-2">
-                              <select
-                                value={jm.attendanceStatus}
-                                onChange={(e) => handleUpdateAttendance(jm.id, e.target.value as any)}
-                                className={`text-[9px] font-bold px-2.5 py-1 rounded-full border outline-none cursor-pointer focus:ring-1 ${
+                              {isAdmin ? (
+                                <select
+                                  value={jm.attendanceStatus}
+                                  onChange={(e) => handleUpdateAttendance(jm.id, e.target.value as any)}
+                                  className={`text-[9px] font-bold px-2.5 py-1 rounded-full border outline-none cursor-pointer focus:ring-1 ${
+                                    jm.attendanceStatus === 'Aktif Jamaah' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' :
+                                    jm.attendanceStatus === 'Jarang' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                                    'bg-rose-100 text-rose-800 border-rose-300'
+                                  }`}
+                                >
+                                  <option value="Aktif Jamaah">🟢 Aktif Ibadah</option>
+                                  <option value="Jarang">🟡 Jarang Hadir</option>
+                                  <option value="Sakit">🔴 Sakit / Jenguk</option>
+                                </select>
+                              ) : (
+                                <span className={`text-[9px] font-bold px-2.5 py-1 rounded-full border ${
                                   jm.attendanceStatus === 'Aktif Jamaah' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' :
                                   jm.attendanceStatus === 'Jarang' ? 'bg-amber-50 text-amber-800 border-amber-200' :
                                   'bg-rose-100 text-rose-800 border-rose-300'
-                                }`}
-                              >
-                                <option value="Aktif Jamaah">🟢 Aktif Ibadah</option>
-                                <option value="Jarang">🟡 Jarang Hadir</option>
-                                <option value="Sakit">🔴 Sakit / Jenguk</option>
-                              </select>
+                                }`}>
+                                  {jm.attendanceStatus === 'Aktif Jamaah' ? '🟢 Aktif Ibadah' :
+                                   jm.attendanceStatus === 'Jarang' ? '🟡 Jarang Hadir' :
+                                   '🔴 Sakit / Jenguk'}
+                                </span>
+                              )}
                               
                               {isAdmin && (
                                 <div className="flex gap-2 text-[10px] font-bold">
