@@ -119,6 +119,17 @@ function MemberCard({ name, role, imageUrl, onEdit, onDelete, isAdmin }: { name:
 
 export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps) {
   const [activeBoard, setActiveBoard] = useState<'idarah' | 'imarah' | 'riayah'>('idarah');
+
+  useEffect(() => {
+    const handleSubtabChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.tab === 'profil' && detail.board) {
+        setActiveBoard(detail.board as any);
+      }
+    };
+    window.addEventListener('change_subtab', handleSubtabChange);
+    return () => window.removeEventListener('change_subtab', handleSubtabChange);
+  }, []);
   const [profile, setProfile] = useState<MosqueProfileDetail>(DEFAULT_PROFILE);
 
   const [isEditingMain, setIsEditingMain] = useState(false);
@@ -628,21 +639,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
             <p className="text-slate-500 text-sm">Kelurahan Lapadde, Kecamatan Ujung, Kota Parepare — Lengkap Sesuai Ketetapan Panitia.</p>
           </div>
           
-          <div className="flex bg-slate-100 p-1 rounded-2xl">
-            {(['idarah', 'imarah', 'riayah'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveBoard(tab)}
-                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-                  activeBoard === tab
-                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+
         </div>
 
         {/* Pelindung / Penasehat Header */}

@@ -20,6 +20,17 @@ export default function KeuanganMasjid({
   // Active view layout tab switch
   const [activeSubTab, setActiveSubTab] = useState<'kas_utama' | 'donatur_tetap'>('kas_utama');
 
+  useEffect(() => {
+    const handleSubtabChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.tab === 'keuangan' && detail.subtab) {
+        setActiveSubTab(detail.subtab as any);
+      }
+    };
+    window.addEventListener('change_subtab', handleSubtabChange);
+    return () => window.removeEventListener('change_subtab', handleSubtabChange);
+  }, []);
+
   // Search and filter for permanent donors
   const [searchDonorQuery, setSearchDonorQuery] = useState('');
 
@@ -285,31 +296,7 @@ export default function KeuanganMasjid({
 
       </div>
 
-      {/* Sub-navigation tab view switcher */}
-      <div className="flex bg-slate-100 p-1 rounded-2xl w-full max-w-xl mx-auto md:mx-0">
-        <button
-          onClick={() => setActiveSubTab('kas_utama')}
-          className={`flex-1 py-2.5 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            activeSubTab === 'kas_utama'
-              ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <ClipboardCheck className="h-4 w-4 text-emerald-600" />
-          <span>Jurnal Kas Utama</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('donatur_tetap')}
-          className={`flex-1 py-2.5 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            activeSubTab === 'donatur_tetap'
-              ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Users className="h-4 w-4 text-amber-600" />
-          <span>Daftar Donatur Tetap (Jan - Des)</span>
-        </button>
-      </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         

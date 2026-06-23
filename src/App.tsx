@@ -10,11 +10,9 @@ import {
   TrendingUp,
   Package,
   Users,
-  Calendar,
-  Info
+  Calendar
 } from 'lucide-react';
 
-import MosqueProfile from './components/MosqueProfile';
 import InfoMasjid from './components/InfoMasjid';
 import DonationOpen from './components/DonationOpen';
 import KeuanganMasjid from './components/KeuanganMasjid';
@@ -159,6 +157,31 @@ export default function App() {
 
   // High-Level Integrated Navigation Hub Tab selection
   const [activeTab, setActiveTab] = useState<'beranda'|'profil'|'jadwal'|'donasi'|'keuangan'|'inventaris'|'jamaah'|'tentang'|'admin'>('beranda');
+
+  // Submenu State synchronized with child components via event listeners
+  const [curJadwalSub, setCurJadwalSub] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
+  const [curKeuanganSub, setCurKeuanganSub] = useState<'kas_utama' | 'donatur_tetap'>('kas_utama');
+  const [curTentangSub, setCurTentangSub] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap'>('info_umum');
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleSubtabSync = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        if (detail.tab === 'jadwal' && detail.subtab) {
+          setCurJadwalSub(detail.subtab);
+        }
+        if (detail.tab === 'keuangan' && detail.subtab) {
+          setCurKeuanganSub(detail.subtab);
+        }
+        if (detail.tab === 'profil' && detail.subtab) {
+          setCurTentangSub(detail.subtab as any);
+        }
+      }
+    };
+    window.addEventListener('change_subtab', handleSubtabSync);
+    return () => window.removeEventListener('change_subtab', handleSubtabSync);
+  }, []);
 
   // Admin Mode States
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
@@ -824,6 +847,40 @@ export default function App() {
     }
   };
 
+  const submenusMap: Record<string, { label: string; key: string; isBoard?: boolean; icon: string; desc: string; adminOnly?: boolean }[]> = {
+    jadwal: [
+      { label: 'Waktu Shalat', key: 'sholat', icon: '🕌', desc: 'Jadwal adzan 5 waktu Parepare' },
+      { label: 'Kajian & Ta\'lim', key: 'kajian', icon: '📖', desc: 'Program & kajian rutin keagamaan' },
+      { label: 'Khutbah Jum\'at', key: 'jumat', icon: '🎙️', desc: 'Jadwal khotib & muadzin Jum’at' },
+      { label: 'Agenda Ramadan', key: 'ramadan', icon: '🌙', desc: 'Tarawih, takjil & i\'tikaf masjid' },
+      { label: 'Banner Media', key: 'slider', icon: '📢', desc: 'Kelola media visual banner', adminOnly: true },
+      { label: 'Log Aktivitas', key: 'log', icon: '📜', desc: 'Riwayat sistem adzan', adminOnly: true }
+    ],
+    profil: [
+      { label: 'Tentang', key: 'info_umum', icon: 'ℹ️', desc: 'Pusat Informasi Umum & Tanya Jawab (FAQ)' },
+      { label: 'Sejarah Singkat', key: 'sejarah', icon: '📜', desc: 'Sejarah singkat berdirinya Masjid Jami Al Abrar' },
+      { label: 'Visi dan Misi', key: 'visi_misi', icon: '🎯', desc: 'Visi utama dan misi pelayanan ketaqwaan' },
+      { label: 'Pengurus Lengkap', key: 'pengurus_lengkap', icon: '👥', desc: 'Susunan seluruh pengurus inti dan fungsional' }
+    ],
+    keuangan: [
+      { label: 'Kas Utama', key: 'kas_utama', icon: '📈', desc: 'Laporan mutasi pemasukan & pengeluaran' },
+      { label: 'Donatur Tetap', key: 'donatur_tetap', icon: '👥', desc: 'Daftar nama donatur & kontribusi' }
+    ]
+  };
+
+  const handleSubtabClick = (tabId: string, subtabKey: string) => {
+    setActiveTab(tabId as any);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('change_subtab', {
+        detail: {
+          tab: tabId,
+          subtab: subtabKey
+        }
+      }));
+    }, 50);
+    setActiveDropdown(null);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
@@ -886,45 +943,143 @@ export default function App() {
         </div>
 
         {/* Dynamic Navigation Tab Hub */}
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-[2.5rem] p-1 sm:p-1.5 border border-slate-200 shadow-xl shadow-slate-200/20 flex items-center sticky top-2 sm:top-4 z-40 overflow-hidden" id="navigation_menu_tabs">
-          <div className="flex overflow-x-auto no-scrollbar gap-1 flex-1 px-1 py-0.5">
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl p-1.5 border border-slate-200/80 shadow-[0_20px_40px_rgba(15,23,42,0.06)] flex flex-col sticky top-2 sm:top-4 z-40 overflow-visible transition-all duration-300" id="navigation_menu_tabs">
+          <div className="flex overflow-x-auto no-scrollbar gap-1 flex-1 px-1 py-0.5 items-center relative">
             {[
               { id: 'beranda', label: 'Home', icon: <Home className="h-4 w-4" /> },
-              { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-4 w-4" /> },
               { id: 'profil', label: 'Profil', icon: <Building className="h-4 w-4" /> },
+              { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-4 w-4" /> },
               { id: 'donasi', label: 'Donasi', icon: <Heart className="h-4 w-4" /> },
               { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-4 w-4" /> },
               { id: 'jamaah', label: 'Jamaah', icon: <Users className="h-4 w-4" /> },
               { id: 'inventaris', label: 'Aset', icon: <Package className="h-4 w-4" /> },
               { id: 'admin', label: 'Admin', icon: <Settings className="h-4 w-4" /> },
-              { id: 'tentang', label: 'Info', icon: <Info className="h-4 w-4" /> },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
+              const hasSubmenu = !!submenusMap[tab.id];
               return (
-                <button
+                <div 
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 sm:px-7 py-2 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-black transition-all duration-300 outline-none relative whitespace-nowrap shrink-0 overflow-hidden ${
-                    isActive 
-                      ? 'text-white shadow-lg translate-y-[-1px]'
-                      : 'text-slate-500 hover:text-slate-950 hover:bg-slate-50 transition-colors'
-                  }`}
+                  className="relative shrink-0"
+                  onMouseEnter={() => hasSubmenu && setActiveDropdown(tab.id)}
+                  onMouseLeave={() => hasSubmenu && setActiveDropdown(null)}
                 >
-                  <span className="relative z-10 flex items-center gap-2.5">
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                  </span>
-                  {isActive && (
-                    <motion.div 
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-slate-900"
-                      transition={{ type: "spring", bounce: 0.15, duration: 0.7 }}
-                    />
-                  )}
-                </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab(tab.id as any);
+                      if (hasSubmenu) {
+                        setActiveDropdown(activeDropdown === tab.id ? null : tab.id);
+                      } else {
+                        setActiveDropdown(null);
+                      }
+                    }}
+                    className={`flex items-center gap-2 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all duration-300 outline-none relative whitespace-nowrap overflow-visible ${
+                      isActive 
+                        ? 'text-white shadow-lg shadow-slate-900/10'
+                        : 'text-slate-500 hover:text-slate-950 hover:bg-slate-50/80 transition-colors'
+                    }`}
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      {tab.icon}
+                      <span>{tab.label}</span>
+                      {hasSubmenu && (
+                        <span className="text-[8px] opacity-50 ml-0.5 transform group-hover:translate-y-0.5 transition-transform">▼</span>
+                      )}
+                    </span>
+                    {isActive && (
+                      <motion.div 
+                        layoutId="activeNav"
+                        className="absolute inset-0 bg-slate-950 rounded-2xl"
+                        style={{ zIndex: 0 }}
+                        transition={{ type: "spring", bounce: 0.12, duration: 0.6 }}
+                      />
+                    )}
+                  </button>
+
+                  {/* Desktop Hover / Click Dropdown Menu (With Framer Motion transition) */}
+                  <AnimatePresence>
+                    {hasSubmenu && activeDropdown === tab.id && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white/95 backdrop-blur-xl border border-slate-200/60 shadow-[0_20px_50px_rgba(15,23,42,0.12)] rounded-2xl p-2.5 grid grid-cols-1 gap-1 min-w-[300px] z-50 hidden sm:block"
+                        style={{ transformOrigin: 'top center' }}
+                        onMouseEnter={() => setActiveDropdown(tab.id)}
+                        onMouseLeave={() => setActiveDropdown(null)}
+                      >
+                        <div className="px-3 py-2 border-b border-slate-100/85 mb-1.5 flex items-center justify-between">
+                          <p className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">Detail Menu {tab.label}</p>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        </div>
+                        {submenusMap[tab.id]
+                          .filter(sub => !sub.adminOnly || isAdmin)
+                          .map(sub => {
+                            const isSelected = tab.id === 'jadwal' ? curJadwalSub === sub.key
+                              : tab.id === 'keuangan' ? curKeuanganSub === sub.key
+                              : tab.id === 'profil' ? curTentangSub === sub.key
+                              : false;
+                            return (
+                              <button
+                                key={sub.key}
+                                onClick={() => handleSubtabClick(tab.id, sub.key)}
+                                className={`w-full flex items-start text-left gap-3.5 p-2.5 rounded-xl transition-all duration-200 ${
+                                  isSelected 
+                                    ? 'bg-emerald-500/10 text-emerald-950 font-bold border-l-4 border-emerald-600' 
+                                    : 'hover:bg-slate-50 text-slate-700 hover:translate-x-1'
+                                }`}
+                              >
+                                <span className="text-lg shrink-0 p-1.5 bg-slate-50 border border-slate-100 rounded-lg shadow-sm">{sub.icon}</span>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-black tracking-tight leading-tight flex items-center justify-between">
+                                    <span>{sub.label}</span>
+                                    {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1.5 py-0.5 rounded font-black tracking-normal">ADMIN</span>}
+                                  </p>
+                                  <p className="text-[10px] text-slate-400 mt-1 leading-snug font-medium">{sub.desc}</p>
+                                </div>
+                              </button>
+                            );
+                          })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               );
             })}
           </div>
+
+          {/* Secondary Submenu Pill Row (Sleek, High contrast, Touch-friendly on all viewports) */}
+          {submenusMap[activeTab] && (
+            <div className="border-t border-slate-100 px-4 py-3 flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth bg-slate-50/70 rounded-b-[1.75rem]">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0 hidden md:inline-block">Kategori Utama:</span>
+              <div className="flex gap-2.5 min-w-max">
+                {submenusMap[activeTab]
+                  .filter(sub => !sub.adminOnly || isAdmin)
+                  .map(sub => {
+                    const isSelected = activeTab === 'jadwal' ? curJadwalSub === sub.key
+                      : activeTab === 'keuangan' ? curKeuanganSub === sub.key
+                      : activeTab === 'profil' ? curTentangSub === sub.key
+                      : false;
+                    return (
+                      <button
+                        key={sub.key}
+                        onClick={() => handleSubtabClick(activeTab, sub.key)}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all duration-300 transform active:scale-95 ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 -translate-y-0.5'
+                            : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200/50 shadow-sm'
+                        }`}
+                      >
+                        <span className="text-sm shrink-0">{sub.icon}</span>
+                        <span className="whitespace-nowrap tracking-wide">{sub.label}</span>
+                        {sub.adminOnly && <span className="bg-amber-100 text-amber-800 text-[8px] px-1 rounded font-black">ADMIN</span>}
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
         </div>
 
 
@@ -954,16 +1109,39 @@ export default function App() {
               </div>
             )}
 
-            {activeTab === 'profil' && <MosqueProfile isAdmin={isAdmin} onAddLog={addLog} />}
-
-            {activeTab === 'tentang' && <InfoMasjid />}
+            {activeTab === 'profil' && (
+              <InfoMasjid 
+                activeSubTab={curTentangSub} 
+              />
+            )}
 
             {activeTab === 'jadwal' && (
               <div className="animate-fade-in space-y-6">
                 <div className="mb-4 text-left px-2">
-                  <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 font-bold text-[10px] uppercase tracking-widest rounded-full mb-2">Penjadwalan</span>
-                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">Jadwal & Agenda Ibadah</h2>
-                  <p className="text-xs text-slate-500 font-medium tracking-wide mt-1">Konfigurasi waktu shalat, pengingat otomatis, dan riwayat aktivitas sistem.</p>
+                  <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 font-bold text-[10px] uppercase tracking-widest rounded-full mb-2">
+                    {curJadwalSub === 'sholat' ? 'Penjadwalan Sholat' :
+                     curJadwalSub === 'kajian' ? 'Syiar Kajian' :
+                     curJadwalSub === 'jumat' ? 'Pelayanan Jum\'at' :
+                     curJadwalSub === 'ramadan' ? 'Kegiatan Ramadan' :
+                     curJadwalSub === 'slider' ? 'Manajemen Media' :
+                     'Audit Log'}
+                  </span>
+                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+                    {curJadwalSub === 'sholat' ? 'Jadwal Adzan & Pengingat' :
+                     curJadwalSub === 'kajian' ? 'Program Kajian & Majelis Ilmu' :
+                     curJadwalSub === 'jumat' ? 'Petugas Shalat Jum\'at' :
+                     curJadwalSub === 'ramadan' ? 'Agenda Syiar Ramadan 1447H' :
+                     curJadwalSub === 'slider' ? 'Banner Media Informasi' :
+                     'Log Aktivitas Alarm'}
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium tracking-wide mt-1">
+                    {curJadwalSub === 'sholat' ? 'Konfigurasi waktu shalat 5 waktu Parepare, pengingat adzan otomatis, serta uji alarm terintegrasi.' :
+                     curJadwalSub === 'kajian' ? 'Daftar kajian rutin, tabligh akbar, pemateri, dan pendalaman kitab suci bagi seluruh jamaah.' :
+                     curJadwalSub === 'jumat' ? 'Jadwal petugas khatib pilihan, imam tetap, muadzin, serta tanggal khutbah Jum’at agung.' :
+                     curJadwalSub === 'ramadan' ? 'Program semarak Ramadan mubarok: kajian tarawih, konsumsi, buka puasa bersama, dan i\'tikaf.' :
+                     curJadwalSub === 'slider' ? 'Kelola slider poster banner pengumuman serta promosi media luar ruang di lingkungan masjid.' :
+                     'Daftar penyiaran adzan digital, riwayat notifikasi, dan catatan jejak audit administrasi.'}
+                  </p>
                 </div>
                 <JadwalHub 
                   prayers={prayers}

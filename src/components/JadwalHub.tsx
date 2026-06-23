@@ -1,9 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Clock, 
-  BookOpen, 
-  Star, 
-  Users, 
   Bell, 
   Database, 
   History, 
@@ -14,7 +11,6 @@ import {
   VolumeX, 
   Settings, 
   Calendar,
-  Layout,
   Plus,
   Trash2,
   X,
@@ -100,6 +96,19 @@ export default function JadwalHub({
   onDeleteLog
 }: JadwalHubProps) {
   const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
+
+
+
+  useEffect(() => {
+    const handleSubtabChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.tab === 'jadwal' && detail.subtab) {
+        setActiveSubTab(detail.subtab);
+      }
+    };
+    window.addEventListener('change_subtab', handleSubtabChange);
+    return () => window.removeEventListener('change_subtab', handleSubtabChange);
+  }, []);
 
   // Admin CRUD states for Kajian, Jumat, Ramadan, Routine
   const [editingKajian, setEditingKajian] = useState<KajianEntry | null>(null);
@@ -249,81 +258,7 @@ export default function JadwalHub({
   return (
     <div className="space-y-6 animate-fade-in" id="jadwal_hub_container">
       
-      {/* Sub-Navigation Tabs */}
-      <div className="flex flex-wrap bg-slate-100 p-1 rounded-xl sm:rounded-2xl w-full max-w-4xl mx-auto md:mx-0">
-        <button
-          onClick={() => setActiveSubTab('sholat')}
-          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
-            activeSubTab === 'sholat'
-              ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Clock className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'sholat' ? 'text-emerald-600' : ''}`} />
-          <span>Sholat</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('kajian')}
-          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
-            activeSubTab === 'kajian'
-              ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <BookOpen className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'kajian' ? 'text-amber-600' : ''}`} />
-          <span>Kajian</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('jumat')}
-          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
-            activeSubTab === 'jumat'
-              ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Users className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'jumat' ? 'text-blue-600' : ''}`} />
-          <span>Jumat</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('ramadan')}
-          className={`flex-1 min-w-[90px] sm:min-w-[120px] py-2 sm:py-3 text-center text-[10px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
-            activeSubTab === 'ramadan'
-              ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Star className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${activeSubTab === 'ramadan' ? 'text-rose-600' : ''}`} />
-          <span className="hidden sm:inline">Ramadan 1447H</span>
-          <span className="sm:hidden">Ramadan</span>
-        </button>
-        {isAdmin && (
-          <button
-            onClick={() => setActiveSubTab('slider')}
-            className={`flex-1 min-w-[120px] py-3 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              activeSubTab === 'slider'
-                ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Layout className={`h-4 w-4 ${activeSubTab === 'slider' ? 'text-emerald-600' : ''}`} />
-            <span>Kelola Slider</span>
-          </button>
-        )}
 
-        {isAdmin && (
-          <button
-            onClick={() => setActiveSubTab('log')}
-            className={`flex-1 min-w-[120px] py-3 text-center text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              activeSubTab === 'log'
-                ? 'bg-white text-slate-900 shadow border border-slate-200/40'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <History className={`h-4 w-4 ${activeSubTab === 'log' ? 'text-emerald-600' : ''}`} />
-            <span>Riwayat Log</span>
-          </button>
-        )}
-      </div>
 
       {activeSubTab === 'sholat' && (
         <div className="space-y-6">

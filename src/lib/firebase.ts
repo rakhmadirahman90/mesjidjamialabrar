@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { initializeFirestore } from 'firebase/firestore';
+import { initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
@@ -16,7 +16,6 @@ const firebaseConfig = {
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-
 // use initializeFirestore to specify the databaseId and additional settings
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
@@ -25,3 +24,17 @@ export const db = initializeFirestore(app, {
 
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+
+// Critical constraint: Validate Connection to Firestore on startup
+async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, 'test', 'connection'));
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.error("Please check your Firebase configuration. Currently running in offline mode.");
+    } else {
+      console.warn("Firestore connection check status:", error);
+    }
+  }
+}
+testConnection();

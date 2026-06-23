@@ -10,7 +10,6 @@ import {
   Sparkles, 
   Calendar, 
   X, 
-  ArrowRight,
   Layout,
   Info
 } from 'lucide-react';
@@ -160,28 +159,6 @@ export default function ImageSlider({
                 </p>
               </motion.div>
             </AnimatePresence>
-
-            {/* Multi-action interactive button layout */}
-            <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
-              {activeSlide.detailedStory && (
-                <button
-                  onClick={() => setShowTourModal(activeSlide)}
-                  className="px-5 py-2.5 rounded-xl bg-white text-slate-950 hover:bg-slate-100 font-extrabold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow"
-                >
-                  🔍 Mulai Tur Virtual
-                </button>
-              )}
-              
-              {activeSlide.actionTab && (
-                <button
-                  onClick={() => onNavigate(activeSlide.actionTab!)}
-                  className="px-5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-white hover:text-white font-extrabold text-xs transition border border-slate-700/80 active:scale-95 flex items-center justify-center gap-1.5"
-                >
-                  <span>{activeSlide.actionText || 'Buka Selengkapnya'}</span>
-                  <ArrowRight className="h-3 w-3" />
-                </button>
-              )}
-            </div>
 
           </div>
 
