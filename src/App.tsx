@@ -47,7 +47,8 @@ import {
   upsertDocument, 
   addDocument, 
   deleteDocument,
-  clearCollection
+  clearCollection,
+  deleteAllInCollection
 } from './lib/db';
 
 const AUDIO_SOURCES = {
@@ -408,6 +409,36 @@ export default function App() {
       savePrayersToDb(DEFAULT_PRAYERS);
       firedAlerts.current.clear();
       addLog('Reset Database', 'Jadwal shalat berhasil dipulihkan ke setelan default.', 'system');
+    }
+  };
+
+  const handleResetAllData = async () => {
+    if (!isAdmin) {
+      addLog('Akses Ditolak', 'Silakan masuk ke menu Kontrol Admin terlebih dahulu.', 'alert');
+      setActiveTab('admin');
+      return;
+    }
+    if (confirm('⚠️ PERINGATAN: Apakah Anda yakin ingin MENGHAPUS SEMUA DATA aktivitas? Anda tidak dapat membatalkan tindakan ini.')) {
+      const collections = [
+        'slides',
+        'kajian_schedule',
+        'jumat_schedule',
+        'ramadan_schedule',
+        'routine_schedule',
+        'campaigns',
+        'financial_transactions',
+        'permanent_donors',
+        'mosque_assets',
+        'mosque_congregants',
+        'donors',
+        'activity_logs'
+      ];
+      try {
+        await Promise.all(collections.map(c => deleteAllInCollection(c)));
+        addLog('Reset Data Berhasil', 'Seluruh data aktivitas telah direset ke setelan awal.', 'system');
+      } catch (e) {
+        addLog('Reset Data Gagal', 'Terjadi kesalahan sistem saat mereset data.', 'alert');
+      }
     }
   };
 
@@ -1089,6 +1120,12 @@ export default function App() {
                             className="w-full py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
                           >
                             Bersihkan System Logs
+                          </button>
+                          <button
+                            onClick={handleResetAllData}
+                            className="w-full py-3 bg-red-600 hover:bg-red-500 text-white border border-red-500 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
+                          >
+                            Reset SEMUA Data
                           </button>
                         </div>
                       </div>

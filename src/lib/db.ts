@@ -6,6 +6,7 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
+  getDocs,
   query, 
   orderBy, 
   DocumentData,
@@ -154,6 +155,17 @@ export const deleteDocument = async (collectionName: string, docId: string) => {
     await deleteDoc(docRef);
   } catch (error) {
     handleFirestoreError(error, OperationType.DELETE, `${collectionName}/${docId}`);
+  }
+};
+
+export const deleteAllInCollection = async (collectionName: string) => {
+  try {
+    const colRef = collection(db, collectionName);
+    const snapshot = await getDocs(colRef);
+    const promises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(promises);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, collectionName);
   }
 };
 
