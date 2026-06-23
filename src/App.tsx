@@ -984,9 +984,9 @@ export default function App() {
               <div className="text-left leading-tight">
                 <span className="text-[7px] sm:text-[8px] font-black tracking-[0.25em] text-emerald-400 uppercase leading-none block mb-0.5">Pusat Ibadah</span>
                 <h1 className="text-[11px] xs:text-xs sm:text-sm font-extrabold tracking-wider text-white uppercase whitespace-nowrap">
-                  Al Abrar <span className="text-emerald-400">Parepare</span>
+                  Mesjid Jami Al Abrar <span className="text-emerald-400">Parepare</span>
                 </h1>
-                <span className="text-[7px] sm:text-[8px] font-bold text-emerald-400/50 tracking-[0.2em] uppercase block mt-0.5 hidden sm:block">Sistem Cerdas Terintegrasi</span>
+                <span className="text-[7px] sm:text-[8px] font-bold text-emerald-400/50 tracking-[0.2em] uppercase block mt-0.5 hidden sm:block">Sistem Mesjid Cerdas</span>
               </div>
             </div>
 
@@ -1015,7 +1015,6 @@ export default function App() {
               { id: 'profil', label: 'Profil', hasSub: true },
               { id: 'jadwal', label: 'Jadwal', hasSub: true },
               { id: 'galeri', label: 'Galeri', hasSub: false },
-              { id: 'donasi', label: 'Donasi', hasSub: false },
               { id: 'keuangan', label: 'Kas', hasSub: false },
               { id: 'inventaris', label: 'Aset', hasSub: false },
               { id: 'kontak', label: 'Kontak', hasSub: false },
@@ -1119,7 +1118,6 @@ export default function App() {
               { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
               { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-3.5 w-3.5" /> },
               { id: 'galeri', label: 'Galeri', icon: <ImageIcon className="h-3.5 w-3.5" /> },
-              { id: 'donasi', label: 'Donasi', icon: <Heart className="h-3.5 w-3.5" /> },
               { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-3.5 w-3.5" /> },
               { id: 'inventaris', label: 'Aset', icon: <Package className="h-3.5 w-3.5" /> },
               { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },

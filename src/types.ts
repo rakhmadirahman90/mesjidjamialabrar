@@ -90,6 +90,7 @@ export interface MosqueAsset {
   condition: 'Sangat Baik' | 'Baik' | 'Rusak Ringan' | 'Rusak Berat';
   location: string;
   registeredBy: string;
+  imageUrl?: string;
 }
 
 // 5. Manajemen Jamaah Interfaces (Congregants)

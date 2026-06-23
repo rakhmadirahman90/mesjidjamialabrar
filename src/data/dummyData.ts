@@ -225,7 +225,8 @@ export const DUMMY_ASSETS: Partial<MosqueAsset>[] = [
     unit: 'Unit',
     condition: 'Sangat Baik',
     location: 'Ruang Utama Lantai 1',
-    registeredBy: 'Admin Al Abrar'
+    registeredBy: 'Admin Al Abrar',
+    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80'
   },
   {
     name: 'Mixer Yamaha 16-Channel MG16XU',
@@ -234,7 +235,8 @@ export const DUMMY_ASSETS: Partial<MosqueAsset>[] = [
     unit: 'Unit',
     condition: 'Baik',
     location: 'Ruang Sound/Samping Mihrab',
-    registeredBy: 'Admin Al Abrar'
+    registeredBy: 'Admin Al Abrar',
+    imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=600&q=80'
   },
   {
     name: 'Al-Quran Madinah (Ukuran Sedang)',
@@ -243,7 +245,8 @@ export const DUMMY_ASSETS: Partial<MosqueAsset>[] = [
     unit: 'Buah',
     condition: 'Sangat Baik',
     location: 'Lemari Shaf Belakang & Samping',
-    registeredBy: 'Admin Al Abrar'
+    registeredBy: 'Admin Al Abrar',
+    imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629b1d500f3?auto=format&fit=crop&w=600&q=80'
   },
   {
     name: 'Kipas Angin Dinding Cosmos 16 inch',
@@ -252,7 +255,8 @@ export const DUMMY_ASSETS: Partial<MosqueAsset>[] = [
     unit: 'Unit',
     condition: 'Baik',
     location: 'Lantai 2 & Teras Samping',
-    registeredBy: 'Admin Al Abrar'
+    registeredBy: 'Admin Al Abrar',
+    imageUrl: 'https://images.unsplash.com/photo-1618945037843-ab19ae4c66ff?auto=format&fit=crop&w=600&q=80'
   },
   {
     name: 'Penyedot Debu (Vacuum Cleaner) Sharp',
@@ -261,7 +265,8 @@ export const DUMMY_ASSETS: Partial<MosqueAsset>[] = [
     unit: 'Unit',
     condition: 'Baik',
     location: 'Gudang Inventaris Lt. 1',
-    registeredBy: 'Admin Al Abrar'
+    registeredBy: 'Admin Al Abrar',
+    imageUrl: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=600&q=80'
   }
 ];
 

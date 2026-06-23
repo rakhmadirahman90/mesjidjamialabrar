@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { MosqueAsset } from '../types';
-import { Package, PlusCircle, Search, Tag, ShieldCheck, Edit2, Trash2, Save, X } from 'lucide-react';
+import { Package, PlusCircle, Search, Tag, ShieldCheck, Edit2, Trash2, Save, X, Image as IconImage, FileImage, UploadCloud, Eye } from 'lucide-react';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 import { parseNumber } from '../lib/utils';
+
+const CATEGORY_PRESETS: {[key: string]: string} = {
+  'Alat Shalat': 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=600&q=80',
+  'Sound System': 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=600&q=80',
+  'Elektronik & Pendingin': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80',
+  'Kebersihan': 'https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=600&q=80',
+  'Kitab Suci / Al-Quran': 'https://images.unsplash.com/photo-1609599006353-e629b1d500f3?auto=format&fit=crop&w=600&q=80',
+  'Mebel & Lemari': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80'
+};
 
 export default function InventarisMasjid({ 
   isAdmin, 
@@ -32,6 +41,17 @@ export default function InventarisMasjid({
   const [inputUnit, setInputUnit] = useState('Unit');
   const [inputCondition, setInputCondition] = useState<'Sangat Baik' | 'Baik' | 'Rusak Ringan' | 'Rusak Berat'>('Sangat Baik');
   const [inputLocation, setInputLocation] = useState('');
+  const [inputImageUrl, setInputImageUrl] = useState(CATEGORY_PRESETS['Alat Shalat']);
+
+  // Auto preset preview recommendation
+  useEffect(() => {
+    if (!inputImageUrl || Object.values(CATEGORY_PRESETS).includes(inputImageUrl)) {
+      setInputImageUrl(CATEGORY_PRESETS[inputCategory] || '');
+    }
+  }, [inputCategory]);
+
+  // For full asset card/lightbox detail popups
+  const [selectedAssetForView, setSelectedAssetForView] = useState<MosqueAsset | null>(null);
 
   // Editing state
   const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
@@ -67,7 +87,8 @@ export default function InventarisMasjid({
       unit: inputUnit.trim(),
       condition: inputCondition,
       location: inputLocation.trim(),
-      registeredBy: 'Admin Al Abrar'
+      registeredBy: 'Admin Al Abrar',
+      imageUrl: inputImageUrl.trim() || CATEGORY_PRESETS[inputCategory] || ''
     };
 
     addDocument('mosque_assets', newAsset);
@@ -75,7 +96,7 @@ export default function InventarisMasjid({
     // trigger system logs reporting
     onAddLog(
       `Inventaris Baru`,
-      `Barang berhasil masuk daftar aset: "${inputName}" (${qtyVal} ${inputUnit}) di "${inputLocation}". Kondisi: ${inputCondition}.`,
+      `Barang berhasil masuk daftar aset: "${inputName}" (${qtyVal} ${inputUnit}) dengan foto terlampir.`,
       'success'
     );
 
@@ -83,6 +104,7 @@ export default function InventarisMasjid({
     setInputName('');
     setInputQty('');
     setInputLocation('');
+    setInputImageUrl(CATEGORY_PRESETS[inputCategory] || '');
   };
 
   const handleUpdateCondition = (id: string, nextCond: 'Sangat Baik' | 'Baik' | 'Rusak Ringan' | 'Rusak Berat') => {
@@ -203,6 +225,7 @@ export default function InventarisMasjid({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">
+                    <th className="pb-3 w-16 text-center">Foto</th>
                     <th className="pb-3 w-44">Nama Barang (Aset)</th>
                     <th className="pb-3 w-32">Kategori</th>
                     <th className="pb-3 w-28">Kuantitas</th>
@@ -210,18 +233,56 @@ export default function InventarisMasjid({
                     <th className="pb-3 text-right">Kondisi / Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50 text-xs">
+                <tbody className="divide-y divide-slate-50 text-xs text-left">
                   {filteredAssets.length > 0 ? (
                     filteredAssets.map(ast => (
                       <tr key={ast.id} className="hover:bg-slate-50/50 transition">
+                        {/* 1. Foto Column */}
+                        <td className="py-3.5 text-center">
+                          {ast.imageUrl ? (
+                            <div 
+                              onClick={() => setSelectedAssetForView(ast)}
+                              className="relative w-12 h-12 rounded-xl overflow-hidden cursor-zoom-in border border-slate-150 inline-block group hover:scale-105 transition-all duration-300 shadow-sm"
+                            >
+                              <img 
+                                src={ast.imageUrl} 
+                                alt={ast.name} 
+                                className="w-full h-full object-cover" 
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                                <Eye className="h-3 w-3 text-white" />
+                              </div>
+                            </div>
+                          ) : (
+                            <div 
+                              onClick={() => setSelectedAssetForView(ast)}
+                              className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 inline-flex cursor-zoom-in hover:bg-slate-200 transition duration-200"
+                            >
+                              <IconImage className="h-4 w-4" />
+                            </div>
+                          )}
+                        </td>
+
+                        {/* 2. Detail Data Columns */}
                         <td className="py-3.5">
                           {editingAssetId === ast.id ? (
-                            <input 
-                              type="text"
-                              value={editAssetForm.name || ''}
-                              onChange={(e) => setEditAssetForm({...editAssetForm, name: e.target.value})}
-                              className="w-full border rounded p-1 font-bold text-slate-800"
-                            />
+                            <div className="space-y-1">
+                              <input 
+                                type="text"
+                                value={editAssetForm.name || ''}
+                                onChange={(e) => setEditAssetForm({...editAssetForm, name: e.target.value})}
+                                className="w-full border rounded p-1 font-bold text-slate-800"
+                                placeholder="Nama Barang"
+                              />
+                              <input 
+                                type="text"
+                                value={editAssetForm.imageUrl || ''}
+                                onChange={(e) => setEditAssetForm({...editAssetForm, imageUrl: e.target.value})}
+                                className="w-full border rounded p-1 text-[10px] text-slate-600 font-mono"
+                                placeholder="URL Gambar / Base64"
+                              />
+                            </div>
                           ) : (
                             <>
                               <span className="block font-bold text-slate-800 leading-relaxed text-left">{ast.name}</span>
@@ -432,6 +493,87 @@ export default function InventarisMasjid({
                   />
                 </div>
 
+                {/* Foto Barang Section */}
+                <div className="space-y-1.5 pt-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase">Foto Inventaris Barang</label>
+                  <div className="space-y-2">
+                    {inputImageUrl ? (
+                      <div className="relative h-28 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                        <img 
+                          src={inputImageUrl} 
+                          alt="Pratinjau Aset Baru" 
+                          className="w-full h-full object-cover" 
+                          referrerPolicy="no-referrer"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => setInputImageUrl('')}
+                          className="absolute top-2 right-2 p-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition"
+                          title="Hapus foto"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-28 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 bg-slate-50 p-4">
+                        <IconImage className="h-6 w-6 text-slate-300 mb-1" />
+                        <span className="text-[10px] font-bold text-slate-500">Belum Ada Foto Terpilih</span>
+                        <span className="text-[9px] text-slate-400 text-center">Gunakan preset atau upload foto lokal</span>
+                      </div>
+                    )}
+
+                    {/* Choose Preset vs Upload Local file vs Paste URL options */}
+                    <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold">
+                      <label className="flex items-center justify-center gap-1 p-2 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition shadow-sm text-slate-700">
+                        <UploadCloud className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>Unggah Foto</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              const r = new FileReader();
+                              r.onload = (ev) => {
+                                if (ev.target?.result) {
+                                  setInputImageUrl(ev.target.result as string);
+                                  onAddLog('Foto Diproses', 'Foto lokal berhasil dibaca & diunggah.', 'success');
+                                }
+                              };
+                              r.readAsDataURL(e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url = prompt('Tulis/Paste URL Gambar Online (misalnya Unsplash atau Imgur):');
+                          if (url) {
+                            setInputImageUrl(url);
+                            onAddLog('Berhasil', 'URL gambar eksternal berhasil disimpan.', 'success');
+                          }
+                        }}
+                        className="flex items-center justify-center gap-1 p-2 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition text-slate-700 shadow-sm"
+                      >
+                        <FileImage className="h-3.5 w-3.5 text-blue-600" />
+                        <span>Tulis Link URL</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="block text-[9px] font-bold text-slate-400 uppercase">Input Link Gambar Manual</span>
+                      <input 
+                        type="text"
+                        placeholder="https://images.unsplash.com/..."
+                        value={inputImageUrl}
+                        onChange={(e) => setInputImageUrl(e.target.value)}
+                        className="w-full text-[10px] p-2 rounded-lg bg-slate-50 border border-slate-200 focus:border-slate-450 outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow transition duration-150 flex items-center justify-center gap-1.5"
@@ -472,6 +614,92 @@ export default function InventarisMasjid({
         </div>
 
       </div>
+
+      {/* Lightbox details modal overlay */}
+      {selectedAssetForView && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] animate-scale-up">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-emerald-700" />
+                <h3 className="font-black text-slate-800 text-xs uppercase tracking-wide">Spesifikasi Kartu Aset</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedAssetForView(null)} 
+                className="p-1 px-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 font-bold transition flex items-center justify-center gap-1"
+              >
+                <X className="h-4 w-4" /> Tutup
+              </button>
+            </div>
+
+            {/* Photo preview segment */}
+            <div className="relative w-full h-56 bg-slate-900 border-b border-slate-100">
+              {selectedAssetForView.imageUrl ? (
+                <img 
+                  src={selectedAssetForView.imageUrl} 
+                  alt={selectedAssetForView.name} 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-950">
+                  <IconImage className="h-10 w-10 text-slate-700 mb-2" />
+                  <span className="text-xs font-bold text-slate-400">Belum Ada Foto</span>
+                </div>
+              )}
+              {/* Category tag */}
+              <span className="absolute bottom-4 left-4 bg-emerald-600 text-white font-extrabold text-[10px] uppercase px-3 py-1 rounded-xl shadow-lg flex items-center gap-1">
+                <Tag className="h-3 w-3" /> {selectedAssetForView.category}
+              </span>
+            </div>
+
+            {/* Details information segment */}
+            <div className="p-6 space-y-4 overflow-y-auto text-left">
+              <div>
+                <h4 className="font-extrabold text-base text-slate-800 leading-tight">{selectedAssetForView.name}</h4>
+                <p className="text-[10px] text-slate-400 font-mono mt-1">Kode Identifikasi: {selectedAssetForView.id}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs leading-relaxed">
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider mb-0.5">Jumlah Fisik</span>
+                  <span className="font-extrabold text-slate-800">{selectedAssetForView.quantity} {selectedAssetForView.unit}</span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider mb-0.5">Status Kelayakan</span>
+                  <span className={`inline-block font-bold text-[10px] px-2 py-0.5 rounded-full ${
+                    selectedAssetForView.condition === 'Sangat Baik' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+                    selectedAssetForView.condition === 'Baik' ? 'bg-teal-50 text-teal-800 border border-teal-200' :
+                    selectedAssetForView.condition === 'Rusak Ringan' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
+                    'bg-rose-50 text-rose-800 border-rose-200'
+                  }`}>
+                    {selectedAssetForView.condition}
+                  </span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 col-span-2">
+                  <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider mb-0.5">Penyimpanan / Lokasi Faktual</span>
+                  <span className="font-bold text-slate-700">{selectedAssetForView.location}</span>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-slate-400 pt-3 border-t border-slate-100 flex justify-between">
+                <span>Pencatat: <strong>{selectedAssetForView.registeredBy}</strong></span>
+                <span>Masjid Al Abrar Lapadde</span>
+              </div>
+            </div>
+            
+            <div className="bg-slate-50 p-4 border-t border-slate-100">
+              <button 
+                onClick={() => setSelectedAssetForView(null)}
+                className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition duration-150"
+              >
+                Tutup Detail Kartu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
