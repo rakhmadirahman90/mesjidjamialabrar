@@ -79,18 +79,19 @@ export default function KeuanganMasjid({
   const [txNotes, setTxNotes] = useState<string>('');
 
   // Math totals
-  const totalDebit = transactions.filter(t => t.type === 'debit').reduce((sum, t) => sum + t.amount, 0);
-  const totalKredit = transactions.filter(t => t.type === 'kredit').reduce((sum, t) => sum + t.amount, 0);
+  const totalDebit = (transactions || []).filter(t => t && t.type === 'debit').reduce((sum, t) => sum + (t.amount || 0), 0);
+  const totalKredit = (transactions || []).filter(t => t && t.type === 'kredit').reduce((sum, t) => sum + (t.amount || 0), 0);
   const totalBalance = totalDebit - totalKredit;
   
   // === PERMANENT DONORS SUMMARY MATH ===
-  const permanentDonorsTotalCollected = permanentDonors.reduce((total, donor) => {
-    const paidMonthsCount = Object.values(donor.monthlyPayments).filter(v => v === true).length;
-    return total + (donor.amount * paidMonthsCount);
+  const permanentDonorsTotalCollected = (permanentDonors || []).reduce((total, donor) => {
+    if (!donor || !donor.monthlyPayments) return total;
+    const paidMonthsCount = Object.values(donor.monthlyPayments || {}).filter(v => v === true).length;
+    return total + ((donor.amount || 0) * paidMonthsCount);
   }, 0);
 
-  const totalPossibleCollections = permanentDonors.reduce((total, d) => total + (d.amount * 12), 0);
-  const totalActiveDonors = permanentDonors.filter(d => Object.values(d.monthlyPayments).some(v => v)).length;
+  const totalPossibleCollections = (permanentDonors || []).reduce((total, d) => total + ((d?.amount || 0) * 12), 0);
+  const totalActiveDonors = (permanentDonors || []).filter(d => d && d.monthlyPayments && Object.values(d.monthlyPayments || {}).some(v => v)).length;
   const collectionPercentage = totalPossibleCollections > 0 ? (permanentDonorsTotalCollected / totalPossibleCollections) * 100 : 0;
 
   // Edit/Delete state
@@ -144,7 +145,7 @@ export default function KeuanganMasjid({
       return;
     }
     if (confirm(`Hapus transaksi "${notes}"?`)) {
-      const txToDelete = transactions.find(t => t.id === id);
+      const txToDelete = (transactions || []).find(t => t.id === id);
       if (txToDelete && txToDelete.id) {
         deleteDocument('financial_transactions', txToDelete.id);
         onAddLog('Transaksi Dihapus', `Catatan transaksi "${notes}" telah dihapus.`, 'alert');
@@ -159,7 +160,7 @@ export default function KeuanganMasjid({
 
   const saveEditTx = () => {
     if (editingTxId) {
-       const existingtx = transactions.find(t => t.id === editingTxId);
+       const existingtx = (transactions || []).find(t => t.id === editingTxId);
        if (existingtx && existingtx.id) {
          updateDocument('financial_transactions', existingtx.id, editTxForm);
          onAddLog('Transaksi Diperbarui', `Catatan Kas "${editTxForm.notes}" telah diperbarui.`, 'success');
@@ -169,18 +170,19 @@ export default function KeuanganMasjid({
     setEditTxForm({});
   };
 
-  const handleTogglePayment = (donorNo: number, month: string) => {
+  const handleTogglePayment = (donorId: string, month: string) => {
     if (!isAdmin) {
       onAddLog('Akses Ditolak', 'Status pembayaran donatur tetap hanya dapat diubah oleh Admin!', 'alert');
       return;
     }
-    const donor = permanentDonors.find(d => d.no === donorNo);
+    const donor = permanentDonors.find(d => d.id === donorId);
     if (donor && donor.id) {
-       const pm = { ...donor.monthlyPayments, [month]: !donor.monthlyPayments[month] };
+       const currentPayments = donor.monthlyPayments || {};
+       const pm = { ...currentPayments, [month]: !currentPayments[month] };
        updateDocument('permanent_donors', donor.id, { monthlyPayments: pm });
        onAddLog(
         'Donatur Tetap Diperbarui',
-        `Telah diubah status pembayaran bulan ${month} untuk tabel Donatur Tetap No. ${donorNo}.`,
+        `Telah diubah status pembayaran bulan ${month} untuk tabel Donatur Tetap No. ${donor.no}.`,
         'info'
       );
     }
@@ -195,7 +197,7 @@ export default function KeuanganMasjid({
     const pm: { [m: string]: boolean } = {};
     months.forEach(m => pm[m] = false);
 
-    const nextNo = permanentDonors.length > 0 ? Math.max(...permanentDonors.map(d => d.no)) + 1 : 1;
+    const nextNo = permanentDonors.length > 0 ? Math.max(...permanentDonors.map(d => Number(d.no) || 0)) + 1 : 1;
     const newDonor = {
       no: nextNo,
       name: newDonorForm.name.trim(),
@@ -226,17 +228,30 @@ export default function KeuanganMasjid({
   };
 
   const saveDonorEdit = () => {
-    if (!editDonorForm.name || !editingDonorId) return;
-    const dToEdit = permanentDonors.find(d => d.id === editingDonorId);
+    if (!editDonorForm.name || !editingDonorId) {
+      onAddLog('Gagal', 'Nama donatur tidak boleh kosong!', 'alert');
+      return;
+    }
+    
+    const dToEdit = permanentDonors.find(d => (d.id || d.no?.toString()) === editingDonorId);
     if (dToEdit && dToEdit.id) {
-      updateDocument('permanent_donors', dToEdit.id, editDonorForm);
-      onAddLog('Profil Donatur Diperbarui', `Informasi donatur "${editDonorForm.name}" telah diupdate.`, 'info');
+      // Only update specific fields to prevent overwriting monthlyPayments
+      const updateData = {
+        no: Number(editDonorForm.no) || dToEdit.no,
+        name: editDonorForm.name.trim(),
+        amount: Number(editDonorForm.amount) || dToEdit.amount
+      };
+      updateDocument('permanent_donors', dToEdit.id, updateData);
+      onAddLog('Profil Donatur Diperbarui', `Informasi donatur "${updateData.name}" telah diupdate.`, 'info');
+    } else if (dToEdit && !dToEdit.id) {
+      onAddLog('Gagal Update', 'Donatur ini adalah data contoh. Silakan "Seed Data" di Admin Dashboard untuk mengaktifkan fitur edit permanen.', 'alert');
     }
     setEditingDonorId(null);
     setEditDonorForm({});
   };
 
-  const filteredTransactions = transactions.filter(t => {
+  const filteredTransactions = (transactions || []).filter(t => {
+    if (!t) return false;
     const matchesType = filterType === 'all' || t.type === filterType;
     const matchesCat = filterCategory === 'all' || t.category === filterCategory;
     return matchesType && matchesCat;
@@ -251,6 +266,32 @@ export default function KeuanganMasjid({
         onConfirm={performDeleteDonor}
         onCancel={() => setDonorToDelete(null)}
       />
+
+      {/* Sub-menu Navigation Tabs */}
+      <div className="flex items-center gap-2 border-b border-emerald-500/10 pb-4">
+        <button
+          onClick={() => setActiveSubTab('kas_utama')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
+            activeSubTab === 'kas_utama'
+              ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
+              : 'bg-emerald-950/20 text-slate-400 hover:bg-emerald-950/40 hover:text-slate-200 border border-emerald-500/10'
+          }`}
+        >
+          <Wallet className="w-4 h-4" />
+          Buku Kas Utama
+        </button>
+        <button
+          onClick={() => setActiveSubTab('donatur_tetap')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
+            activeSubTab === 'donatur_tetap'
+              ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
+              : 'bg-emerald-950/20 text-slate-400 hover:bg-emerald-950/40 hover:text-slate-200 border border-emerald-500/10'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          Data Donatur Tetap
+        </button>
+      </div>
       
       {/* Visual Analytics dashboard strip cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -304,8 +345,6 @@ export default function KeuanganMasjid({
         </div>
 
       </div>
-
-
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
@@ -464,6 +503,9 @@ export default function KeuanganMasjid({
                       <th className="py-4 px-3 text-right w-24 border border-slate-850">NOMINAL</th>
                       <th className="py-4 px-3 w-28 border border-slate-850">FREKUENSI</th>
                       <th className="py-4 px-3 text-right w-28 border border-slate-850">TOTAL</th>
+                      {isAdmin && (
+                        <th className="py-4 px-3 w-24 border border-slate-850">AKSI</th>
+                      )}
                       {['JAN', 'PEB', 'MARET', 'APRIL', 'MEI', 'JUN', 'JUL', 'AGUST', 'SEPT', 'OKT', 'NOP', 'DES'].map(m => (
                         <th key={m} className={`py-4 px-1 border border-slate-850 text-[8px] ${['JUN', 'JUL'].includes(m) ? 'bg-emerald-900' : ''}`}>{m}</th>
                       ))}
@@ -471,31 +513,52 @@ export default function KeuanganMasjid({
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {permanentDonors
-                      .filter(d => d.name.toLowerCase().includes(searchDonorQuery.toLowerCase()) || d.no.toString() === searchDonorQuery)
+                      .filter(d => {
+                        if (!d) return false;
+                        const name = d.name || '';
+                        const no = d.no?.toString() || '';
+                        return name.toLowerCase().includes((searchDonorQuery || '').toLowerCase()) || no === searchDonorQuery;
+                      })
                       .map((d) => {
-                        const paidCount = Object.values(d.monthlyPayments).filter(v => v === true).length;
-                        const totalDonorCollected = d.amount * paidCount;
+                        const monthlyPayments = d.monthlyPayments || {};
+                        const paidCount = Object.values(monthlyPayments || {}).filter(v => v === true).length;
                         const progressPercent = (paidCount / 12) * 100;
+                        const dId = d.id || d.no?.toString();
 
                         return (
                           <tr key={d.id || d.no} className="hover:bg-slate-50 transition-colors group">
-                            <td className="py-3 px-2 font-mono font-bold text-slate-400 border border-slate-100">{d.no}</td>
-                            <td className="py-3 px-4 text-left border border-slate-100">
-                              {editingDonorId === d.id ? (
+                            <td className="py-3 px-2 font-mono font-bold text-slate-400 border border-slate-100">
+                              {editingDonorId === dId ? (
                                 <input 
-                                  value={editDonorForm.name || ''}
-                                  onChange={e => setEditDonorForm({...editDonorForm, name: e.target.value})}
-                                  className="w-full border p-1 rounded font-black text-xs"
+                                  type="number"
+                                  value={editDonorForm.no || 0}
+                                  onChange={e => setEditDonorForm({...editDonorForm, no: parseNumber(e.target.value)})}
+                                  className="w-12 border p-1 rounded font-black text-xs text-center"
                                 />
+                              ) : (
+                                d.no
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-left border border-slate-100">
+                              {editingDonorId === dId ? (
+                                <div className="space-y-1">
+                                  <input 
+                                    value={editDonorForm.name || ''}
+                                    onChange={e => setEditDonorForm({...editDonorForm, name: e.target.value})}
+                                    className="w-full border p-1 rounded font-black text-xs"
+                                    placeholder="Nama Donatur"
+                                  />
+                                  <span className="text-[9px] text-slate-400 font-bold font-mono tracking-tighter block">ID: D-{String(d.no || 0).padStart(3, '0')}</span>
+                                </div>
                               ) : (
                                 <>
                                   <span className="block font-black text-slate-800 text-sm group-hover:text-emerald-700 transition-colors uppercase">{d.name}</span>
-                                  <span className="text-[9px] text-slate-400 font-bold font-mono tracking-tighter">ID: D-{d.no.toString().padStart(3, '0')}</span>
+                                  <span className="text-[9px] text-slate-400 font-bold font-mono tracking-tighter">ID: D-{String(d.no || 0).padStart(3, '0')}</span>
                                 </>
                               )}
                             </td>
                             <td className="py-3 px-3 text-right font-mono font-bold text-slate-500 border border-slate-100">
-                              {editingDonorId === d.id ? (
+                              {editingDonorId === dId ? (
                                 <input 
                                   type="number"
                                   value={editDonorForm.amount || 0}
@@ -503,54 +566,50 @@ export default function KeuanganMasjid({
                                   className="w-24 text-right border p-1 rounded"
                                 />
                               ) : (
-                                <>Rp {d.amount.toLocaleString('id-ID')}</>
+                                <>Rp {(d.amount || 0).toLocaleString('id-ID')}</>
                               )}
                             </td>
                             <td className="py-3 px-3 text-right border border-slate-100">
-                              {editingDonorId === d.id ? (
-                                <div className="flex gap-2 justify-center">
-                                  <button onClick={saveDonorEdit} className="p-1.5 bg-emerald-600 text-white rounded-lg"><Save className="h-3.5 w-3.5"/></button>
-                                  <button onClick={() => setEditingDonorId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg"><X className="h-3.5 w-3.5"/></button>
+                              <div className="flex flex-col items-center gap-1">
+                                <div className="flex items-center gap-1">
+                                  <span className="font-mono font-black text-[10px] text-slate-700">{paidCount} / 12</span>
+                                  {paidCount === 12 && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full flex items-center justify-center text-[6px] text-slate-900 ring-2 ring-amber-100">★</div>}
                                 </div>
-                              ) : (
-                                <div className="flex flex-col items-center gap-1">
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-mono font-black text-[10px] text-slate-700">{paidCount} / 12</span>
-                                    {paidCount === 12 && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full flex items-center justify-center text-[6px] text-slate-900 ring-2 ring-amber-100">★</div>}
-                                    {isAdmin && (
-                                      <div className="flex items-center gap-1.5 ml-2 opacity-0 group-hover:opacity-100 transition">
-                                        <button onClick={() => {setEditingDonorId(d.id || null); setEditDonorForm(d);}} className="text-emerald-600"><Edit2 className="h-3 w-3"/></button>
-                                        <button onClick={() => handleRemoveDonor(d.no, d.name)} className="text-rose-500"><Trash2 className="h-3 w-3"/></button>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                                    <div 
-                                      className={`h-full transition-all duration-1000 ${paidCount === 12 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-amber-400'}`}
-                                      style={{ width: `${progressPercent}%` }}
-                                    ></div>
-                                  </div>
+                                <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full transition-all duration-1000 ${paidCount === 12 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-amber-400'}`}
+                                    style={{ width: `${progressPercent}%` }}
+                                  ></div>
                                 </div>
-                              )}
+                              </div>
                             </td>
                             <td className="py-3 px-3 text-right bg-slate-50/30 border border-slate-100">
                               <span className="block font-mono font-black text-emerald-800 text-xs">
-                                Rp {(paidCount * d.amount).toLocaleString('id-ID')}
+                                Rp {(paidCount * (editingDonorId === dId ? (editDonorForm.amount || 0) : (d.amount || 0))).toLocaleString('id-ID')}
                               </span>
                               <span className="text-[8px] text-slate-400 uppercase font-black tracking-tighter">TOTAL TERKUMPUL</span>
                             </td>
-                            <td className="py-3 px-3 text-right border border-slate-100">
-                              <span className="block font-mono font-black text-slate-900">
-                                Rp {totalDonorCollected.toLocaleString('id-ID')}
-                              </span>
-                              <span className="text-[9px] text-emerald-600 font-bold uppercase">{progressPercent.toFixed(0)}% PAID</span>
-                            </td>
+                            {isAdmin && (
+                              <td className="py-3 px-2 border border-slate-100">
+                                {editingDonorId === dId ? (
+                                  <div className="flex gap-2 justify-center">
+                                    <button onClick={saveDonorEdit} className="p-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"><Save className="h-3.5 w-3.5"/></button>
+                                    <button onClick={() => setEditingDonorId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><X className="h-3.5 w-3.5"/></button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center justify-center gap-2">
+                                    <button onClick={() => {setEditingDonorId(dId || null); setEditDonorForm(d);}} className="p-1.5 bg-slate-100 text-emerald-600 hover:bg-emerald-100 rounded-lg transition"><Edit2 className="h-3 w-3"/></button>
+                                    <button onClick={() => handleRemoveDonor(d.no, d.name)} className="p-1.5 bg-slate-100 text-rose-500 hover:bg-rose-100 rounded-lg transition"><Trash2 className="h-3 w-3"/></button>
+                                  </div>
+                                )}
+                              </td>
+                            )}
                             {['JAN', 'PEB', 'MARET', 'APRIL', 'MEI', 'JUN', 'JUL', 'AGUST', 'SEPT', 'OKT', 'NOP', 'DES'].map((m) => {
-                              const isPaid = d.monthlyPayments[m];
+                              const isPaid = monthlyPayments[m] || false;
                               return (
                                 <td 
                                   key={m} 
-                                  onClick={() => handleTogglePayment(d.no, m)}
+                                  onClick={() => d.id && handleTogglePayment(d.id, m)}
                                   className={`py-3 px-1 border border-slate-100 transition-all font-mono font-black select-none text-xs cursor-pointer ${
                                     isPaid 
                                       ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' 

@@ -45,14 +45,20 @@
           else if (e && e.reason && (e.reason.message || e.reason)) msg = e.reason.message || String(e.reason);
 
           if (shouldSuppress(msg)) {
-            if (e.preventDefault) e.preventDefault();
-            if (e.stopPropagation) e.stopPropagation();
+            if (e && e.preventDefault) e.preventDefault();
+            if (e && e.stopPropagation) e.stopPropagation();
+            if (e && e.stopImmediatePropagation) e.stopImmediatePropagation();
             return true;
           }
         };
 
         window.addEventListener('error', suppress, true);
         window.addEventListener('unhandledrejection', suppress, true);
+        
+        window.onerror = function(msg, url, line, col, error) {
+          if (shouldSuppress(msg)) return true;
+          return false;
+        };
       })();
     </script>
     <meta charset="UTF-8" />

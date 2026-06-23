@@ -291,9 +291,9 @@ export default function JadwalHub({
                     <span className="text-[10px] bg-emerald-950/40 text-emerald-300 border border-emerald-700 font-bold tracking-widest uppercase px-3 py-1 rounded-full">
                       ACUAN JADWAL TERDEKAT
                     </span>
-                    {nextDetails ? (
+                    {nextDetails && nextDetails.prayer ? (
                       <h2 className="text-2xl font-black tracking-wide mt-2">
-                        Shalat {nextDetails.prayer.name} berikutnya pukul {nextDetails.prayer.time} WITA
+                        Shalat {nextDetails.prayer.name || '---'} berikutnya pukul {nextDetails.prayer.time || '--:--'} WITA
                       </h2>
                     ) : (
                       <h2 className="text-2xl font-black tracking-wide mt-2">Memuat Waktu Shalat...</h2>
@@ -411,9 +411,13 @@ export default function JadwalHub({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {prayers.map((prayer) => {
+                    {(prayers || []).map((prayer) => {
+                      if (!prayer) return null;
                       const isEditingThis = editingPrayer?.id === prayer.id;
-                      const [h, m] = prayer.time.split(':').map(Number);
+                      const timeParts = (prayer.time || '00:00').split(':');
+                      const h = Number(timeParts[0]) || 0;
+                      const m = Number(timeParts[1]) || 0;
+                      
                       let remM = m - 10;
                       let remH = h;
                       if (remM < 0) { remM += 60; remH -= 1; if (remH < 0) remH += 24; }

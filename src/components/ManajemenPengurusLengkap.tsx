@@ -47,11 +47,12 @@ export default function ManajemenPengurusLengkap({ detailedBoard, onAddLog }: Ma
     { label: 'Riayah (Aset & Umum)', key: 'riayah' }
   ];
 
-  const filteredMembers = detailedBoard.filter(m => {
+  const filteredMembers = (detailedBoard || []).filter(m => {
+    if (!m) return false;
     const matchesSearch = 
-      m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      m.role.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (m.sectionName && m.sectionName.toLowerCase().includes(searchTerm.toLowerCase()));
+      (m.name || '').toLowerCase().includes((searchTerm || '').toLowerCase()) || 
+      (m.role || '').toLowerCase().includes((searchTerm || '').toLowerCase()) || 
+      ((m.sectionName || '').toLowerCase().includes((searchTerm || '').toLowerCase()));
     
     const matchesCategory = activeCategory === 'all' || m.category === activeCategory;
     

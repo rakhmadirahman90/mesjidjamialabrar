@@ -156,10 +156,12 @@ export default function InventarisMasjid({
   };
 
   // filter
-  const filteredAssets = assets.filter(a => {
+  const filteredAssets = (assets || []).filter(a => {
+    if (!a) return false;
     const matchesCategory = selectedCategory === 'all' || a.category === selectedCategory;
-    const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          a.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (a.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          (a.location || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                          (a.category || '').toLowerCase().includes((searchQuery || '').toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -183,7 +185,7 @@ export default function InventarisMasjid({
             </span>
             <input
               type="text"
-              placeholder="Cari nama barang atau lokasi..."
+              placeholder="Cari nama barang, lokasi, atau kategori..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full text-xs p-3 pl-10 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-slate-400"

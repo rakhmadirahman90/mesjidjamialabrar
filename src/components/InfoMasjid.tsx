@@ -362,11 +362,12 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
             { id: 'riayah', label: 'Bidang Riayah (Sarana & Prasarana)', icon: '🛠️', colorClass: 'text-sky-700', borderClass: 'border-sky-600' }
           ].map((cat) => {
             const members = detailedBoard.filter(m => m.category === cat.id);
-            const filteredMembers = members.filter(m => 
-              m.name.toLowerCase().includes(searchTerm) || 
-              m.role.toLowerCase().includes(searchTerm) ||
-              (m.sectionName && m.sectionName.toLowerCase().includes(searchTerm))
-            );
+            const filteredMembers = (members || []).filter(m => {
+              if (!m) return false;
+              return (m.name || '').toLowerCase().includes(searchTerm || '') || 
+                     (m.role || '').toLowerCase().includes(searchTerm || '') ||
+                     ((m.sectionName || '').toLowerCase().includes(searchTerm || ''))
+            });
 
             if (filteredMembers.length === 0 && searchTerm) return null;
             if (members.length === 0) return null;

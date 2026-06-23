@@ -490,15 +490,12 @@ export default function KontakMasjid({ isAdmin = false }: KontakMasjidProps) {
         </div>
 
         {/* Maps Container with Premium Border and Shadow */}
-        <div className="w-full h-[400px] sm:h-[480px] rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl relative bg-slate-100">
-          <iframe 
-            src="https://maps.google.com/maps?q=Masjid%20Jami%20Al-Abrar%20Parepare&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-            className="w-full h-full border-0 absolute inset-0"
-            allowFullScreen={true}
-            loading="lazy" 
-            referrerPolicy="no-referrer-when-downgrade" 
-            title="Masjid Jami Al Abrar Parepare Google Maps Map"
-          />
+        <div className="w-full h-[400px] sm:h-[480px] rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl relative bg-slate-100 flex items-center justify-center">
+          <div className="text-center p-6 bg-white/80 rounded-2xl shadow-sm border border-slate-200">
+            <span className="text-4xl block mb-3">🗺️</span>
+            <span className="text-sm font-bold text-slate-800 uppercase tracking-widest block">Google Maps Placeholder</span>
+            <span className="text-xs text-slate-500 mt-1 block">Peta lokasi Masjid Jami Al Abrar</span>
+          </div>
         </div>
       </div>
 

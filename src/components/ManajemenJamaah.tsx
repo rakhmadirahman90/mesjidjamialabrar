@@ -132,17 +132,23 @@ export default function ManajemenJamaah({
   };
 
   // Math metrics
-  const totalCon = jamaahList.reduce((sum, j) => sum + j.familyMembersCount, 0);
-  const sickCount = jamaahList.filter(j => j.attendanceStatus === 'Sakit').length;
-  const activePercent = Math.round((jamaahList.filter(j => j.attendanceStatus === 'Aktif Jamaah').length / jamaahList.length) * 100);
+  const totalCon = (jamaahList || []).reduce((sum, j) => sum + (j.familyMembersCount || 0), 0);
+  const sickCount = (jamaahList || []).filter(j => j.attendanceStatus === 'Sakit').length;
+  
+  let activePercent = 0;
+  if (jamaahList && jamaahList.length > 0) {
+    activePercent = Math.round(((jamaahList.filter(j => j.attendanceStatus === 'Aktif Jamaah').length) / jamaahList.length) * 100);
+  }
 
   // filter
-  const filteredJamaah = jamaahList.filter(j => {
+  const filteredJamaah = (jamaahList || []).filter(j => {
     const matchStatus = filterStatus === 'all' || j.status === filterStatus;
     const matchAtt = filterAttendance === 'all' || j.attendanceStatus === filterAttendance;
-    const matchSearch = j.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        j.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        j.phone.includes(searchQuery);
+    const matchSearch = (j.fullName || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                        (j.address || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                        (j.phone || '').includes(searchQuery || '') ||
+                        (j.status || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+                        (j.attendanceStatus || '').toLowerCase().includes((searchQuery || '').toLowerCase());
     return matchStatus && matchAtt && matchSearch;
   });
 
@@ -214,7 +220,7 @@ export default function ManajemenJamaah({
                 </span>
                 <input
                   type="text"
-                  placeholder="Cari nama, no tlp, alamat..."
+                  placeholder="Cari nama, alamat, telepon, atau kategori..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full text-xs p-2.5 pl-9 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-slate-400"

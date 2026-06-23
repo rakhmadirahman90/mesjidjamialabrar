@@ -127,7 +127,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
         });
       } else {
         // Sort by date descending
-        const sorted = [...data].sort((a, b) => b.date.localeCompare(a.date));
+        const sorted = [...data].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
         setAlbums(sorted);
       }
     });
@@ -140,7 +140,9 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
     if (!isPlaying || !activeAlbum) return;
 
     const interval = setInterval(() => {
-      setActiveImageIdx((prev) => (prev + 1) % activeAlbum.images.length);
+      if (activeAlbum && (activeAlbum.images || []).length > 0) {
+        setActiveImageIdx((prev) => (prev + 1) % (activeAlbum.images || []).length);
+      }
     }, 3000);
 
     return () => clearInterval(interval);
@@ -182,13 +184,13 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
   const filteredAlbums = albums.filter((album) => {
     // Search keyword constraint
     const matchesKeyword = activeSearch === '' || 
-      album.title.toLowerCase().includes(activeSearch.toLowerCase());
+      (album.title || '').toLowerCase().includes(activeSearch.toLowerCase());
     
     // Month filter constraint
     let matchesMonth = true;
     if (activeMonthFilter !== 'all') {
       try {
-        const parts = album.date.split('-');
+        const parts = (album.date || '').split('-');
         const monthPart = parts[1]; // YYYY-MM-DD
         matchesMonth = monthPart === activeMonthFilter;
       } catch {
@@ -210,20 +212,57 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
   });
 
   // Admin: handle dynamic input fields
-  const handleAddImageUrlField = () => {
-    setNewImages([...newImages, '']);
-  };
-
   const handleRemoveImageUrlField = (index: number) => {
     const current = [...newImages];
     current.splice(index, 1);
     setNewImages(current);
   };
 
-  const handleImageUrlChange = (index: number, val: string) => {
-    const current = [...newImages];
-    current[index] = val;
-    setNewImages(current);
+  const handleMultipleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    
+    // Convert all to base64
+    const filePromises = files.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new window.Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 1200;
+            if (width > height) {
+              if (width > maxDim) {
+                height = Math.round(height * (maxDim / width));
+                width = maxDim;
+              }
+            } else {
+              if (height > maxDim) {
+                width = Math.round(width * (maxDim / height));
+                height = maxDim;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+          };
+          img.src = event.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    try {
+      const base64Images = await Promise.all(filePromises);
+      const validExisting = newImages.filter(img => img.trim() !== '');
+      setNewImages([...validExisting, ...base64Images]);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Admin submit
@@ -372,19 +411,19 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
 
       {/* 2. Admin action area */}
       {isAdmin && (
-        <section className="bg-amber-50/50 border border-amber-200/60 rounded-[2rem] p-6 text-left">
+        <section className="bg-white border border-slate-200 shadow-lg rounded-[2rem] p-6 text-left relative z-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
                 🔒 Panel Admin: Kelola Album Galeri
               </h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-[11px] font-medium text-slate-600 mt-0.5">
                 Tambahkan foto liputan baru, dokumentasi kunjungan syiar, atau hapus album lama.
               </p>
             </div>
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm shrink-0 self-start sm:self-center"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm shrink-0 self-start sm:self-center"
             >
               {showAddForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {showAddForm ? 'Tutup Formulir' : 'Tambah Album Baru'}
@@ -396,7 +435,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
             <motion.form 
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
-              className="mt-6 border-t border-amber-200/80 pt-6 space-y-4"
+              className="mt-6 border-t border-slate-200 pt-6 space-y-4"
               onSubmit={handleAddNewAlbum}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -408,7 +447,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="Contoh: Pembagian Sembako Ramadhan Masjid Al Abrar"
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-amber-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-slate-500 focus:bg-white transition"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -418,54 +457,57 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                     required
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-amber-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-slate-500 focus:bg-white transition"
                   />
                 </div>
               </div>
 
-              {/* Dynamic image input arrays */}
+              {/* Image Upload Input */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold text-slate-700 block text-left">URL Gambar (Mendukung JPG, PNG, atau Unsplash)</label>
-                  <button
-                    type="button"
-                    onClick={handleAddImageUrlField}
-                    className="text-xs text-emerald-800 hover:text-emerald-900 font-extrabold flex items-center gap-1"
-                  >
-                    <Plus className="h-3 w-3" /> Tambah Kolom URL
-                  </button>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[11px] font-bold text-slate-700 block text-left">Upload Foto Galeri (Bisa pilih lebih dari satu)</label>
+                  <div className="relative group">
+                    <input 
+                      type="file" 
+                      multiple 
+                      accept="image/*" 
+                      onChange={handleMultipleImageUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="w-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-6 text-center group-hover:border-slate-500 group-hover:bg-slate-100 transition flex flex-col items-center justify-center gap-2">
+                      <ImageIcon className="h-6 w-6 text-slate-400 group-hover:text-slate-600 transition" />
+                      <span className="text-xs font-bold text-slate-700">Klik atau seret foto ke sini untuk mengunggah</span>
+                      <span className="text-[10px] font-medium text-slate-500">JPG, PNG (Maks. otomatis resize)</span>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="space-y-2 max-h-40 overflow-y-auto pr-1 no-scrollbar">
-                  {newImages.map((img, idx) => (
-                    <div key={idx} className="flex gap-2">
-                      <input
-                        type="url"
-                        required
-                        value={img}
-                        onChange={(e) => handleImageUrlChange(idx, e.target.value)}
-                        placeholder="https://images.unsplash.com/photo-..."
-                        className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium outline-none"
-                      />
-                      {newImages.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImageUrlField(idx)}
-                          className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                {/* Image Previews */}
+                {newImages.filter(img => img.trim() !== '').length > 0 && (
+                  <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {newImages.map((img, idx) => (
+                      img.trim() !== '' && (
+                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group bg-slate-100">
+                          <img src={img} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImageUrlField(idx)}
+                            className="absolute top-1 right-1 p-1.5 bg-red-500/90 hover:bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow-sm"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="text-right pt-2 border-t border-amber-200/50">
+              <div className="text-right pt-4 border-t border-slate-200">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-md transition ml-auto inline-flex items-center gap-2"
+                  disabled={isSubmitting || newImages.filter(img => img.trim() !== '').length === 0}
+                  className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:text-slate-500 text-white font-black text-xs px-5 py-3 rounded-xl shadow-md transition ml-auto inline-flex items-center gap-2"
                 >
                   {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   Simpan Album di Database Cloud
@@ -500,10 +542,11 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {groupedAlbums[headingGroup].map((album) => {
-                  const imageCount = album.images.length;
-                  const firstImg = album.images[0] || 'https://images.unsplash.com/photo-1564507592333-c60657eea523?max-w=800';
-                  const secondImg = album.images[1];
-                  const thirdImg = album.images[2];
+                  const safeImages = album.images || [];
+                  const imageCount = safeImages.length;
+                  const firstImg = safeImages[0] || 'https://images.unsplash.com/photo-1564507592333-c60657eea523?max-w=800';
+                  const secondImg = safeImages[1];
+                  const thirdImg = safeImages[2];
                   
                   return (
                     <div 
@@ -641,7 +684,11 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
               
               {/* Left back arrows navigation */}
               <button
-                onClick={() => setActiveImageIdx((prev) => (prev - 1 + activeAlbum.images.length) % activeAlbum.images.length)}
+                onClick={() => setActiveImageIdx((prev) => {
+                  const numImages = (activeAlbum.images || []).length;
+                  if (numImages === 0) return prev;
+                  return (prev - 1 + numImages) % numImages;
+                })}
                 className="absolute left-4 sm:left-8 z-10 p-3 sm:p-4 bg-slate-900/60 hover:bg-slate-850 text-white rounded-full border border-white/15 transition-all transform hover:scale-105 active:scale-90"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -655,7 +702,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  src={activeAlbum.images[activeImageIdx]} 
+                  src={(activeAlbum.images || [])[activeImageIdx]} 
                   alt="Abrar Slides"
                   referrerPolicy="no-referrer"
                   className={`object-contain max-h-[58vh] sm:max-h-[66vh] rounded-2xl shadow-2xl transition-all ${isFullScreen ? 'w-screen h-screen max-w-none max-h-none object-contain fixed inset-0 z-50 bg-black' : ''}`}
@@ -674,7 +721,11 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
 
               {/* Right advances arrows navigation */}
               <button
-                onClick={() => setActiveImageIdx((prev) => (prev + 1) % activeAlbum.images.length)}
+                onClick={() => setActiveImageIdx((prev) => {
+                  const numImages = (activeAlbum.images || []).length;
+                  if (numImages === 0) return prev;
+                  return (prev + 1) % numImages;
+                })}
                 className="absolute right-4 sm:right-8 z-10 p-3 sm:p-4 bg-slate-900/60 hover:bg-slate-850 text-white rounded-full border border-white/15 transition-all transform hover:scale-105 active:scale-90"
               >
                 <ChevronRight className="h-6 w-6" />
@@ -705,7 +756,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
 
               {/* Thumbnails strip at bottom */}
               <div className="flex justify-center gap-2.5 overflow-x-auto py-1 max-w-lg mx-auto no-scrollbar">
-                {activeAlbum.images.map((imgUrl, idx) => (
+                {(activeAlbum.images || []).map((imgUrl, idx) => (
                   <button
                     key={idx}
                     type="button"

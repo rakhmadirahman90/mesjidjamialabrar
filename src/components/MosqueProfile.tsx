@@ -425,7 +425,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                 </div>
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Misi Strategis (Baris per Baris)</label>
-                  {editForm.mision.map((m, idx) => (
+                  {((editForm && editForm.mision) || []).map((m, idx) => (
                     <div key={idx} className="flex gap-2">
                        <input 
                         type="text" 
@@ -482,7 +482,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                 <div className="space-y-3">
                   <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">MISI STRATEGIS</span>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {profile.mision.map((m, idx) => (
+                    {((profile && profile.mision) || []).map((m, idx) => (
                       <div key={idx} className="flex gap-2.5 items-start bg-slate-50 p-3.5 rounded-xl border border-slate-100 relative group">
                         {editingMissionIndex === idx ? (
                           <div className="flex-1 flex gap-2 w-full">
@@ -607,7 +607,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
             )}
             
             <div className="space-y-4">
-              {profile.structure.map((s, idx) => (
+              {((profile && profile.structure) || []).map((s, idx) => (
                 <MemberCard 
                   key={idx} 
                   name={s.name} 
@@ -860,7 +860,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {profile.facilities.map((fac, idx) => (
+          {((profile && profile.facilities) || []).map((fac, idx) => (
             <div key={idx} className="p-4 rounded-xl border border-slate-150 bg-slate-50 flex items-start gap-3.5 hover:border-emerald-300 transition duration-150 relative overflow-hidden group">
               <span className="text-3xl bg-white p-2 rounded-xl shadow-sm border border-slate-100 block group-hover:scale-110 transition">{fac.icon}</span>
               <div className="space-y-1 z-10 text-left">

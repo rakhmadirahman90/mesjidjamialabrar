@@ -90,9 +90,9 @@ export default function AdminDashboardPortal({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Stats calculation
-  const totalInfaq = campaigns.reduce((acc, curr) => acc + (curr.raised || 0), 0);
-  const activeCampaignsCount = campaigns.length;
-  const recentLogs = logs.slice(0, 10);
+  const totalInfaq = (campaigns || []).reduce((acc, curr) => acc + ((curr && curr.raised) || 0), 0);
+  const activeCampaignsCount = (campaigns || []).length;
+  const recentLogs = (logs || []).slice(0, 10);
 
   useEffect(() => {
     const timer = setInterval(() => setLocalTime(new Date()), 1000);
@@ -100,48 +100,36 @@ export default function AdminDashboardPortal({
   }, []);
 
   const menuItems = [
-    { id: 'overview', label: 'Dashboard Overview', icon: <Layers className="h-4.5 w-4.5" />, badge: null },
-    { id: 'beranda', label: 'Broadcast & Media', icon: <Megaphone className="h-4.5 w-4.5" />, badge: showAnnouncement ? 'Aktif' : null },
-    { id: 'profil', label: 'Profil & Jamaah', icon: <Users className="h-4.5 w-4.5" />, badge: null },
-    { id: 'jadwal', label: 'Jadwal & Syiar', icon: <Calendar className="h-4.5 w-4.5" />, badge: '5 Waktu' },
-    { id: 'galeri', label: 'Dokumentasi Galeri', icon: <ImageIcon className="h-4.5 w-4.5" />, badge: null },
-    { id: 'donasi', label: 'Zakat, Infaq & Donatur', icon: <Heart className="h-4.5 w-4.5" />, badge: `${activeCampaignsCount} Kategori` },
-    { id: 'keuangan', label: 'Kas & Infaq', icon: <TrendingUp className="h-4.5 w-4.5" />, badge: null },
-    { id: 'inventaris', label: 'Aset Inventaris', icon: <Package className="h-4.5 w-4.5" />, badge: null },
-    { id: 'kontak', label: 'Direct Messages', icon: <Phone className="h-4.5 w-4.5" />, badge: null },
-    { id: 'keamanan', label: 'Sistem & Kunci Security', icon: <ShieldCheck className="h-4.5 w-4.5" />, badge: null },
+    { id: 'overview', label: 'Dashboard Overview', shortLabel: 'Beranda', icon: <Layers className="h-4.5 w-4.5" />, mobileIcon: <Layers className="h-5 w-5" />, badge: null },
+    { id: 'beranda', label: 'Broadcast & Media', shortLabel: 'Media', icon: <Megaphone className="h-4.5 w-4.5" />, mobileIcon: <Megaphone className="h-5 w-5" />, badge: showAnnouncement ? 'Aktif' : null },
+    { id: 'profil', label: 'Profil & Jamaah', shortLabel: 'Profil', icon: <Users className="h-4.5 w-4.5" />, mobileIcon: <Users className="h-5 w-5" />, badge: null },
+    { id: 'jadwal', label: 'Jadwal & Syiar', shortLabel: 'Jadwal', icon: <Calendar className="h-4.5 w-4.5" />, mobileIcon: <Calendar className="h-5 w-5" />, badge: '5 Waktu' },
+    { id: 'galeri', label: 'Dokumentasi Galeri', shortLabel: 'Galeri', icon: <ImageIcon className="h-4.5 w-4.5" />, mobileIcon: <ImageIcon className="h-5 w-5" />, badge: null },
+    { id: 'donasi', label: 'Zakat, Infaq & Donatur', shortLabel: 'Donasi', icon: <Heart className="h-4.5 w-4.5" />, mobileIcon: <Heart className="h-5 w-5" />, badge: `${activeCampaignsCount} Kategori` },
+    { id: 'keuangan', label: 'Kas & Infaq', shortLabel: 'Keuangan', icon: <TrendingUp className="h-4.5 w-4.5" />, mobileIcon: <TrendingUp className="h-5 w-5" />, badge: null },
+    { id: 'inventaris', label: 'Aset Inventaris', shortLabel: 'Aset', icon: <Package className="h-4.5 w-4.5" />, mobileIcon: <Package className="h-5 w-5" />, badge: null },
+    { id: 'kontak', label: 'Direct Messages', shortLabel: 'Kontak', icon: <Phone className="h-4.5 w-4.5" />, mobileIcon: <Phone className="h-5 w-5" />, badge: null },
+    { id: 'keamanan', label: 'Sistem & Security', shortLabel: 'Sistem', icon: <ShieldCheck className="h-4.5 w-4.5" />, mobileIcon: <ShieldCheck className="h-5 w-5" />, badge: null },
   ] as const;
 
   return (
     <div className="min-h-screen bg-[#020b06] text-slate-100 flex flex-col xl:flex-row font-sans relative overflow-x-hidden select-none">
       
-      {/* Mobile Header Nav Trigger */}
-      <div className="xl:hidden bg-[#041d11] border-b border-emerald-950 px-4 py-3 flex items-center justify-between w-full sticky top-0 z-40">
+      {/* Mobile Header (No Hamburger) */}
+      <div className="xl:hidden bg-[#041d11] border-b border-emerald-950 px-4 py-3 flex items-center justify-between w-full sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-2.5">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
           <span className="text-[11px] font-black tracking-widest text-emerald-400 uppercase">ADMIN PORTAL</span>
         </div>
-        <button 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 text-slate-300 hover:text-white rounded-xl bg-white/5 border border-white/5 focus:outline-none"
-        >
-          {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="text-[10px] font-mono text-emerald-500">
+          {localTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+        </div>
       </div>
 
-      {/* Overlay Backdrop for Mobile Sidebar */}
-      {isSidebarOpen && (
-        <div 
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 z-45 bg-black/75 backdrop-blur-sm xl:hidden transition-opacity duration-350"
-        />
-      )}
-
-      {/* Left Sidebar Menu */}
+      {/* Desktop Sidebar Menu */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-72 bg-[#04150d] border-r border-emerald-500/10 flex flex-col justify-between p-5 transition-transform duration-300 transform 
-        xl:translate-x-0 xl:sticky xl:top-0 xl:h-screen xl:max-h-screen xl:z-0 overflow-hidden
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        hidden xl:flex fixed inset-y-0 left-0 z-50 w-72 bg-[#04150d] border-r border-emerald-500/10 flex-col justify-between p-5 
+        xl:sticky xl:top-0 xl:h-screen xl:max-h-screen xl:z-0 overflow-hidden
       `}>
         <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1.5 sidebar-scrollbar">
           {/* Main Title Badge */}
@@ -224,7 +212,7 @@ export default function AdminDashboardPortal({
       </aside>
 
       {/* Main Panes Content */}
-      <main className="flex-1 min-h-screen p-3 xs:p-4 md:p-6 lg:p-8 space-y-5 sm:space-y-6 overflow-y-auto">
+      <main className="flex-1 min-h-screen p-3 xs:p-4 md:p-6 lg:p-8 space-y-5 sm:space-y-6 overflow-y-auto pb-24 xl:pb-8">
         {/* Upper Breadcrumbs & Quick Settings Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-500/10">
           <div className="text-left">
@@ -369,7 +357,13 @@ export default function AdminDashboardPortal({
                             <p className="text-[9px] text-slate-400 leading-normal font-medium">{log.message}</p>
                           </div>
                           <span className="text-[8px] font-mono font-bold text-slate-500 shrink-0">
-                            {new Date(log.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                            {(() => {
+                              try {
+                                return new Date(log.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                              } catch (e) {
+                                return log.timestamp;
+                              }
+                            })()}
                           </span>
                         </div>
                       ))
@@ -757,6 +751,123 @@ export default function AdminDashboardPortal({
 
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="xl:hidden fixed bottom-0 inset-x-0 z-40 bg-[#04150d]/95 backdrop-blur-xl border-t border-emerald-500/10 pb-safe shadow-[0_-4px_25px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center justify-around px-2 py-1.5">
+          {['overview', 'jadwal', 'keuangan', 'profil'].map(id => {
+            const item = menuItems.find(m => m.id === id);
+            if (!item) return null;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id as any)}
+                className={`flex flex-col items-center justify-center w-16 h-14 gap-1 rounded-2xl transition-all duration-300 relative ${
+                  isActive ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute inset-0 bg-emerald-500/10 rounded-2xl transition-opacity duration-300"></span>
+                )}
+                <div className={`transition-transform duration-300 z-10 ${isActive ? 'scale-110 mb-0.5' : 'scale-100'}`}>
+                  {item.mobileIcon || item.icon}
+                </div>
+                <span className={`text-[9px] font-black tracking-wide z-10 ${isActive ? 'text-emerald-400' : ''}`}>
+                  {item.shortLabel}
+                </span>
+                {isActive && (
+                  <span className="absolute -bottom-1 w-8 h-1 rounded-t-full bg-emerald-400"></span>
+                )}
+              </button>
+            );
+          })}
+          
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className={`flex flex-col items-center justify-center w-16 h-14 gap-1 rounded-2xl transition-all duration-300 relative ${
+              isSidebarOpen ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            {isSidebarOpen && (
+               <span className="absolute inset-0 bg-emerald-500/10 rounded-2xl transition-opacity duration-300"></span>
+            )}
+            <div className={`transition-transform duration-300 z-10 ${isSidebarOpen ? 'scale-110 mb-0.5' : 'scale-100'}`}>
+              <Menu className="h-5 w-5" />
+            </div>
+            <span className={`text-[9px] font-black tracking-wide z-10 ${isSidebarOpen ? 'text-emerald-400' : ''}`}>Lainnya</span>
+            {isSidebarOpen && (
+               <span className="absolute -bottom-1 w-8 h-1 rounded-t-full bg-emerald-400"></span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Sheet (More Menu) */}
+      <div 
+        className={`xl:hidden fixed inset-0 z-50 flex flex-col justify-end transition-all duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      >
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+        <div 
+          className={`relative bg-[#020b06] border-t border-emerald-500/20 rounded-t-3xl shadow-2xl transition-transform duration-400 transform ease-out-spring ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`}
+          style={{ maxHeight: '85vh' }}
+        >
+          <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing" onClick={() => setIsSidebarOpen(false)}>
+            <div className="w-12 h-1.5 bg-emerald-500/30 rounded-full" />
+          </div>
+          
+          <div className="px-5 pb-8 pt-2 flex flex-col h-full max-h-[calc(85vh-2rem)] overflow-y-auto no-scrollbar">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xs font-black tracking-widest text-emerald-400 uppercase">MENU ADMINISTRATOR</h3>
+              <button onClick={() => setIsSidebarOpen(false)} className="p-2 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors text-emerald-400 rounded-full">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-4 gap-y-6 gap-x-2">
+              {menuItems.map(item => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id as any);
+                      setIsSidebarOpen(false);
+                    }}
+                    className={`flex flex-col items-center gap-2 group relative`}
+                  >
+                    <div className={`w-14 h-14 rounded-[18px] flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-slate-950 shadow-[0_0_15px_rgba(52,211,153,0.3)] scale-105' : 'bg-[#041d11] border border-emerald-500/10 text-slate-300 group-hover:bg-[#062617] group-hover:text-emerald-400'}`}>
+                      {item.mobileIcon || item.icon}
+                    </div>
+                    <span className={`text-[10px] font-bold text-center leading-tight ${isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                      {item.shortLabel}
+                    </span>
+                    {item.badge && (
+                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 rounded-full border-[2px] border-[#020b06]" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="mt-10 pt-5 border-t border-emerald-500/10">
+              <button
+                onClick={() => {
+                  setIsSidebarOpen(false);
+                  onLogout();
+                }}
+                className="w-full py-4 bg-rose-600/90 hover:bg-rose-500 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 shadow-lg transition active:scale-95 uppercase tracking-wider"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out / Kunci Panel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
   );

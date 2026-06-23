@@ -9,7 +9,6 @@ import {
   Calendar,
   Image as ImageIcon,
   Phone,
-  Settings,
   Landmark,
   ChevronDown,
   Menu,
@@ -329,7 +328,7 @@ export default function App() {
       } else {
         const seenNos = new Set();
         data.forEach((item: any) => {
-          if (item.no !== undefined && item.id) {
+          if (item && item.no !== undefined && item.id) {
             if (seenNos.has(item.no)) {
               deleteDocument('permanent_donors', item.id);
             } else {
@@ -346,7 +345,7 @@ export default function App() {
       } else {
         const seenNames = new Set();
         data.forEach((item: any) => {
-          if (item.name && item.id) {
+          if (item && item.name && item.id) {
             if (seenNames.has(item.name)) {
               deleteDocument('mosque_assets', item.id);
             } else {
@@ -363,7 +362,7 @@ export default function App() {
       } else {
         const seenPhones = new Set();
         data.forEach((item: any) => {
-          if (item.phone && item.id) {
+          if (item && item.phone && item.id) {
             if (seenPhones.has(item.phone)) {
               deleteDocument('mosque_congregants', item.id);
             } else {
@@ -407,8 +406,10 @@ export default function App() {
   }, []);
 
   const handleAdminLogin = (userStr: string, passStr: string) => {
-    const isUserValid = userStr.trim().toLowerCase() === 'admin' || userStr.trim().toLowerCase() === 'admin_abrar';
-    const isPassValid = passStr.trim() === String(adminPin).trim() || passStr.trim().toLowerCase() === 'admin123';
+    const safeUser = userStr || '';
+    const safePass = passStr || '';
+    const isUserValid = safeUser.trim().toLowerCase() === 'admin' || safeUser.trim().toLowerCase() === 'admin_abrar';
+    const isPassValid = safePass.trim() === String(adminPin).trim() || safePass.trim().toLowerCase() === 'admin123';
 
     if (isUserValid && isPassValid) {
       setIsAdmin(true);
@@ -690,7 +691,7 @@ export default function App() {
   const addLog = (title: string, message: string, type: 'info' | 'success' | 'alert' | 'system', prayerId?: string, isCustomTest = false) => {
     const newLog: NotificationLog = {
       id: Math.random().toString(36).substr(2, 9),
-      timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      timestamp: new Date().toISOString(),
       title,
       message,
       type,
@@ -798,9 +799,11 @@ export default function App() {
       const timeHHMM = `${hourString}:${minuteString}`;
 
       // Check each prayer time
-      prayers.forEach(prayer => {
+      (prayers || []).forEach(prayer => {
         // Calculate the alert time (10 minutes before the prayer time)
+        if (!prayer || !prayer.time || !prayer.time.includes(':')) return;
         const [h, m] = prayer.time.split(':').map(Number);
+        if (isNaN(h) || isNaN(m)) return;
         
         // Target minute calculation
         let alertH = h;
@@ -842,8 +845,10 @@ export default function App() {
     
     const now = new Date();
 
-    for (const p of prayers) {
+    for (const p of (prayers || [])) {
+      if (!p || !p.time || !p.time.includes(':')) continue;
       const [h, m] = p.time.split(':').map(Number);
+      if (isNaN(h) || isNaN(m)) continue;
       
       // Calculate normal prayer date
       const pDate = new Date(now);
@@ -872,7 +877,9 @@ export default function App() {
 
     // Calculate countdown format
     const prayerTimeObj = new Date(now);
-    const [ph, pm] = nextPrayer.time.split(':').map(Number);
+    const phm = (nextPrayer.time || '00:00').split(':');
+    const ph = Number(phm[0]) || 0;
+    const pm = Number(phm[1]) || 0;
     prayerTimeObj.setHours(ph, pm, 0, 0);
     if (prayerTimeObj.getTime() <= now.getTime()) {
       prayerTimeObj.setDate(prayerTimeObj.getDate() + 1);
@@ -933,7 +940,7 @@ export default function App() {
       return;
     }
 
-    const updated = prayers.map(p => {
+    const updated = (prayers || []).map(p => {
       if (p.id === editingPrayer.id) {
         return { ...p, time: editTimeValue };
       }
@@ -946,7 +953,7 @@ export default function App() {
   };
 
   const deleteLog = (id: string) => {
-    const logToDelete = logs.find(l => l.id === id);
+    const logToDelete = (logs || []).find(l => l.id === id);
     if (logToDelete && (logToDelete as any).id) {
        deleteDocument('activity_logs', (logToDelete as any).id);
     }
@@ -1184,7 +1191,6 @@ export default function App() {
                   { id: 'donasi', label: 'Donasi', icon: <Heart className="h-3.5 w-3.5" /> },
                   { id: 'inventaris', label: 'Inventaris', icon: <Package className="h-3.5 w-3.5" /> },
                   { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },
-                  { id: 'admin', label: 'Admin', icon: <Settings className="h-3.5 w-3.5" /> },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -1396,7 +1402,7 @@ export default function App() {
                   onSavePrayerEdit={savePrayerEdit}
                   onCancelEdit={() => setEditingPrayer(null)}
                   onClearLogs={() => {
-                    const ids = logs.map(l => (l as any).id).filter(Boolean);
+                    const ids = (logs || []).map(l => (l as any).id).filter(Boolean);
                     clearCollection('activity_logs', ids);
                   }}
                   onNavigate={(tab) => setActiveTab(tab as any)}
@@ -1526,7 +1532,7 @@ export default function App() {
         onResetAllData={handleResetAllData}
         seedDummyData={seedDummyData}
         onClearLogs={() => {
-          const ids = logs.map(l => (l as any).id).filter(Boolean);
+          const ids = (logs || []).map(l => (l as any).id).filter(Boolean);
           clearCollection('activity_logs', ids);
         }}
         addLog={addLog}

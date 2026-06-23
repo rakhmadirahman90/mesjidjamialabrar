@@ -57,7 +57,13 @@ export default function DonationOpen({
     };
   }, []);
 
-  const selectedCampaign = campaigns.find(c => c.id === selectedCampId) || campaigns[0];
+  useEffect(() => {
+    if (!selectedCampId && campaigns && campaigns.length > 0) {
+      setSelectedCampId(campaigns[0].id);
+    }
+  }, [campaigns, selectedCampId]);
+
+  const selectedCampaign = (campaigns || []).find(c => c.id === selectedCampId) || (campaigns || [])[0];
 
   const handleQuickAmount = (val: number) => {
     setDonateAmount(val);
@@ -93,7 +99,7 @@ export default function DonationOpen({
     };
 
     // Update Campaign Fund Raised in Firestore
-    const campToUpdate = campaigns.find(c => c.id === selectedCampId);
+    const campToUpdate = (campaigns || []).find(c => c.id === selectedCampId);
     if (campToUpdate && campToUpdate.id) {
        updateDocument('campaigns', campToUpdate.id, { raised: campToUpdate.raised + donateAmount });
     }
@@ -149,7 +155,7 @@ export default function DonationOpen({
   };
 
   const deleteCampaign = (id: string) => {
-    const campToDelete = campaigns.find(c => c.id === id);
+    const campToDelete = (campaigns || []).find(c => c.id === id);
     if (confirm('Hapus program donasi ini? Data donasi terkumpul akan hilang.')) {
       if (campToDelete && campToDelete.id) {
         deleteDocument('campaigns', campToDelete.id);

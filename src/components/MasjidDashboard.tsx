@@ -92,18 +92,20 @@ export default function MasjidDashboard({
       let minDiff = Infinity;
 
       mainKeys.forEach(mk => {
-        const pObj = prayers.find(p => p.id === mk.id);
-        if (pObj) {
+        const pObj = (prayers || []).find(p => p.id === mk.id);
+        if (pObj && pObj.time && pObj.time.includes(':')) {
           const [h, m] = pObj.time.split(':').map(Number);
           const pDate = new Date(now);
-          pDate.setHours(h, m, 0, 0);
-          if (pDate.getTime() <= now.getTime()) {
-            pDate.setDate(pDate.getDate() + 1);
-          }
-          const diff = pDate.getTime() - now.getTime();
-          if (diff < minDiff) {
-            minDiff = diff;
-            nextP = mk;
+          if (!isNaN(h) && !isNaN(m)) {
+            pDate.setHours(h, m, 0, 0);
+            if (pDate.getTime() <= now.getTime()) {
+              pDate.setDate(pDate.getDate() + 1);
+            }
+            const diff = pDate.getTime() - now.getTime();
+            if (diff < minDiff) {
+              minDiff = diff;
+              nextP = mk;
+            }
           }
         }
       });
@@ -239,7 +241,7 @@ export default function MasjidDashboard({
             <div className="w-full overflow-x-auto no-scrollbar py-2 -my-2 mt-8 sm:mt-11">
               <div className="grid grid-cols-5 gap-3 sm:gap-6 min-w-[640px] sm:min-w-0 w-full px-4 sm:px-0 relative">
                 {FIVE_PRAYERS.map((fp) => {
-                  const prayerValue = prayers.find(p => p.id === fp.id);
+                  const prayerValue = (prayers || []).find(p => p.id === fp.id);
                   const displayTime = prayerValue ? prayerValue.time : '00:00';
                   const isActive = targetName === fp.name;
   
@@ -348,15 +350,11 @@ export default function MasjidDashboard({
       <section className="space-y-4 pt-4">
         <h3 className="text-xl font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
         <div className="bg-slate-950 rounded-3xl p-2 sm:p-3 border border-slate-800 shadow-xl">
-           <div className="relative pt-[56.25%] rounded-2xl overflow-hidden bg-slate-900">
-             <iframe
-               className="absolute top-0 left-0 w-full h-full"
-               src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-               title="Live Streaming Masjid"
-               frameBorder="0"
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-               allowFullScreen
-             ></iframe>
+           <div className="relative pt-[56.25%] rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center">
+             <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+               <span className="text-4xl mb-2">▶</span>
+               <span className="text-xs font-bold uppercase tracking-wider">Video Placeholder</span>
+             </div>
            </div>
            <p className="text-[10px] text-slate-400 font-mono p-3 uppercase tracking-widest text-center">
              Status: Offline / Standby
