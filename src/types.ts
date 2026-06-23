@@ -131,7 +131,7 @@ export interface KajianEntry {
   title: string;
   lecturer: string;
   theme: string;
-  category: 'Ba\'da Subuh' | 'Ba\'da Maghrib' | 'Lainnya';
+  category: 'Rutin' | 'Pilihan' | 'Khusus' | 'Ba\'da Subuh' | 'Ba\'da Maghrib' | 'Lainnya';
 }
 
 export interface JumatEntry {
@@ -141,4 +141,13 @@ export interface JumatEntry {
   imam: string;
   muazin: string;
   month: string; // e.g. "Juni 2026"
+}
+
+export interface RamadanEntry {
+  id: string;
+  title: string;
+  time: string;
+  description: string;
+  icon: string;
+  category: 'Ibadah' | 'Sosial' | 'Edukasi';
 }

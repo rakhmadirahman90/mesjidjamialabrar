@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DonationCampaign, Donor } from '../types';
 import { Heart, ShieldCheck, QrCode, CheckCircle, Plus, X, Trash } from 'lucide-react';
-import { subscribeToCollection, addDocument, updateDocument, deleteDocument, clearCollection } from '../lib/db';
+import { subscribeToCollection, subscribeToDocument, addDocument, updateDocument, deleteDocument, clearCollection } from '../lib/db';
 
 interface DonationOpenProps {
   onDonationSuccess: (title: string, msg: string, amount: number) => void;
@@ -18,7 +18,8 @@ export default function DonationOpen({
   onAddLog
 }: DonationOpenProps) {
   const [selectedCampId, setSelectedCampId] = useState<string>(campaigns[0]?.id || '');
-  
+  const [qrisUrl, setQrisUrl] = useState<string | null>(null);
+
   // Admin states
   const [editingCampaign, setEditingCampaign] = useState<DonationCampaign | null>(null);
   const [campaignForm, setCampaignForm] = useState<Partial<DonationCampaign>>({});
@@ -37,7 +38,19 @@ export default function DonationOpen({
     const unsub = subscribeToCollection<Donor>('donor_logs', (data) => {
       setDonors(data);
     }, 'timestamp', 'desc');
-    return () => unsub();
+    
+    // Subscribe to Qris URL
+    const unsubQris = subscribeToDocument('settings', 'qris', (data: any) => {
+      console.log("Firebase QRIS Update:", data);
+      if (data && data.url) {
+        setQrisUrl(data.url);
+      }
+    });
+
+    return () => {
+      unsub();
+      unsubQris();
+    };
   }, []);
 
   const selectedCampaign = campaigns.find(c => c.id === selectedCampId) || campaigns[0];
@@ -393,7 +406,11 @@ export default function DonationOpen({
             {/* Visual Simulated QRIS Image */}
             <div className="bg-white p-3 rounded-2xl shadow-inner relative group border-4 border-slate-850">
               <div className="w-48 h-48 bg-slate-100 flex items-center justify-center border-2 border-dashed border-slate-350 rounded-lg overflow-hidden relative">
-                <QrCode className="h-40 w-40 text-slate-800" />
+                {qrisUrl ? (
+                  <img src={qrisUrl} alt="QRIS Masjid" className="w-full h-full object-contain" />
+                ) : (
+                  <QrCode className="h-40 w-40 text-slate-800" />
+                )}
                 {/* Simulated center scan light glow effect */}
                 <span className="absolute inset-x-0 h-1 bg-emerald-500 opacity-60 top-0 animate-bounce"></span>
               </div>

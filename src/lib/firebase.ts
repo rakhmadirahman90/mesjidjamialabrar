@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { initializeFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   projectId: "polynomial-node-c2gpt",
@@ -12,7 +13,9 @@ const firebaseConfig = {
   messagingSenderId: "397253837002"
 };
 
+// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
+
 
 // use initializeFirestore to specify the databaseId and additional settings
 export const db = initializeFirestore(app, {
@@ -21,3 +24,4 @@ export const db = initializeFirestore(app, {
 }, firebaseConfig.firestoreDatabaseId);
 
 export const auth = getAuth(app);
+export const storage = getStorage(app);

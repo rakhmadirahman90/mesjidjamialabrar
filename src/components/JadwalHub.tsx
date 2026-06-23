@@ -19,7 +19,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry } from '../types';
+import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry } from '../types';
 import SliderManager from './SliderManager';
 import { addDocument, updateDocument, deleteDocument } from '../lib/db';
 
@@ -58,6 +58,7 @@ interface JadwalHubProps {
   onUpdateKajian: () => void;
   jumat: JumatEntry[];
   onUpdateJumat: () => void;
+  ramadan: RamadanEntry[];
   onDeleteLog: (id: string) => void;
 }
 
@@ -93,6 +94,7 @@ export default function JadwalHub({
   onAddLog,
   kajian,
   jumat,
+  ramadan,
   onDeleteLog
 }: JadwalHubProps) {
   const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
@@ -102,6 +104,8 @@ export default function JadwalHub({
   const [kajianForm, setKajianForm] = useState<Partial<KajianEntry>>({});
   const [editingJumat, setEditingJumat] = useState<JumatEntry | null>(null);
   const [jumatForm, setJumatForm] = useState<Partial<JumatEntry>>({});
+  const [editingRamadan, setEditingRamadan] = useState<RamadanEntry | null>(null);
+  const [ramadanForm, setRamadanForm] = useState<Partial<RamadanEntry>>({});
 
   const handleEditKajian = (k: KajianEntry) => {
     setEditingKajian(k);
@@ -194,6 +198,53 @@ export default function JadwalHub({
       if (jToDelete && jToDelete.id) {
         deleteDocument('jumat_schedule', jToDelete.id);
         onAddLog('Jadwal Jumat Dihapus', 'Jadwal jumat berhasil dihapus.', 'alert');
+      }
+    }
+  };
+
+  const handleEditRamadan = (r: RamadanEntry) => {
+    setEditingRamadan(r);
+    setRamadanForm(r);
+  };
+
+  const handleAddRamadan = () => {
+    const newRam: RamadanEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: '',
+      time: '',
+      description: '',
+      icon: '🌙',
+      category: 'Ibadah'
+    };
+    setEditingRamadan(newRam);
+    setRamadanForm(newRam);
+  };
+
+  const saveRamadan = () => {
+    if (!ramadanForm.title || !ramadanForm.time) {
+      onAddLog('Gagal', 'Judul dan Waktu wajib diisi!', 'alert');
+      return;
+    }
+    
+    if (editingRamadan && editingRamadan.id) {
+       const existing = ramadan.find(r => r.id === editingRamadan.id);
+       if (existing && existing.id) {
+         updateDocument('ramadan_schedule', existing.id, ramadanForm);
+         onAddLog('Ramadan Diperbarui', `Kegiatan ${ramadanForm.title} berhasil diperbarui.`, 'success');
+       }
+    } else {
+       addDocument('ramadan_schedule', ramadanForm);
+       onAddLog('Ramadan Ditambah', `Kegiatan ${ramadanForm.title} berhasil ditambahkan.`, 'success');
+    }
+    setEditingRamadan(null);
+  };
+
+  const deleteRamadan = (id: string) => {
+    if (confirm('Hapus kegiatan ramadan ini?')) {
+      const rToDelete = ramadan.find(r => r.id === id);
+      if (rToDelete && rToDelete.id) {
+        deleteDocument('ramadan_schedule', rToDelete.id);
+        onAddLog('Kegiatan Dihapus', 'Kegiatan ramadan berhasil dihapus.', 'alert');
       }
     }
   };
@@ -541,7 +592,7 @@ export default function JadwalHub({
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-2 right-2 flex gap-1">
                         <button onClick={() => handleEditKajian(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
                         <button onClick={() => deleteKajian(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
                       </div>
@@ -576,7 +627,7 @@ export default function JadwalHub({
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-2 right-2 flex gap-1">
                         <button onClick={() => handleEditKajian(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
                         <button onClick={() => deleteKajian(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
                       </div>
@@ -653,28 +704,39 @@ export default function JadwalHub({
         <div className="space-y-6 animate-fade-in">
           <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-12 relative overflow-hidden border-b-4 border-amber-400 shadow-2xl shadow-emerald-950/20">
             <div className="absolute right-0 top-0 bottom-0 w-64 bg-emerald-500/10 transform skew-x-[30deg] translate-x-20"></div>
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              <div className="lg:col-span-12 space-y-2 text-center md:text-left">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 text-center md:text-left">
                 <span className="inline-block px-4 py-1 bg-amber-400 text-emerald-950 font-black text-[10px] uppercase tracking-widest rounded-full shadow-lg shadow-amber-400/20">Semarak Ramadan</span>
                 <h3 className="text-2xl sm:text-5xl font-display font-black tracking-tight leading-none uppercase text-center md:text-left">Ramadan <span className="text-amber-400">1447 H</span></h3>
                 <p className="text-emerald-300/80 text-xs sm:text-base font-medium max-w-2xl mx-auto md:mx-0">Mari persiapkan diri di bulan mulia dengan semangat ibadah dan berderma di Masjid Al-Abrar.</p>
               </div>
+              {isAdmin && (
+                <button 
+                  onClick={handleAddRamadan}
+                  className="px-6 py-3 bg-white text-emerald-950 font-black rounded-2xl shadow-xl transition active:scale-95 uppercase text-[10px] flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" /> Tambah Agenda
+                </button>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: '🌙', title: 'Tarawih & Witir', time: 'Ba\'da Isya (19:30)', desc: '20 Rakaat Tarawih + 3 Rakaat Witir dengan imam bergantian khatam Al-Quran.' },
-              { icon: '🍲', title: 'Buka Bersama', time: 'Waktu Maghrib', desc: 'Menyediakan takjil & makan malam untuk 100 jamaah setiap harinya di halaman masjid.' },
-              { icon: '📖', title: 'I\'tikaf 10 Malam', time: '21-30 Ramadan', desc: 'Qiyamul Lail mulai pukul 01:00 WITA & Sahur bersama bagi peserta i\'tikaf.' }
-            ].map((item, idx) => (
-              <div key={idx} className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4 text-left group hover:border-emerald-500 transition-colors">
+            {ramadan.map((item) => (
+              <div key={item.id} className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4 text-left group hover:border-emerald-500 transition-colors relative">
                 <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition">{item.icon}</div>
                 <div className="space-y-1 text-left">
                   <h4 className="font-black text-lg text-slate-800 text-left">{item.title}</h4>
                   <p className="text-xs font-black text-emerald-600 font-mono text-left">{item.time}</p>
                 </div>
-                <p className="text-slate-500 text-xs leading-relaxed text-left">{item.desc}</p>
+                <p className="text-slate-500 text-xs leading-relaxed text-left">{item.description}</p>
+                
+                {isAdmin && (
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => handleEditRamadan(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                    <button onClick={() => deleteRamadan(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -708,146 +770,157 @@ export default function JadwalHub({
         </div>
       )}
 
-      {/* Editing Modals for Kajian and Jumat */}
+      {/* Enhanced Admin Modals Section */}
       {editingKajian && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl flex flex-col space-y-4 text-left">
-            <div className="flex justify-between items-center border-b pb-4">
-              <h4 className="text-lg font-black text-slate-800">Edit Jadwal Kajian</h4>
-              <button onClick={() => setEditingKajian(null)} className="text-slate-400 hover:text-slate-800"><X /></button>
+        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-indigo-100">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <div className="space-y-1">
+                <h4 className="text-xl font-black text-slate-800">Manajemen Jadwal Kajian</h4>
+                <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Alur Dakwah Digital</p>
+              </div>
+              <button 
+                onClick={() => setEditingKajian(null)} 
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1 col-span-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Hari / Waktu</label>
-                <input 
-                  type="text" 
-                  value={kajianForm.day} 
-                  onChange={e => setKajianForm({...kajianForm, day: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
-                  placeholder="e.g. Ahad"
-                />
-              </div>
-              <div className="space-y-1 col-span-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Jam</label>
-                <input 
-                  type="text" 
-                  value={kajianForm.time} 
-                  onChange={e => setKajianForm({...kajianForm, time: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
-                  placeholder="e.g. 05:30"
-                />
-              </div>
               <div className="space-y-1 col-span-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Judul Kajian</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Judul / Tema Kajian</label>
                 <input 
                   type="text" 
                   value={kajianForm.title} 
                   onChange={e => setKajianForm({...kajianForm, title: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 transition"
+                  placeholder="e.g. Fiqih Shalahul Lail"
                 />
               </div>
               <div className="space-y-1 col-span-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Pemateri</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Pemateri / Ustadz</label>
                 <input 
                   type="text" 
                   value={kajianForm.lecturer} 
                   onChange={e => setKajianForm({...kajianForm, lecturer: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 transition"
+                  placeholder="e.g. KH. Abdurrahman bin Auf"
                 />
               </div>
               <div className="space-y-1 col-span-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Kategori</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hari / Frekuensi</label>
+                <input 
+                  type="text" 
+                  value={kajianForm.day} 
+                  onChange={e => setKajianForm({...kajianForm, day: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-indigo-500 transition"
+                  placeholder="e.g. Setiap Senin"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu (Jam)</label>
+                <input 
+                  type="text" 
+                  value={kajianForm.time} 
+                  onChange={e => setKajianForm({...kajianForm, time: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-indigo-500 transition"
+                  placeholder="e.g. 19:30"
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori Jadwal</label>
                 <select 
                   value={kajianForm.category}
                   onChange={e => setKajianForm({...kajianForm, category: e.target.value as any})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 transition"
                 >
                   <option value="Ba'da Subuh">Ba'da Subuh</option>
                   <option value="Ba'da Maghrib">Ba'da Maghrib</option>
+                  <option value="Rutin">Rutin (Pagi/Siang)</option>
+                  <option value="Khusus">Tabligh Akbar / Khusus</option>
                   <option value="Lainnya">Lainnya</option>
                 </select>
-              </div>
-              <div className="space-y-1 col-span-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Tema (Opsional)</label>
-                <input 
-                  type="text" 
-                  value={kajianForm.theme} 
-                  onChange={e => setKajianForm({...kajianForm, theme: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
-                />
               </div>
             </div>
             <button 
               onClick={saveKajian}
-              className="w-full py-3 bg-slate-900 text-white font-black rounded-2xl text-xs uppercase"
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-indigo-200 active:scale-95"
             >
-              Simpan Jadwal
+              Simpan Jadwal Kajian
             </button>
           </div>
         </div>
       )}
 
       {editingJumat && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl flex flex-col space-y-4 text-left">
-            <div className="flex justify-between items-center border-b pb-4">
-              <h4 className="text-lg font-black text-slate-800">Edit Petugas Jumat</h4>
-              <button onClick={() => setEditingJumat(null)} className="text-slate-400 hover:text-slate-800"><X /></button>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
+        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-emerald-100">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Tanggal</label>
-                <input 
-                  type="text" 
-                  value={jumatForm.date} 
-                  onChange={e => setJumatForm({...jumatForm, date: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
-                  placeholder="e.g. 05 Juni 2026"
-                />
+                <h4 className="text-xl font-black text-slate-800">Agenda Petugas Jumat</h4>
+                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Manajemen Ibadah Mingguan</p>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Khatib</label>
+              <button 
+                onClick={() => setEditingJumat(null)} 
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Khatib</label>
                 <input 
                   type="text" 
                   value={jumatForm.khatib} 
                   onChange={e => setJumatForm({...jumatForm, khatib: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Imam</label>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Imam</label>
                 <input 
                   type="text" 
                   value={jumatForm.imam} 
                   onChange={e => setJumatForm({...jumatForm, imam: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Muazin</label>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Muazin</label>
                 <input 
                   type="text" 
                   value={jumatForm.muazin} 
                   onChange={e => setJumatForm({...jumatForm, muazin: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase">Bulan (Header)</label>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</label>
+                <input 
+                  type="text" 
+                  value={jumatForm.date} 
+                  onChange={e => setJumatForm({...jumatForm, date: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-emerald-500 transition"
+                  placeholder="e.g. 15 Juni"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Header Bulan</label>
                 <input 
                   type="text" 
                   value={jumatForm.month} 
                   onChange={e => setJumatForm({...jumatForm, month: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border rounded-lg text-xs"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-emerald-500 transition"
                   placeholder="e.g. Juni 2026"
                 />
               </div>
             </div>
             <button 
               onClick={saveJumat}
-              className="w-full py-3 bg-slate-900 text-white font-black rounded-2xl text-xs uppercase"
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-emerald-200 active:scale-95"
             >
-              Simpan Petugas
+              Simpan Jadwal Jumat
             </button>
           </div>
         </div>
@@ -903,6 +976,91 @@ export default function JadwalHub({
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {editingRamadan && (
+        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-emerald-100">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <div className="space-y-1">
+                <h4 className="text-xl font-black text-slate-800">Agenda Ramadan</h4>
+                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Detail Kegiatan Masjid</p>
+              </div>
+              <button 
+                onClick={() => setEditingRamadan(null)} 
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Kegiatan</label>
+                <input 
+                  type="text" 
+                  value={ramadanForm.title} 
+                  onChange={e => setRamadanForm({...ramadanForm, title: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  placeholder="e.g. Tarawih Berjamaah"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu / Jam</label>
+                <input 
+                  type="text" 
+                  value={ramadanForm.time} 
+                  onChange={e => setRamadanForm({...ramadanForm, time: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 font-mono outline-none focus:border-emerald-500 transition"
+                  placeholder="e.g. 19:30"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ikon / Emoji</label>
+                <input 
+                  type="text" 
+                  value={ramadanForm.icon} 
+                  onChange={e => setRamadanForm({...ramadanForm, icon: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xl text-center outline-none focus:border-emerald-500 transition"
+                  placeholder="🌙"
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deskripsi Ringkas</label>
+                <textarea 
+                  rows={3}
+                  value={ramadanForm.description} 
+                  onChange={e => setRamadanForm({...ramadanForm, description: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 outline-none focus:border-emerald-500 transition resize-none"
+                  placeholder="Jelaskan detail singkat kegiatan..."
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</label>
+                <div className="flex gap-2">
+                  {(['Ibadah', 'Sosial', 'Edukasi'] as const).map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setRamadanForm({...ramadanForm, category: cat})}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition border ${
+                        ramadanForm.category === cat 
+                          ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200' 
+                          : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-200'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button 
+              onClick={saveRamadan}
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-emerald-200 active:scale-95"
+            >
+              Simpan Agenda Ramadan
+            </button>
           </div>
         </div>
       )}

@@ -24,7 +24,9 @@ import ImageSlider from './components/ImageSlider';
 import JadwalHub from './components/JadwalHub';
 import MasjidDashboard from './components/MasjidDashboard';
 import ProfessionalToasts from './components/ProfessionalToasts';
-import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, DonationCampaign } from './types';
+import AdminLogin from './components/AdminLogin';
+import QrisUploader from './components/QrisUploader';
+import { PrayerTime, NotificationLog, SlideItem, KajianEntry, JumatEntry, RamadanEntry, DonationCampaign } from './types';
 import { 
   DEFAULT_SLIDES,
   DEFAULT_KAJIAN,
@@ -148,6 +150,7 @@ export default function App() {
   const [slides, setSlides] = useState<SlideItem[]>([]);
   const [kajian, setKajian] = useState<KajianEntry[]>([]);
   const [jumat, setJumat] = useState<JumatEntry[]>([]);
+  const [ramadan, setRamadan] = useState<RamadanEntry[]>([]);
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
 
   // High-Level Integrated Navigation Hub Tab selection
@@ -158,7 +161,6 @@ export default function App() {
     return localStorage.getItem('abrar_is_admin') === 'true';
   });
   const [adminPin, setAdminPin] = useState<string>('123456');
-  const [enteredPin, setEnteredPin] = useState<string>('');
   const [loginError, setLoginError] = useState<string>('');
   const [showPinChange, setShowPinChange] = useState<boolean>(false);
   const [newPinValue, setNewPinValue] = useState<string>('');
@@ -208,6 +210,17 @@ export default function App() {
       else DEFAULT_JUMAT.forEach(j => addDocument('jumat_schedule', j));
     });
 
+    const unsubRamadan = subscribeToCollection<RamadanEntry>('ramadan_schedule', (data) => {
+      if (data.length > 0) setRamadan(data);
+      else {
+        [
+          { id: 'r1', title: 'Tarawih & Witir', time: '19:30', description: '20 Rakaat Tarawih + 3 Rakaat Witir khatam Al-Quran.', icon: '🌙', category: 'Ibadah' },
+          { id: 'r2', title: 'Buka Bersama', time: 'Maghrib', description: 'Takjil & makan malam untuk 100 jamaah gratis.', icon: '🍲', category: 'Sosial' },
+          { id: 'r3', title: 'I\'tikaf 10 Malam', time: '01:00', description: 'Qiyamul Lail & Sahur bersama peserta i\'tikaf.', icon: '📖', category: 'Ibadah' }
+        ].forEach(r => addDocument('ramadan_schedule', r as any));
+      }
+    });
+
     const unsubCampaigns = subscribeToCollection<DonationCampaign>('campaigns', (data) => {
       if (data.length > 0) setCampaigns(data);
       else DEFAULT_CAMPAIGNS.forEach(c => addDocument('campaigns', c));
@@ -250,6 +263,7 @@ export default function App() {
       unsubSlides();
       unsubKajian();
       unsubJumat();
+      unsubRamadan();
       unsubCampaigns();
       unsubTx();
       unsubDonors();
@@ -263,7 +277,6 @@ export default function App() {
     if (pinStr.trim() === adminPin) {
       setIsAdmin(true);
       localStorage.setItem('abrar_is_admin', 'true');
-      setEnteredPin('');
       setLoginError('');
       addLog('Akses Admin Dibuka', 'Sesi admin aktif berhasil diverifikasi menggunakan PIN.', 'success');
     } else {
@@ -757,7 +770,6 @@ export default function App() {
               { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-4 w-4" /> },
               { id: 'inventaris', label: 'Aset', icon: <Package className="h-4 w-4" /> },
               { id: 'jamaah', label: 'Jamaah', icon: <Users className="h-4 w-4" /> },
-              { id: 'admin', label: 'Admin', icon: <Settings className="h-4 w-4" /> },
               { id: 'tentang', label: 'Info', icon: <Info className="h-4 w-4" /> },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
@@ -871,6 +883,7 @@ export default function App() {
                   onUpdateJumat={() => {
                     // Bulk update if needed
                   }}
+                  ramadan={ramadan}
                 />
               </div>
             )}
@@ -917,54 +930,11 @@ export default function App() {
             {activeTab === 'admin' && (
               <div className="animate-fade-in space-y-6">
                 {!isAdmin ? (
-                  <div className="bg-white rounded-3xl p-6 sm:p-12 shadow-2xl border border-slate-100 flex flex-col items-center text-center max-w-lg mx-auto space-y-6">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-3xl sm:text-4xl shadow-inner animate-pulse">
-                      🔐
-                    </div>
-                    <div className="space-y-2 px-2">
-                       <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Portal Kendali Admin</h2>
-                       <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">
-                         Otentikasi diperlukan untuk mengakses pusat kendali sistem masjid.
-                       </p>
-                    </div>
-                    
-                    <div className="w-full max-w-xs space-y-4">
-                      <div className="space-y-3">
-                        <input
-                          type="password"
-                          placeholder="••••"
-                          maxLength={10}
-                          value={enteredPin}
-                          onChange={(e) => {
-                            setEnteredPin(e.target.value);
-                            setLoginError('');
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleAdminLogin(enteredPin);
-                          }}
-                          className="w-full text-center tracking-[0.5em] font-mono text-2xl py-4 bg-slate-50 border-2 border-slate-100 focus:border-emerald-500 focus:bg-white rounded-2xl outline-none transition-all shadow-sm"
-                          autoFocus
-                        />
-                        {loginError && (
-                          <div className="text-[10px] sm:text-xs text-rose-600 font-bold bg-rose-50 py-2.5 px-4 rounded-xl border border-rose-100 animate-shake flex items-center gap-2 justify-center">
-                            <span>⚠️</span> {loginError}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <button
-                        onClick={() => handleAdminLogin(enteredPin)}
-                        className="w-full py-4 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-slate-900/20 transition-all active:scale-95 flex items-center justify-center gap-2 group"
-                      >
-                        <Settings className="h-4 w-4 group-hover:rotate-90 transition-transform duration-500" />
-                        Buka Akses Kontrol
-                      </button>
-                      
-                      <p className="text-xs text-slate-400">
-                        Lupa PIN? Silakan hubungi pengelola IT Masjid.
-                      </p>
-                    </div>
-                  </div>
+                  <AdminLogin 
+                    onLogin={handleAdminLogin} 
+                    loginError={loginError} 
+                    onClose={() => setActiveTab('beranda')}
+                  />
                 ) : (
                   <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl shadow-2xl p-6 sm:p-10 relative overflow-hidden border-t-8 border-amber-400" id="admin_control_tab">
                     <div className="absolute right-0 top-0 opacity-5 text-9xl font-sans select-none translate-y-4 -translate-x-8 font-black pointer-events-none text-amber-300">
@@ -1054,6 +1024,19 @@ export default function App() {
                         </div>
                       </div>
 
+                      <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-sky-400/30 transition duration-300 group">
+                        <div className="w-10 h-10 bg-sky-400/10 rounded-xl flex items-center justify-center text-sky-300 group-hover:scale-110 transition">
+                          📷
+                        </div>
+                        <div className="space-y-2 text-left">
+                          <h4 className="font-black text-[10px] sm:text-[11px] text-sky-400 uppercase tracking-widest text-left">Update QRIS</h4>
+                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
+                            Ganti gambar QRIS masjid yang tampil pada menu donasi.
+                          </p>
+                        </div>
+                        <QrisUploader onAddLog={addLog} />
+                      </div>
+
                       <div className="bg-slate-950/40 backdrop-blur-sm p-5 sm:p-6 rounded-3xl border border-slate-800/50 space-y-4 hover:border-blue-400/30 transition duration-300 group">
                         <div className="w-10 h-10 bg-blue-400/10 rounded-xl flex items-center justify-center text-blue-300 group-hover:scale-110 transition">
                           🔐
@@ -1101,8 +1084,15 @@ export default function App() {
 
       {/* Footer Area */}
       <footer className="fixed bottom-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md text-emerald-250 border-t border-emerald-900/50 py-4 px-4 z-40" id="footer_section">
-        <div className="max-w-7xl mx-auto flex items-center justify-center">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className="text-emerald-400/80 text-[10px] font-bold tracking-[0.2em] uppercase">@2026 Mesjid Jami Al Abrar Parepare</p>
+          <button 
+            onClick={() => setActiveTab('admin')}
+            className="text-emerald-400/50 hover:text-emerald-300 transition-colors"
+            title="Admin Access"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
         </div>
       </footer>
 
