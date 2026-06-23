@@ -296,9 +296,25 @@ export default function MasjidDashboard({
               key={service.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 * idx }}
+              whileHover={{ 
+                y: -10, 
+                scale: 1.025,
+                boxShadow: "0 25px 60px -15px rgba(0, 0, 0, 0.08)",
+                borderColor: "rgba(16, 185, 129, 0.25)"
+              }}
+              whileTap={{ 
+                scale: 0.95,
+                y: -2,
+                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.03)"
+              }}
+              transition={{ 
+                type: "spring",
+                stiffness: 400,
+                damping: 24,
+                delay: 0.08 * idx 
+              }}
               onClick={() => onNavigate(service.id)}
-              className="group bg-white border border-slate-100/90 rounded-[2.2rem] p-8 text-left hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:border-emerald-305 transition-all duration-300 flex flex-col justify-between h-full min-h-[340px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-[0_12px_30px_rgba(0,0,0,0.025)]"
+              className="group bg-white border border-slate-100/90 rounded-[2.2rem] p-8 text-left transition-colors duration-300 flex flex-col justify-between h-full min-h-[340px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-[0_12px_30px_rgba(0,0,0,0.025)]"
             >
               <div className="flex flex-col items-start w-full">
                 {/* Golden Circle Icon Container */}
@@ -319,7 +335,7 @@ export default function MasjidDashboard({
 
               {/* Pill Button "PILIH LAYANAN" exactly like requested image */}
               <div className="w-full mt-auto">
-                <div className="w-full py-3.5 bg-[#008F6A] group-hover:bg-[#007C5B] text-white font-black text-[11px] tracking-[0.2em] rounded-full uppercase text-center transition-all duration-300 shadow-md shadow-emerald-600/10 active:scale-[0.98]">
+                <div className="w-full py-3.5 bg-[#008F6A] group-hover:bg-[#007C5B] text-white font-black text-[11px] tracking-[0.2em] rounded-full uppercase text-center transition-all duration-300 shadow-md shadow-emerald-600/10">
                   PILIH LAYANAN
                 </div>
               </div>
