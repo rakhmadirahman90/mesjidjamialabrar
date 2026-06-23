@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 import MosqueProfile from './components/MosqueProfile';
-import AboutApp from './components/AboutApp';
+import InfoMasjid from './components/InfoMasjid';
 import DonationOpen from './components/DonationOpen';
 import KeuanganMasjid from './components/KeuanganMasjid';
 import { ConfirmationModal } from './components/ConfirmationModal';
@@ -807,7 +807,7 @@ export default function App() {
 
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-24 sm:pb-32" id="main_content">
+      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6 pb-12 sm:pb-16" id="main_content">
         
         {/* Banner Running Text / Pengumuman */}
         <div className="bg-emerald-950 border border-emerald-800/80 rounded-2xl py-3 px-4 flex items-center gap-3 overflow-hidden shadow-inner font-sans">
@@ -827,7 +827,7 @@ export default function App() {
             {[
               { id: 'beranda', label: 'Home', icon: <Home className="h-4 w-4" /> },
               { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-4 w-4" /> },
-              { id: 'profil', label: 'Masjid', icon: <Building className="h-4 w-4" /> },
+              { id: 'profil', label: 'Profil', icon: <Building className="h-4 w-4" /> },
               { id: 'donasi', label: 'Donasi', icon: <Heart className="h-4 w-4" /> },
               { id: 'keuangan', label: 'Kas', icon: <TrendingUp className="h-4 w-4" /> },
               { id: 'jamaah', label: 'Jamaah', icon: <Users className="h-4 w-4" /> },
@@ -891,7 +891,7 @@ export default function App() {
 
             {activeTab === 'profil' && <MosqueProfile isAdmin={isAdmin} onAddLog={addLog} />}
 
-            {activeTab === 'tentang' && <AboutApp />}
+            {activeTab === 'tentang' && <InfoMasjid />}
 
             {activeTab === 'jadwal' && (
               <div className="animate-fade-in space-y-6">

@@ -65,40 +65,40 @@ export default function MasjidDashboard({
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
       {/* Dynamic Hero Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
-        {/* Main Status Hero Card (8 Cols) */}
+        {/* Main Status Hero Card (Full Cols) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-12 bg-white border border-slate-200 rounded-3xl shadow-sm p-6 sm:p-10 relative overflow-hidden group"
+          className="lg:col-span-12 bg-white border border-slate-200 rounded-3xl shadow-sm p-6 sm:p-8 relative overflow-hidden group"
         >
           {/* Decorative background */}
-          <div className="absolute -right-24 -top-24 w-[30rem] h-[30rem] bg-emerald-50 rounded-full blur-[100px] opacity-70 z-0 group-hover:scale-110 transition duration-1000"></div>
+          <div className="absolute -right-24 -top-24 w-[24rem] h-[24rem] bg-emerald-50 rounded-full blur-[100px] opacity-70 z-0 group-hover:scale-110 transition duration-1000"></div>
           
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700">
-                <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Pusat Layanan Digital</span>
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700">
+                <Sparkles className="h-3 w-3 animate-pulse" />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em]">Pusat Layanan Digital</span>
               </div>
               
-              <div>
-                <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
+              <div className="space-y-2">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
                   Ibadah Nyaman <br />
                   <span className="text-emerald-600">Terorganisir.</span>
                 </h2>
-                <p className="text-slate-500 text-sm sm:text-lg font-medium leading-relaxed max-w-md">
+                <p className="text-slate-500 text-sm sm:text-base font-medium leading-relaxed">
                   Mengelola ekosistem Masjid Jami Al Abrar dengan transparansi tinggi.
                 </p>
               </div>
               
-              <div className="flex flex-wrap gap-4">
-                <div className="px-6 py-3 bg-slate-900 text-white rounded-2xl flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-amber-400" />
-                  <span className="text-xs font-black uppercase tracking-wider">{dateFormatted}</span>
+              <div className="flex flex-wrap gap-3">
+                <div className="px-5 py-2 bg-slate-900 text-white rounded-xl flex items-center gap-2">
+                  <Calendar className="h-3.5 w-3.5 text-amber-400" />
+                  <span className="text-[10px] font-black uppercase tracking-wider">{dateFormatted}</span>
                 </div>
               </div>
             </div>
@@ -178,22 +178,7 @@ export default function MasjidDashboard({
 
       {/* Admin/Login Section */}
       <div className="pt-6">
-        {isAdmin ? (
-          <div className="bg-emerald-950 text-white rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2">
-              <h4 className="text-xl font-black tracking-tight">Sesi Admin Aktif</h4>
-              <p className="text-xs text-emerald-300/70 font-medium max-w-md">
-                Data operasional terkunci dan tersinkronisasi secara aman ke Senter Data Masjid.
-              </p>
-            </div>
-            <button 
-              onClick={() => onNavigate('jadwal')}
-              className="px-6 py-3 bg-emerald-600 text-white font-black text-xs rounded-xl hover:bg-emerald-500 transition active:scale-95"
-            >
-              Log Monitoring
-            </button>
-          </div>
-        ) : (
+        {!isAdmin && (
           <div className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-1">
               <h4 className="text-lg font-black text-slate-900">Akses Pengurus</h4>

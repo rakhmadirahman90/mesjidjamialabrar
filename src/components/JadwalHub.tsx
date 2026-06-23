@@ -578,24 +578,26 @@ export default function JadwalHub({
               </div>
               <div className="space-y-4">
                 {kajian.filter(k => k.category === 'Ba\'da Subuh').map((item) => (
-                  <div key={item.id} onClick={() => setSelectedKajianDetail(item)} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative cursor-pointer">
-                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-amber-200">
-                      <span className="text-[10px] font-black text-amber-700 uppercase">{item.day}</span>
-                    </div>
-                    <div className="space-y-1 flex-1">
-                      <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
-                      <p className="text-xs font-bold text-emerald-700">{item.lecturer}</p>
-                      <div className="flex items-center gap-3 pt-1">
-                        <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> {item.time} WITA
-                        </span>
-                        <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">{item.theme}</span>
+                  <div key={item.id} onClick={() => setSelectedKajianDetail(item)} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm cursor-pointer space-y-4">
+                    <div className="flex gap-4">
+                      <div className="w-12 h-12 bg-amber-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-amber-200">
+                        <span className="text-[10px] font-black text-amber-700 uppercase">{item.day}</span>
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
+                        <p className="text-xs font-bold text-emerald-700">{item.lecturer}</p>
+                        <div className="flex items-center gap-3 pt-1">
+                          <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> {item.time} WITA
+                          </span>
+                          <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">{item.theme}</span>
+                        </div>
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-1 z-10">
-                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                      <div className="flex gap-2 pt-2 border-t border-slate-100">
+                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-2 bg-slate-100 text-slate-600 hover:text-emerald-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                        <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-2 bg-slate-100 text-slate-600 hover:text-rose-600 rounded-xl flex-1 text-[10px] font-black uppercase">HAPUS</button>
                       </div>
                     )}
                   </div>
@@ -613,24 +615,26 @@ export default function JadwalHub({
               </div>
               <div className="space-y-4">
                 {kajian.filter(k => k.category === 'Ba\'da Maghrib' || k.category === 'Lainnya').map((item) => (
-                  <div key={item.id} onClick={() => setSelectedKajianDetail(item)} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm relative cursor-pointer">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-emerald-200">
-                      <span className="text-[10px] font-black text-emerald-700 uppercase">{item.day}</span>
-                    </div>
-                    <div className="space-y-1 flex-1">
-                      <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
-                      <p className="text-xs font-bold text-amber-700">{item.lecturer}</p>
-                      <div className="flex items-center gap-3 pt-1">
-                        <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> {item.time} WITA
-                        </span>
-                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{item.theme || item.category}</span>
+                  <div key={item.id} onClick={() => setSelectedKajianDetail(item)} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm cursor-pointer space-y-4">
+                    <div className="flex gap-4">
+                      <div className="w-12 h-12 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-emerald-200">
+                        <span className="text-[10px] font-black text-emerald-700 uppercase">{item.day}</span>
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
+                        <p className="text-xs font-bold text-amber-700">{item.lecturer}</p>
+                        <div className="flex items-center gap-3 pt-1">
+                          <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> {item.time} WITA
+                          </span>
+                          <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{item.theme || item.category}</span>
+                        </div>
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-1 z-10">
-                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                      <div className="flex gap-2 pt-2 border-t border-slate-100">
+                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-2 bg-slate-100 text-slate-600 hover:text-emerald-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                        <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-2 bg-slate-100 text-slate-600 hover:text-rose-600 rounded-xl flex-1 text-[10px] font-black uppercase">HAPUS</button>
                       </div>
                     )}
                   </div>
@@ -690,9 +694,9 @@ export default function JadwalHub({
                   </div>
                 </div>
                 {isAdmin && (
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleEditJumat(j)} className={`p-1 px-2 rounded-lg shadow-sm border text-[10px] font-bold ${i === jumat.length - 1 ? 'bg-white text-blue-600 border-blue-400' : 'bg-white text-slate-400 hover:text-emerald-600 border-slate-100'}`}>EDIT</button>
-                    <button onClick={() => deleteJumat(j.id)} className={`p-1 px-2 rounded-lg shadow-sm border text-[10px] font-bold ${i === jumat.length - 1 ? 'bg-white text-rose-600 border-blue-400' : 'bg-white text-slate-400 hover:text-rose-600 border-slate-100'}`}>HAPUS</button>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEditJumat(j)} className={`p-2 rounded-xl border flex-1 text-[10px] font-black ${i === jumat.length - 1 ? 'bg-blue-50 text-blue-700 border-blue-400' : 'bg-white text-slate-600 hover:text-emerald-600 border-slate-200'}`}>EDIT</button>
+                    <button onClick={() => deleteJumat(j.id)} className={`p-2 rounded-xl border flex-1 text-[10px] font-black ${i === jumat.length - 1 ? 'bg-white text-rose-600 border-rose-400' : 'bg-white text-slate-600 hover:text-rose-600 border-slate-200'}`}>HAPUS</button>
                   </div>
                 )}
               </div>
@@ -733,9 +737,9 @@ export default function JadwalHub({
                 <p className="text-slate-500 text-xs leading-relaxed text-left">{item.description}</p>
                 
                 {isAdmin && (
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleEditRamadan(item)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
-                    <button onClick={() => deleteRamadan(item.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                  <div className="flex gap-2 mt-4 pt-2 border-t border-slate-100">
+                    <button onClick={() => handleEditRamadan(item)} className="p-2 bg-slate-100 text-slate-600 hover:text-emerald-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                    <button onClick={() => deleteRamadan(item.id)} className="p-2 bg-slate-100 text-slate-600 hover:text-rose-600 rounded-xl flex-1 text-[10px] font-black uppercase">HAPUS</button>
                   </div>
                 )}
               </div>

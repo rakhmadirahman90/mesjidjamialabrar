@@ -663,8 +663,35 @@ export default function KeuanganMasjid({
 
                 <hr className="border-slate-100" />
 
-                {/* List / Table */}
-                <div className="overflow-x-auto">
+                {/* Mobile View: Cards */}
+                <div className="md:hidden space-y-3">
+                  {filteredTransactions.length > 0 ? (
+                    filteredTransactions.map(t => (
+                      <div key={t.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between gap-4">
+                          <div className='flex flex-col gap-1'>
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold inline-block w-max ${t.type === 'debit' ? 'bg-teal-50 text-teal-850' : 'bg-red-50 text-red-850' }`}> {t.category} </span>
+                              <span className="text-xs font-semibold text-slate-800">{t.notes}</span>
+                              <span className="text-[10px] text-slate-400">{t.date}</span>
+                          </div>
+                          <div className="flex flex-col items-end gap-1 shrink-0">
+                            <span className={`font-mono font-black text-sm ${t.type === 'debit' ? 'text-teal-700' : 'text-rose-600'}`}>
+                                {t.type === 'debit' ? '+' : '-'}Rp {t.amount.toLocaleString('id-ID')}
+                            </span>
+                            {isAdmin && (
+                              <button onClick={() => handleRemoveTransaction(t.id, t.notes)} className="text-rose-400 p-1"><Trash2 className="h-3 w-3"/></button>
+                            )}
+                          </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-slate-400 text-xs text-center border-2 border-dashed rounded-xl">
+                      Tidak ada data.
+                    </div>
+                  )}
+                </div>
+
+                {/* Desktop View: Table */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono text-left">
@@ -774,7 +801,7 @@ export default function KeuanganMasjid({
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={4} className="py-10 text-center text-slate-400 text-xs">
+                          <td colSpan={isAdmin ? 5 : 4} className="py-10 text-center text-slate-400 text-xs">
                             Tidak ada catatan kas yang cocok dengan penyaringan filter Anda.
                           </td>
                         </tr>

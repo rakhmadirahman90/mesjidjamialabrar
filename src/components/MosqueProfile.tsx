@@ -108,7 +108,7 @@ function MemberCard({ name, role, imageUrl, onEdit, onDelete, isAdmin }: { name:
         <h4 className="font-bold text-[11px] text-slate-800 truncate tracking-tight">{name}</h4>
       </div>
       {isAdmin && onEdit && (
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-1">
           <button onClick={onEdit} className="p-1.5 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100"><Edit2 className="h-3 w-3" /></button>
           {onDelete && <button onClick={onDelete} className="p-1.5 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100"><Trash2 className="h-3 w-3" /></button>}
         </div>
@@ -123,8 +123,10 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
 
   const [isEditingMain, setIsEditingMain] = useState(false);
   const [editingVision, setEditingVision] = useState(false);
+  const [editingMissionIndex, setEditingMissionIndex] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<MosqueProfileDetail>(profile);
   const [visionForm, setVisionForm] = useState(profile.vision);
+  const [missionForm, setMissionForm] = useState('');
   const [editingMemberIndex, setEditingMemberIndex] = useState<number | null>(null);
   const [memberForm, setMemberForm] = useState<Partial<MosqueStructure>>({});
   const [isCompressing, setIsCompressing] = useState(false);
@@ -177,6 +179,30 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
     saveProfile(editForm);
     setIsEditingMain(false);
     onAddLog?.('Profil Diperbarui', 'Informasi sejarah, visi, dan misi masjid berhasil diperbarui.', 'success');
+  };
+
+  const handleEditMission = (index: number) => {
+    setEditingMissionIndex(index);
+    setMissionForm(profile.mision[index]);
+  };
+
+  const handleSaveMission = () => {
+    const updatedMissions = [...profile.mision];
+    if (editingMissionIndex !== null) {
+      updatedMissions[editingMissionIndex] = missionForm;
+      saveProfile({ ...profile, mision: updatedMissions });
+      setEditingMissionIndex(null);
+      setMissionForm('');
+      onAddLog?.('Misi Diperbarui', 'Misi berhasil diperbarui.', 'success');
+    }
+  };
+
+  const handleDeleteMission = (index: number) => {
+    if (window.confirm("Hapus misi ini?")) {
+      const updatedMissions = profile.mision.filter((_, i) => i !== index);
+      saveProfile({ ...profile, mision: updatedMissions });
+      onAddLog?.('Misi Dihapus', 'Misi berhasil dihapus.', 'alert');
+    }
   };
 
   const handleEditFacility = (index: number) => {
@@ -438,7 +464,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                     </p>
                   )}
                   {isAdmin && !editingVision && (
-                    <button onClick={() => { setVisionForm(profile.vision); setEditingVision(true); }} className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition text-slate-500 hover:text-emerald-600"><Edit2 className="h-3 w-3"/></button>
+                    <button onClick={() => { setVisionForm(profile.vision); setEditingVision(true); }} className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow-sm transition text-slate-500 hover:text-emerald-600"><Edit2 className="h-3 w-3"/></button>
                   )}
                 </div>
 
@@ -446,13 +472,32 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                   <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">MISI STRATEGIS</span>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {profile.mision.map((m, idx) => (
-                      <div key={idx} className="flex gap-2.5 items-start bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                        <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                          {idx + 1}
-                        </span>
-                        <span className="text-xs font-medium text-slate-700 leading-relaxed">
-                          {m}
-                        </span>
+                      <div key={idx} className="flex gap-2.5 items-start bg-slate-50 p-3.5 rounded-xl border border-slate-100 relative group">
+                        {editingMissionIndex === idx ? (
+                          <div className="flex-1 flex gap-2 w-full">
+                            <input 
+                              value={missionForm} 
+                              onChange={e => setMissionForm(e.target.value)} 
+                              className="flex-1 p-2 border rounded-lg text-xs"
+                            />
+                            <button onClick={handleSaveMission} className="p-2 bg-emerald-600 text-white rounded-lg"><Save className="h-3 w-3"/></button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                              {idx + 1}
+                            </span>
+                            <span className="text-xs font-medium text-slate-700 leading-relaxed">
+                              {m}
+                            </span>
+                            {isAdmin && (
+                              <div className="absolute top-2 right-2 flex gap-1 transition">
+                                <button onClick={() => handleEditMission(idx)} className="p-1 text-slate-400 hover:text-emerald-600"><Edit2 className="h-3 w-3" /></button>
+                                <button onClick={() => handleDeleteMission(idx)} className="p-1 text-slate-400 hover:text-rose-600"><Trash2 className="h-3 w-3" /></button>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -565,26 +610,6 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
             </div>
           </div>
 
-          {/* Location Interactive Information */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-150 shadow-sm space-y-3">
-            <h3 className="text-sm font-bold font-display text-slate-800 tracking-tight flex items-center gap-1.5">
-              <span>📍</span> Informasi Kontak & Akses
-            </h3>
-            <div className="text-xs text-slate-600 space-y-2 leading-relaxed">
-              <div className="flex gap-2">
-                <span className="font-semibold text-slate-800 w-16">Sekretariat:</span>
-                <span>Kantor Takmir Lt. 1 Al Abrar</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold text-slate-800 w-16">E-mail:</span>
-                <span className="underline text-emerald-700">takmir@alabrar-parepare.or.id</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold text-slate-800 w-16">Google Map:</span>
-                <span className="text-slate-500 italic">5.021° S, 119.645° E (Lapadde)</span>
-              </div>
-            </div>
-          </div>
 
         </div>
 

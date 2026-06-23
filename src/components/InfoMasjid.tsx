@@ -1,7 +1,7 @@
-import { Info, ShieldCheck, HelpCircle, ChevronDown } from 'lucide-react';
+import { Info, ShieldCheck, HelpCircle, ChevronDown, MapPin } from 'lucide-react';
 import { useState } from 'react';
 
-export default function AboutApp() {
+export default function InfoMasjid() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   const faqs = [
@@ -24,8 +24,30 @@ export default function AboutApp() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-8 animate-fade-in" id="about_app_view">
-      {/* Short & Concise Intro */}
+    <div className="max-w-4xl mx-auto space-y-6 py-4 animate-fade-in" id="info_masjid_view">
+      
+      {/* Contact Section */}
+      <section className="bg-white rounded-[2rem] p-8 border border-slate-150 shadow-sm space-y-6">
+        <h3 className="text-sm font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
+           <MapPin className="h-5 w-5 text-emerald-600" /> Informasi Kontak & Akses
+        </h3>
+        <div className="text-xs text-slate-600 space-y-3 leading-relaxed">
+          <div className="flex gap-3">
+             <span className="font-semibold text-slate-800 w-24">Sekretariat:</span>
+             <span>Kantor Takmir Lt. 1 Al Abrar</span>
+          </div>
+          <div className="flex gap-3">
+            <span className="font-semibold text-slate-800 w-24">E-mail:</span>
+            <span className="underline text-emerald-700">takmir@alabrar-parepare.or.id</span>
+          </div>
+          <div className="flex gap-3">
+            <span className="font-semibold text-slate-800 w-24">Google Map:</span>
+            <span className="text-slate-500 italic">5.021° S, 119.645° E (Lapadde)</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Intro */}
       <section className="text-center space-y-6">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700">
           <Info className="h-4 w-4" />
