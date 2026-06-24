@@ -590,8 +590,57 @@ export default function App() {
       await Promise.all(DUMMY_PERMANENT_DONORS.map((donor, idx) => 
         upsertDocument('permanent_donors', `seed_donor_${idx}`, donor)
       ));
+
+      // 6. Inventaris (Assets)
+      const dummyAssets = [
+        { id: 'as1', name: 'Karpet Masjid', category: 'Alat Shalat', quantity: 10, unit: 'Gulung', condition: 'Baik', location: 'Ruang Utama', registeredBy: 'Admin' },
+        { id: 'as2', name: 'Mic Wireless', category: 'Sound System', quantity: 4, unit: 'Buah', condition: 'Sangat Baik', location: 'Mimbar', registeredBy: 'Admin' },
+        { id: 'as3', name: 'AC Daikin 2 PK', category: 'Elektronik & Pendingin', quantity: 6, unit: 'Unit', condition: 'Sangat Baik', location: 'Ruang Utama', registeredBy: 'Admin' }
+      ];
+      await Promise.all(dummyAssets.map(a => upsertDocument('mosque_assets', a.id, a)));
+
+      // 7. Jamaah (Congregants)
+      const dummyJamaah = [
+        { id: 'jm1', fullName: 'Bapak Budi Santoso', phone: '08123456789', address: 'Jl. Merdeka No. 10', rtRw: '01/02', familyMembersCount: 4, status: 'Warga Tetap', attendanceStatus: 'Aktif Jamaah', registeredDate: new Date().toISOString() },
+        { id: 'jm2', fullName: 'Bapak Andi Hermawan', phone: '08987654321', address: 'Jl. Sudirman No. 25', rtRw: '02/02', familyMembersCount: 3, status: 'Warga Tetap', attendanceStatus: 'Jarang', registeredDate: new Date().toISOString() }
+      ];
+      await Promise.all(dummyJamaah.map(j => upsertDocument('mosque_congregants', j.id, j)));
+
+      // 8. Galeri (Galleries)
+      const dummyGalleries = [
+        { id: 'gl1', title: 'Kegiatan Buka Bersama 2025', date: '2025-03-15', images: ['https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800'] },
+        { id: 'gl2', title: 'Gotong Royong Membersihkan Masjid', date: '2025-05-20', images: ['https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800'] }
+      ];
+      await Promise.all(dummyGalleries.map(g => upsertDocument('galleries', g.id, g)));
+
+      // 9. Jadwal Jumat (Jumat Schedule)
+      const dummyJumat = [
+        { id: 'ju1', date: '2026-06-05', khatib: 'Ust. H. Abdullah', imam: 'Ust. Abdul Somad', muazin: 'Sdr. Rizky', month: 'Juni 2026' },
+        { id: 'ju2', date: '2026-06-12', khatib: 'KH. Bahauddin', imam: 'Ust. Hasyim', muazin: 'Sdr. Fauzan', month: 'Juni 2026' }
+      ];
+      await Promise.all(dummyJumat.map(j => upsertDocument('jumat_schedule', j.id, j)));
+
+      // 10. Donasi Campaigns (Campaigns)
+      const dummyCampaigns = [
+        { id: 'cp1', title: 'Renovasi Atap Masjid', target: 50000000, raised: 15000000, description: 'Penggalangan dana untuk memperbaiki atap masjid yang bocor.' },
+        { id: 'cp2', title: 'Santunan Yatim Piatu', target: 20000000, raised: 5000000, description: 'Program santunan rutin bulan Muharram.' }
+      ];
+      await Promise.all(dummyCampaigns.map(c => upsertDocument('campaigns', c.id, c)));
+
+      // 11. Slides
+      const dummySlides = [
+        { id: 'sl1', title: 'Selamat Datang', subtitle: 'Masjid Jami Al Abrar', imageUrl: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=1000', order: 1, badge: 'Info', badgeColor: 'bg-emerald-600' }
+      ];
+      await Promise.all(dummySlides.map(s => upsertDocument('slides', s.id, s)));
+
+      // 12. Pengurus (Detailed Board)
+      const dummyBoard = [
+        { id: 'bd1', name: 'H. Anwar Rasyid', role: 'Ketua DKM', category: 'inti', phone: '08111222333' },
+        { id: 'bd2', name: 'Ust. Zakaria', role: 'Seksi Dakwah', category: 'idarah', phone: '08222333444' }
+      ];
+      await Promise.all(dummyBoard.map(b => upsertDocument('mosque_detailed_board', b.id, b)));
       
-      addLog('Seed Data Berhasil', 'Data Keuangan, Ramadan, Kegiatan, Kajian & Donatur Tetap berhasil dimuat ke database.', 'success');
+      addLog('Seed Data Berhasil', 'Seluruh data dummy berhasil dimuat ke database.', 'success');
     } catch (e) {
       console.error('Seed Error:', e);
       addLog('Seed Data Gagal', 'Terjadi kesalahan teknis saat memuat data ke basis data.', 'alert');

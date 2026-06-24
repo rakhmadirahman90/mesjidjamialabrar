@@ -268,6 +268,23 @@ export default function AdminDashboardPortal({
                 </div>
               </div>
 
+              {/* Mobile Quick Setup (Only visible on smaller screens or specifically highlighted) */}
+              <div className="xl:hidden bg-[#03150d] border border-emerald-500/10 p-4 sm:p-5 rounded-2xl text-left space-y-3">
+                <div className="text-left">
+                  <h3 className="font-black text-sm uppercase flex items-center gap-1.5 tracking-tight text-white">
+                    <Database className="h-4.5 w-4.5 text-amber-500" />
+                    Manajemen Data Cepat
+                  </h3>
+                  <p className="text-[10px] text-slate-450 mt-1">Gunakan tombol di bawah untuk memuat data awal sistem secara instan.</p>
+                </div>
+                <button
+                  onClick={seedDummyData}
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black transition flex items-center justify-center gap-2 active:scale-95 uppercase tracking-wider"
+                >
+                  ⚡ Muat Data Dummy
+                </button>
+              </div>
+
               {/* Lower Section split into Quick Controller & Audio Config */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left panel: Quick Broadcast */}
