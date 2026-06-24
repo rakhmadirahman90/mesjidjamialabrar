@@ -12,6 +12,7 @@ import {
   CloudMoon
 } from 'lucide-react';
 import { PrayerTime } from '../types';
+import HijriConverterWidget from './HijriConverterWidget';
 
 interface MasjidDashboardProps {
   prayers: PrayerTime[];
@@ -346,21 +347,30 @@ export default function MasjidDashboard({
         </div>
       </section>
 
-      {/* Live Video Streaming Section */}
-      <section className="space-y-4 pt-4">
-        <h3 className="text-xl font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
-        <div className="bg-slate-950 rounded-3xl p-2 sm:p-3 border border-slate-800 shadow-xl">
-           <div className="relative pt-[56.25%] rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center">
-             <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
-               <span className="text-4xl mb-2">▶</span>
-               <span className="text-xs font-bold uppercase tracking-wider">Video Placeholder</span>
+      {/* Interactive Features Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+        {/* Live Video Streaming Section */}
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
+          <div className="bg-slate-950 rounded-3xl p-2 sm:p-3 border border-slate-800 shadow-xl h-[calc(100%-2.5rem)]">
+             <div className="relative pt-[56.25%] rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center">
+               <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                 <span className="text-4xl mb-2">▶</span>
+                 <span className="text-xs font-bold uppercase tracking-wider">Video Placeholder</span>
+               </div>
              </div>
-           </div>
-           <p className="text-[10px] text-slate-400 font-mono p-3 uppercase tracking-widest text-center">
-             Status: Offline / Standby
-           </p>
-        </div>
-      </section>
+             <p className="text-[10px] text-slate-400 font-mono p-3 uppercase tracking-widest text-center">
+               Status: Offline / Standby
+             </p>
+          </div>
+        </section>
+
+        {/* Hijri Converter Section */}
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-slate-900 tracking-tight px-1">Penanggalan Islam</h3>
+          <HijriConverterWidget />
+        </section>
+      </div>
 
     </div>
   );
