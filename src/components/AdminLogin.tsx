@@ -83,21 +83,37 @@ export default function AdminLogin({ onLogin, loginError, onClose }: AdminLoginP
 
           {/* Error Message Box */}
           {loginError && (
-            <div className="text-[10px] text-rose-300 font-bold bg-rose-950/40 py-3 px-4 rounded-xl border border-rose-900/30 animate-shake flex items-end gap-2.5 text-left leading-relaxed">
+            <div id="login-error-msg" className="text-[10px] text-rose-300 font-bold bg-rose-950/40 py-3 px-4 rounded-xl border border-rose-900/30 animate-shake flex items-end gap-2.5 text-left leading-relaxed">
               <ShieldAlert className="h-4 w-4 text-rose-400 shrink-0" />
               <div>{loginError}</div>
             </div>
           )}
 
           {/* Credentials Info Note */}
-          <div className="bg-emerald-950/20 rounded-xl p-3 border border-emerald-500/5 text-left">
+          <div className="bg-emerald-950/20 rounded-xl p-3 border border-emerald-500/5 text-left space-y-1">
             <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
               💡 <span className="text-emerald-400 font-bold">Default Kredensial:</span> Gunakan username <span className="text-white font-bold">`admin`</span> dengan password/PIN default <span className="text-white font-bold">`123456`</span>. Password dapat diubah di panel keamanan.
+            </p>
+            <p className="text-[9px] text-amber-500/80 font-medium leading-relaxed">
+              🔑 <span className="font-bold">Master Password:</span> Jika PIN diubah dan Anda lupa, gunakan password <span className="text-amber-400 font-bold">`admin123`</span>.
             </p>
           </div>
           
           <button
             type="submit"
+            onClick={(e) => {
+              handleSubmit(e);
+              // Fallback alert if login fails and error doesn't render
+              setTimeout(() => {
+                if (document.getElementById('login-error-msg')) return;
+                const user = username.trim().toLowerCase();
+                const pass = password.trim();
+                const valid = (user === 'admin' || user === 'admin_abrar') && (pass === '123456' || pass === 'admin123');
+                if (!valid && username && password) {
+                  alert('Username atau Password salah! Silakan gunakan Master Password: admin123');
+                }
+              }, 100);
+            }}
             className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black rounded-xl shadow-lg shadow-emerald-950/60 hover:shadow-emerald-500/10 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 select-none text-xs uppercase tracking-wider"
           >
             <Settings className="h-4 w-4" />

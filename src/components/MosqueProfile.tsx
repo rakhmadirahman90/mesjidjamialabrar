@@ -11,7 +11,7 @@ interface MosqueProfileProps {
 
 // Standard high-quality details for Al Abrar
 const DEFAULT_PROFILE: MosqueProfileDetail = {
-  history: 'Masjid Jami Al Abrar didirikan pada tahun 1985 sebagai pusat peradaban dan ibadah warga Lapadde, Parepare. Bermula dari bangunan bersahaja, kini Masjid Al Abrar telah berkembang menjadi bangunan megah dua lantai yang mampu menampung lebih dari 1.200 jamaah secara bersamaan dan menjadi model masjid ramah dan bersih di Sulawesi Selatan.',
+  history: 'Masjid Jami Al Abrar didirikan pada tahun 1961 sebagai pusat peradaban dan ibadah warga Lapadde, Parepare. Bermula dari bangunan bersahaja, kini Masjid Al Abrar telah berkembang menjadi bangunan megah dua lantai yang mampu menampung lebih dari 1.200 jamaah secara bersamaan dan menjadi model masjid ramah dan bersih di Sulawesi Selatan.',
   vision: 'Terwujudnya Masjid Al Abrar sebagai pusat ibadah yang suci, makmur, mandiri, dan berdaya guna dalam mendidik jamaah yang bertakwa dan berakhlakul karimah.',
   mision: [
     'Menyelenggarakan pelayanan ibadah fardhu & sunnah secara tertib dan nyaman.',
@@ -347,7 +347,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               <MapPin className="h-3.5 w-3.5 text-amber-400" /> Parepare, Sulsel
             </span>
             <span className="flex items-center gap-1.5 bg-emerald-950/40 px-3 py-2 rounded-xl text-emerald-200">
-              <Calendar className="h-3.5 w-3.5 text-amber-400" /> Berdiri Sejak 1985
+              <Calendar className="h-3.5 w-3.5 text-amber-400" /> Berdiri Sejak 1961
             </span>
             <span className="flex items-center gap-1.5 bg-emerald-950/40 px-3 py-2 rounded-xl text-emerald-200">
               <Award className="h-3.5 w-3.5 text-amber-400" /> Sertifikasi Masjid Jami

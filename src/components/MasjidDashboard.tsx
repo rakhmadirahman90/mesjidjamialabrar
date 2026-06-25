@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { PrayerTime } from '../types';
 import HijriConverterWidget from './HijriConverterWidget';
+import MasjidStatistics from './MasjidStatistics';
 
 interface MasjidDashboardProps {
   prayers: PrayerTime[];
@@ -371,6 +372,9 @@ export default function MasjidDashboard({
           <HijriConverterWidget />
         </section>
       </div>
+
+      {/* Visual Statistics Cards */}
+      <MasjidStatistics />
 
     </div>
   );

@@ -489,13 +489,18 @@ export default function KontakMasjid({ isAdmin = false }: KontakMasjidProps) {
           <p className="text-xs text-slate-500 font-medium">Jelajahi petunjuk arah dan lokasi geografis Masjid Jami Al Abrar Kota Parepare.</p>
         </div>
 
-        {/* Maps Container with Premium Border and Shadow */}
-        <div className="w-full h-[400px] sm:h-[480px] rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl relative bg-slate-100 flex items-center justify-center">
-          <div className="text-center p-6 bg-white/80 rounded-2xl shadow-sm border border-slate-200">
-            <span className="text-4xl block mb-3">🗺️</span>
-            <span className="text-sm font-bold text-slate-800 uppercase tracking-widest block">Google Maps Placeholder</span>
-            <span className="text-xs text-slate-500 mt-1 block">Peta lokasi Masjid Jami Al Abrar</span>
-          </div>
+        <div className="w-full h-[400px] sm:h-[480px] rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl relative bg-slate-100">
+          <iframe 
+            width="100%" 
+            height="100%" 
+            frameBorder="0" 
+            style={{ border: 0 }} 
+            src="https://maps.google.com/maps?q=Masjid%20Jami%20Al%20Abrar%20Lapadde%20Parepare&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+            allowFullScreen 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Lokasi Masjid Jami Al Abrar"
+          ></iframe>
         </div>
       </div>
 

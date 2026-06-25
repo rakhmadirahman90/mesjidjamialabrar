@@ -189,7 +189,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
 
           <div className="bg-white rounded-[2rem] p-8 border border-slate-200/85 shadow-sm space-y-6 leading-relaxed text-sm text-slate-600">
             <p className="font-medium text-slate-800 text-base leading-relaxed">
-              Masjid Jami Al Abrar didirikan pertama kali pada tahun <strong className="text-emerald-700 font-extrabold">1985</strong> sebagai sebuah tempat ibadah berupa mushalla kecil sederhana. Diinisiasi oleh tokoh adat setempat, takmir perdana, serta dukungan tulus para pemilik lahan wakaf di wilayah Kelurahan Lapadde, Parepare.
+              Masjid Jami Al Abrar didirikan pertama kali pada tahun <strong className="text-emerald-700 font-extrabold">1961</strong> sebagai sebuah tempat ibadah berupa mushalla kecil sederhana. Diinisiasi oleh tokoh adat setempat, takmir perdana, serta dukungan tulus para pemilik lahan wakaf di wilayah Kelurahan Lapadde, Parepare.
             </p>
             <p>
               Tujuan awal dari pendirian mushalla ini adalah untuk mempermudah jamaah sekitar menunaikan ibadah shalat fardhu 5 waktu secara berjamaah tanpa harus menempuh jarak jauh ke wilayah perkotaan Parepare. Dengan pesatnya perkembangan perumahan dan pertambahan penduduk di Lapadde, pada tahun <strong className="text-slate-800">1998</strong>, mushalla ini diputuskan oleh warga untuk direnovasi total dan ditingkatkan statusnya secara resmi menjadi <strong className="text-emerald-700 font-extrabold">Masjid Jami Al Abrar</strong> yang sanggup menggelar Shalat Jumat perdana.
@@ -211,7 +211,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
             <div className="relative border-l-2 border-emerald-100 ml-4 space-y-8 pl-6">
               {[
                 {
-                  year: '1985',
+                  year: '1961',
                   title: 'Pendirian Mushalla Perdana',
                   desc: 'Mushalla kayu bersahaja dibangun secara swadaya di atas tanah wakaf perdana untuk shalat fardhu berjamaah.'
                 },
