@@ -129,394 +129,395 @@ export default function AdminDashboardPortal({
   ] as const;
 
   return (
-    <div className="min-h-screen bg-[#020b06] text-slate-100 flex flex-col xl:flex-row font-sans relative overflow-x-hidden select-none">
+    <div className="min-h-screen bg-[#020d09] text-slate-100 flex flex-col lg:flex-row font-sans selection:bg-primary-500/30">
       
-      {/* Mobile Header (Sleek Glass capsule design) */}
-      <div className="xl:hidden bg-[#03110a]/90 backdrop-blur-xl border-b border-emerald-500/15 px-4 py-3.5 flex items-center justify-between w-full sticky top-0 z-40 shadow-[0_4px_30px_rgba(0,0,0,0.4)] transition-all">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-sm shadow">🕌</div>
-          <div>
-            <span className="text-[11px] font-black tracking-widest text-emerald-400 uppercase block leading-none">AL ABRAR CONTROL</span>
-            <span className="text-[8px] font-bold text-amber-400 tracking-wide block mt-0.5 uppercase">Admin Portal</span>
+      {/* Mobile Top Navigation */}
+      <header className="lg:hidden sticky top-0 z-50 bg-primary-950/80 backdrop-blur-xl border-b border-primary-800/50 px-5 py-4 flex items-center justify-between shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-800 to-primary-950 border border-primary-700/50 flex items-center justify-center text-xl shadow-inner">
+            🕌
+          </div>
+          <div className="text-left">
+            <h1 className="text-xs font-black tracking-[0.2em] text-white uppercase font-display leading-tight">AL ABRAR</h1>
+            <p className="text-[9px] font-bold text-emerald-400/80 tracking-widest uppercase">Admin Panel</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-mono font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>{localTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+        <div className="flex items-center gap-3">
+          <div className="bg-primary-900/50 border border-primary-800/50 px-3 py-1.5 rounded-full flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-[10px] font-mono font-bold text-emerald-400">
+              {localTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
-          <button
-            onClick={onLogout}
-            className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 rounded-full border border-rose-500/20 transition-all duration-200 active:scale-95"
-            title="Keluar dari Panel Admin"
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2.5 bg-primary-800/50 hover:bg-primary-700/50 rounded-xl border border-primary-700/50 text-white transition-all active:scale-90"
           >
-            <LogOut className="h-3.5 w-3.5" />
+            {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Desktop Sidebar Menu (Luxurious Glass Control Panel) */}
+      {/* Modern Glass Sidebar */}
       <aside className={`
-        hidden xl:flex fixed inset-y-0 left-0 z-50 w-72 bg-[#03110a]/95 backdrop-blur-2xl border-r border-emerald-500/10 flex-col justify-between p-5 
-        xl:sticky xl:top-0 xl:h-screen xl:max-h-screen xl:z-0 overflow-hidden
+        fixed lg:sticky top-0 inset-y-0 left-0 z-[60] lg:z-40 w-72 lg:h-screen
+        bg-primary-950/95 lg:bg-primary-950/50 backdrop-blur-3xl border-r border-primary-800/30
+        flex flex-col transition-all duration-500 ease-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1 sidebar-scrollbar">
-          {/* Main Title Badge with gold touches */}
-          <div className="text-left py-2.5 border-b border-emerald-500/10 flex items-center justify-between">
-            <div>
-              <h1 className="text-sm font-black tracking-widest text-white uppercase">AL ABRAR CONTROL</h1>
-              <p className="text-[10px] text-emerald-400/80 font-bold tracking-wider mt-0.5 uppercase">Administrasi Utama</p>
-            </div>
-            <span className="bg-amber-400/10 border border-amber-400/30 text-amber-300 font-extrabold text-[9px] px-2.5 py-0.5 rounded-full tracking-wide shadow-[0_0_10px_rgba(245,158,11,0.15)] uppercase">LIVE</span>
-          </div>
-
-          {/* Active Live Admin Profile Card (Elegant Dark Glass Card) */}
-          <div className="bg-gradient-to-b from-[#041910] to-[#020e09] border border-emerald-500/15 rounded-2xl p-4 flex items-center gap-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-950 to-[#020b06] border border-emerald-500/30 flex items-center justify-center text-amber-300 text-lg shadow-[0_4px_12px_rgba(4,47,31,0.5)]">
+        {/* Sidebar Header */}
+        <div className="p-8 hidden lg:block text-left">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-3xl bg-gradient-to-br from-primary-800 to-primary-950 border border-primary-700/50 flex items-center justify-center text-2xl shadow-2xl">
               🕌
             </div>
-            <div className="text-left">
-              <p className="text-[9px] uppercase font-bold text-slate-400 tracking-widest">Sesi Aktif</p>
-              <p className="text-xs font-black text-white leading-none mt-1">Administrator Masjid</p>
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="text-[8px] text-emerald-400 font-black tracking-wider uppercase">AUTHORIZED ACCESS</span>
+            <div>
+              <h1 className="text-sm font-black tracking-[0.25em] text-white uppercase font-display">AL ABRAR</h1>
+              <p className="text-[10px] font-bold text-emerald-500 tracking-[0.15em] uppercase mt-0.5">Control Center</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-primary-900/80 to-primary-950/80 border border-primary-800/50 rounded-[2rem] p-5 shadow-2xl relative overflow-hidden group">
+            <div className="absolute -top-4 -right-4 w-16 h-16 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="relative">
+                <div className="w-10 h-10 rounded-2xl bg-primary-800 border border-primary-700 flex items-center justify-center text-lg shadow-inner">
+                  👤
+                </div>
+                <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-primary-950 rounded-full animate-pulse"></span>
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Admin Mode</p>
+                <h3 className="text-xs font-black text-white mt-1.5 uppercase tracking-wide">Administrator</h3>
               </div>
             </div>
           </div>
-
-          {/* Nav Categories */}
-          <nav className="space-y-1.5">
-            <span className="text-[9px] font-black uppercase text-emerald-400/30 tracking-widest pl-2 block mb-2.5">Menu Navigasi</span>
-            {menuItems.map((item) => {
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setIsSidebarOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all duration-300 outline-none group text-xs relative ${
-                    isActive
-                      ? 'bg-emerald-500/10 border border-emerald-500/35 text-emerald-300 font-extrabold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_4px_20px_rgba(4,47,31,0.25)]'
-                      : 'text-slate-300 hover:text-white hover:bg-emerald-500/5 hover:border-emerald-500/10 border border-transparent'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 font-bold">
-                    {isActive && (
-                      <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-amber-400 rounded-r-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
-                    )}
-                    <span className={`transition-all duration-300 ${isActive ? 'text-amber-300 scale-110' : 'text-emerald-500 group-hover:scale-110'}`}>
-                      {item.icon}
-                    </span>
-                    <span className={isActive ? 'pl-1 text-white font-black' : ''}>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full tracking-wide ${
-                      isActive 
-                        ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' 
-                        : 'bg-emerald-950/60 text-emerald-400 border border-emerald-500/15'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
         </div>
 
-        {/* Sidebar Footer Logout Button */}
-        <div className="pt-4 border-t border-emerald-500/10 mt-6 space-y-3">
-          {/* Real-time Digital Server Time */}
-          <div className="flex items-center justify-between text-[9px] font-mono text-emerald-400/40 px-2 font-bold uppercase tracking-wider">
-            <span>TIME SYNC: GMT+7</span>
-            <span>{localTime.toLocaleTimeString('id-ID')}</span>
+        {/* Sidebar Navigation */}
+        <nav className="flex-1 px-4 lg:px-6 space-y-1.5 overflow-y-auto no-scrollbar py-4 lg:py-0">
+          <div className="text-[10px] font-black uppercase text-primary-600/60 tracking-[0.2em] pl-4 mb-4 flex items-center gap-2">
+            <span className="w-4 h-px bg-primary-800/50"></span>
+            Main Navigation
+          </div>
+          {menuItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setIsSidebarOpen(false);
+                }}
+                className={`
+                  w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-left 
+                  transition-all duration-300 group relative overflow-hidden
+                  ${isActive 
+                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40 translate-x-1' 
+                    : 'text-slate-400 hover:text-white hover:bg-primary-900/50 hover:translate-x-1'}
+                `}
+              >
+                <div className="flex items-center gap-4 relative z-10">
+                  <span className={`
+                    p-2 rounded-xl transition-all duration-300
+                    ${isActive ? 'bg-white/20' : 'bg-primary-900/50 text-emerald-500 group-hover:bg-emerald-500/20 group-hover:text-emerald-400'}
+                  `}>
+                    {item.icon}
+                  </span>
+                  <span className={`text-[11px] font-black uppercase tracking-widest ${isActive ? 'translate-x-1' : 'group-hover:translate-x-1'} transition-transform`}>
+                    {item.label}
+                  </span>
+                </div>
+                {item.badge && (
+                  <span className={`
+                    text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter relative z-10
+                    ${isActive ? 'bg-white/20 text-white' : 'bg-primary-900/80 text-emerald-500 border border-primary-800/50'}
+                  `}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Footer */}
+        <div className="p-6 lg:p-8 space-y-4">
+          <div className="bg-primary-900/30 border border-primary-800/30 rounded-2xl p-4 flex items-center justify-between">
+            <div className="text-left">
+              <p className="text-[8px] font-black text-primary-600 uppercase tracking-widest">Server Status</p>
+              <p className="text-[10px] font-mono font-bold text-emerald-500/80 mt-0.5">Parepare, ID</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[8px] font-black text-primary-600 uppercase tracking-widest">Active Sync</p>
+              <p className="text-[10px] font-mono font-bold text-emerald-500/80 mt-0.5">{localTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+            </div>
           </div>
           
           <button
             onClick={onLogout}
-            className="w-full py-3 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-transparent text-rose-400 hover:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-lg transition active:scale-95 duration-300"
+            className="
+              w-full py-4 bg-rose-500/10 hover:bg-rose-600 text-rose-500 hover:text-white
+              border border-rose-500/20 hover:border-rose-500/10 rounded-2xl
+              text-xs font-black uppercase tracking-[0.15em]
+              flex items-center justify-center gap-3 transition-all duration-300 shadow-xl shadow-rose-950/20 active:scale-95
+            "
           >
-            <LogOut className="h-4 w-4" />
-            Sign Out / Kunci Panel
+            <LogOut className="w-4 h-4" />
+            Security Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Main Panes Content */}
-      <main className="flex-1 min-h-screen p-3 xs:p-4 md:p-6 lg:p-8 space-y-5 sm:space-y-6 overflow-y-auto pb-24 xl:pb-8">
-        {/* Upper Breadcrumbs & Quick Settings Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-500/10">
+      {/* Main View Area */}
+      <main className="flex-1 min-h-screen bg-[#020d09] overflow-y-auto no-scrollbar relative">
+        {/* Header Breadcrumbs Area */}
+        <div className="sticky top-0 z-30 bg-[#020d09]/80 backdrop-blur-xl px-6 lg:px-10 py-6 lg:py-8 border-b border-primary-800/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="text-left">
-            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest pl-0.5">DASHBOARD ADMINISTRASI</span>
-            <div className="flex items-center gap-2 mt-0.5">
-              <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight uppercase">
-                {menuItems.find(m => m.id === activeTab)?.label}
-              </h2>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
+              <p className="text-[10px] font-black text-emerald-500/80 uppercase tracking-[0.3em]">Administrator / Control Center</p>
             </div>
+            <h2 className="text-2xl lg:text-4xl font-black text-white font-display uppercase tracking-tight">
+              {menuItems.find(m => m.id === activeTab)?.label}
+            </h2>
           </div>
-          {/* Quick status actions */}
-          <div className="flex items-center gap-2 max-w-fit sm:self-end">
-            <span className="text-[10px] font-mono font-bold bg-[#04160d] border border-emerald-500/15 text-amber-300 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />
-              Parepare Auto-Sync: {localTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}
-            </span>
+          
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-4 bg-primary-900/40 border border-primary-800/50 p-2 rounded-2xl px-5">
+               <div className="text-right">
+                  <p className="text-[8px] font-black text-primary-500 uppercase tracking-widest">Calendar Access</p>
+                  <p className="text-[10px] font-bold text-white uppercase mt-0.5">
+                    {localTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  </p>
+               </div>
+               <div className="w-px h-6 bg-primary-800/50"></div>
+               <Clock className="w-5 h-5 text-emerald-500" />
+            </div>
+            <button className="p-3 bg-primary-800/50 hover:bg-primary-700/50 text-white rounded-2xl border border-primary-700/50 transition-all relative group">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-primary-800"></span>
+            </button>
           </div>
         </div>
 
-        {/* Dashboard Active View router */}
-        <div className="animate-fade-in">
-          
-          {/* TAB 1: OVERVIEW PANEL */}
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              {/* Quick statistics cards widgets in Bento Grid Style */}
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
-                    👥
+        {/* Content Section */}
+        <div className="p-6 lg:p-10 pb-32 lg:pb-10 animate-fade-in relative z-10">
+          {/* Active Tab View Rendering */}
+          <div className="max-w-7xl mx-auto space-y-10">
+            {activeTab === 'overview' && (
+              <>
+                {/* Modern Bento Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { label: 'Jamaah Aktif', value: `${activeJamaah} / ${totalJamaah}`, sub: 'Total kartu keluarga', icon: <Users className="w-6 h-6" />, color: 'from-blue-600 to-blue-800', shadow: 'shadow-blue-900/40' },
+                  { label: 'Donasi Digital', value: `Rp ${totalInfaq.toLocaleString('id-ID')}`, sub: `${activeCampaignsCount} program aktif`, icon: <Heart className="w-6 h-6" />, color: 'from-rose-600 to-rose-800', shadow: 'shadow-rose-900/40' },
+                  { label: 'Aset Inventaris', value: `${goodAssets} Unit`, sub: `${totalAssets} total tercatat`, icon: <Package className="w-6 h-6" />, color: 'from-amber-600 to-amber-800', shadow: 'shadow-amber-900/40' },
+                  { label: 'Status Sistem', value: 'ONLINE', sub: 'Semua modul aktif', icon: <ShieldCheck className="w-6 h-6" />, color: 'from-emerald-600 to-emerald-800', shadow: 'shadow-emerald-900/40' },
+                ].map((stat, i) => (
+                  <div key={i} className={`bg-gradient-to-br ${stat.color} p-6 rounded-[2.5rem] shadow-2xl ${stat.shadow} relative overflow-hidden group hover:scale-[1.02] transition-all duration-300`}>
+                    <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
+                    <div className="relative z-10 space-y-4">
+                      <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white backdrop-blur-md">
+                        {stat.icon}
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[10px] font-black text-white/70 uppercase tracking-[0.2em]">{stat.label}</p>
+                        <h4 className="text-xl font-black text-white mt-1 uppercase font-display">{stat.value}</h4>
+                        <p className="text-[9px] font-bold text-white/50 mt-1 uppercase tracking-wider">{stat.sub}</p>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-blue-400 uppercase tracking-widest truncate">Jamaah Terdaftar</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{totalJamaah} Orang</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">{activeJamaah} jamaah aktif berkegiatan.</p>
-                </div>
-
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
-                    📦
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">Aset Inventaris</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{totalAssets} Unit</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">{goodAssets} kondisi baik, {damagedAssets} rusak.</p>
-                </div>
-
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
-                    📢
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-rose-400 uppercase tracking-widest truncate">Program Donasi</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{activeCampaignsCount} Kategori</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Total donasi terkumpul Rp {totalInfaq.toLocaleString('id-ID')}.</p>
-                </div>
+                ))}
               </div>
 
-              {/* Management Shortcuts Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div className="md:col-span-3 lg:col-span-4 bg-[#03150d] border border-emerald-500/10 p-4 rounded-2xl">
-                  <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-emerald-400 mb-3 px-1">Akses Cepat Pengelolaan Landing Page</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    {[
-                      { id: 'beranda', label: 'Media Beranda', icon: <Megaphone className="h-4 w-4" />, color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
-                      { id: 'profil', label: 'Profil Masjid', icon: <Users className="h-4 w-4" />, color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
-                      { id: 'jadwal', label: 'Jadwal Shalat', icon: <Calendar className="h-4 w-4" />, color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-                      { id: 'donasi', label: 'Program Donasi', icon: <Heart className="h-4 w-4" />, color: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
-                      { id: 'galeri', label: 'Galeri Foto', icon: <ImageIcon className="h-4 w-4" />, color: 'bg-sky-500/10 text-sky-500 border-sky-500/20' },
-                      { id: 'inventaris', label: 'Aset Masjid', icon: <Package className="h-4 w-4" />, color: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
-                      { id: 'kontak', label: 'Kontak & Inbox', icon: <Phone className="h-4 w-4" />, color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
-                    ].map(item => (
+              {/* Action Modules Matrix */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left: Quick Actions Grid */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="flex items-center justify-between px-2">
+                    <h3 className="text-sm font-black text-white uppercase tracking-[0.25em] flex items-center gap-3 font-display">
+                      <Layers className="w-5 h-5 text-emerald-500" />
+                      Management Modules
+                    </h3>
+                    <span className="text-[10px] font-black text-primary-500 bg-primary-900/50 px-3 py-1 rounded-full uppercase tracking-widest border border-primary-800/50">Full CRUD Enabled</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {menuItems.filter(i => i.id !== 'overview' && i.id !== 'keamanan').map((item) => (
                       <button
                         key={item.id}
                         onClick={() => setActiveTab(item.id as any)}
-                        className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all hover:scale-[1.03] active:scale-95 group ${item.color}`}
+                        className="bg-primary-900/30 border border-primary-800/30 p-6 rounded-[2rem] text-left hover:bg-primary-800/50 hover:border-emerald-500/30 transition-all group relative overflow-hidden active:scale-95"
                       >
-                        <div className="mb-2 group-hover:animate-bounce">{item.icon}</div>
-                        <span className="text-[10px] font-black uppercase tracking-tight">{item.label}</span>
+                        <div className="w-12 h-12 bg-primary-800/50 rounded-2xl flex items-center justify-center text-emerald-500 mb-4 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-xl">
+                          {item.icon}
+                        </div>
+                        <h4 className="text-[11px] font-black text-white uppercase tracking-widest leading-tight">{item.label}</h4>
+                        <p className="text-[9px] text-slate-500 mt-2 uppercase font-bold tracking-tighter">Open Dashboard →</p>
+                        <div className="absolute top-4 right-4 text-emerald-500/20 group-hover:text-emerald-500/40 transition-colors">
+                           <ShieldCheck className="w-10 h-10" />
+                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Mobile Quick Setup (Only visible on smaller screens or specifically highlighted) */}
-              <div className="xl:hidden bg-[#03150d] border border-emerald-500/10 p-4 sm:p-5 rounded-2xl text-left space-y-3">
-                <div className="text-left">
-                  <h3 className="font-black text-sm uppercase flex items-center gap-1.5 tracking-tight text-white">
-                    <Database className="h-4.5 w-4.5 text-amber-500" />
-                    Manajemen Data Cepat
+                {/* Right: Security & Systems */}
+                <div className="space-y-6">
+                  <h3 className="text-sm font-black text-white uppercase tracking-[0.25em] flex items-center gap-3 px-2 font-display">
+                    <ShieldCheck className="w-5 h-5 text-amber-500" />
+                    Security Hub
                   </h3>
-                  <p className="text-[10px] text-slate-450 mt-1">Gunakan tombol di bawah untuk memuat data awal sistem secara instan.</p>
-                </div>
-                <button
-                  onClick={seedDummyData}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black transition flex items-center justify-center gap-2 active:scale-95 uppercase tracking-wider"
-                >
-                  ⚡ Muat Data Dummy
-                </button>
-              </div>
-
-              {/* Lower Section split into Quick Controller & Audio Config */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left panel: Quick Broadcast */}
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl lg:col-span-2 space-y-4">
-                  <div className="text-left border-b border-emerald-500/10 pb-3">
-                    <h3 className="font-black text-sm uppercase flex items-center gap-1.5 tracking-tight text-white">
-                      <Megaphone className="h-4.5 w-4.5 text-amber-500 text-left" />
-                      Quick Broadcast Pengumuman
-                    </h3>
-                    <p className="text-[10px] text-slate-450 mt-1">Ganti Running Text Pengumuman pada banner di beranda masjid secara instan.</p>
-                  </div>
-
-                  <div className="space-y-3.5 pt-1.5">
-                    {announcement && (
-                      <div className="p-3 bg-emerald-950/40 rounded-xl border border-emerald-500/10 text-[10px] text-emerald-300">
-                        <span className="font-bold uppercase tracking-wider text-[8px] text-emerald-400 block mb-0.5">Pengumuman Aktif Sekarang:</span>
-                        "{announcement}"
+                  
+                  <div className="bg-primary-950/50 border border-primary-800/50 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+                    <div className="space-y-4">
+                      <div className="p-5 bg-primary-900/40 border border-primary-800/50 rounded-2xl text-left">
+                        <p className="text-[9px] font-black text-primary-500 uppercase tracking-widest mb-1">Database Integrity</p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed">Sistem sinkronisasi otomatis dengan Firestore setiap 15 menit.</p>
                       </div>
-                    )}
-
-                    <textarea 
-                      rows={3}
-                      className="w-full p-4 bg-[#020b06] border border-emerald-500/20 rounded-xl text-xs text-white placeholder-slate-600 font-sans leading-relaxed focus:border-amber-400 outline-none transition"
-                      placeholder="Tulis pengumuman resmi di sini..."
-                      value={announcementInput}
-                      onChange={(e) => setAnnouncementInput(e.target.value)}
-                    />
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-                      <div className="flex items-center justify-between sm:justify-start gap-4">
-                        <span className="text-[10px] font-black text-white uppercase">Status Display:</span>
-                        <button
-                          onClick={() => onToggleAnnouncement(!showAnnouncement)}
-                          className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase transition ${
-                            showAnnouncement 
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                              : 'bg-slate-800 text-slate-400 border border-slate-700'
-                          }`}
+                      
+                      <div className="grid grid-cols-1 gap-3">
+                        <button 
+                          onClick={seedDummyData}
+                          className="w-full py-4 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white border border-emerald-500/20 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-xl"
                         >
-                          {showAnnouncement ? '● AKTIF / TAMPIL' : '○ NONAKTIF / SEMBUNYI'}
+                          ⚡ Muat Data Awal (Seeding)
+                        </button>
+                        <button 
+                          onClick={() => setActiveTab('keamanan')}
+                          className="w-full py-4 bg-amber-600/10 hover:bg-amber-600 text-amber-500 hover:text-white border border-amber-500/20 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-xl"
+                        >
+                          🔐 Manajemen PIN & Akses
                         </button>
                       </div>
-
-                      <button
-                        onClick={() => onUpdateAnnouncement(announcementInput)}
-                        className="w-full sm:w-auto py-2.5 px-6 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[11px] rounded-xl transition shadow active:scale-95 uppercase tracking-wider"
-                      >
-                        Publish Pengumuman
-                      </button>
                     </div>
-                  </div>
-                </div>
 
-                {/* Right panel: Live Logs feed */}
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl text-left space-y-4">
-                  <div className="border-b border-emerald-500/10 pb-3 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-black text-sm uppercase flex items-center gap-1.5 tracking-tight text-white">
-                        <Bell className="h-4.5 w-4.5 text-emerald-400" />
-                        Live Alarm & Notifikasi LOGS
-                      </h3>
-                      <p className="text-[10px] text-slate-400 mt-1">Audit jejak aktivitas sistem.</p>
-                    </div>
-                    <button 
-                      onClick={onClearLogs}
-                      className="text-[9px] font-black text-red-400 bg-red-950/20 border border-red-900/30 px-2 py-1 rounded hover:bg-red-900/40 transition active:scale-95"
-                    >
-                      CLEAR
-                    </button>
-                  </div>
-
-                  <div className="space-y-2 max-h-[195px] overflow-y-auto pr-1 no-scrollbar text-xs">
-                    {recentLogs.length === 0 ? (
-                      <div className="py-8 text-center text-slate-500 font-medium">Tidak ada log aktivitas sistem terbaru.</div>
-                    ) : (
-                      recentLogs.map((log: any, idx) => (
-                        <div key={log.id || idx} className="p-2.5 bg-[#020a05] rounded-xl border border-emerald-500/5 flex items-center justify-between gap-3">
-                          <div className="space-y-0.5">
-                            <p className="font-extrabold text-[10px] text-white flex items-center gap-1.5">
-                              <span className={`w-1.5 h-1.5 rounded-full ${
-                                log.type === 'success' ? 'bg-emerald-500' :
-                                log.type === 'alert' ? 'bg-rose-500' :
-                                log.type === 'system' ? 'bg-indigo-500' : 'bg-amber-450'
-                              }`}></span>
-                              {log.title}
-                            </p>
-                            <p className="text-[9px] text-slate-400 leading-normal font-medium">{log.message}</p>
+                    <div className="pt-6 border-t border-primary-800/50">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Recent Logs</span>
+                        <button onClick={onClearLogs} className="text-[8px] font-black text-rose-500 uppercase hover:underline">Clear History</button>
+                      </div>
+                      <div className="space-y-2 max-h-[220px] overflow-y-auto no-scrollbar">
+                        {recentLogs.map((log: any, idx) => (
+                          <div key={idx} className="p-3 bg-primary-900/20 border border-primary-800/30 rounded-xl flex items-center justify-between gap-3 text-left">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-1.5 h-1.5 rounded-full ${log.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`}></div>
+                              <div className="max-w-[120px]">
+                                <p className="text-[9px] font-black text-white uppercase truncate">{log.title}</p>
+                                <p className="text-[8px] text-slate-500 truncate">{log.message}</p>
+                              </div>
+                            </div>
+                            <span className="text-[8px] font-mono text-primary-500 font-bold">{new Date(log.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
-                          <span className="text-[8px] font-mono font-bold text-slate-500 shrink-0">
-                            {(() => {
-                              try {
-                                return new Date(log.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                              } catch (e) {
-                                return log.timestamp;
-                              }
-                            })()}
-                          </span>
-                        </div>
-                      ))
-                    )}
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </>
           )}
 
           {/* TAB 2: BROADCAST & ANNOUNCEMENTS / SLIDER MEDIA */}
           {activeTab === 'beranda' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-10 animate-fade-in">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 
-                {/* QRIS / Audio Configuration Box */}
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl text-left space-y-6">
-                  {/* QRIS */}
-                  <div className="space-y-3">
-                    <div className="border-b border-emerald-500/10 pb-2">
-                       <h3 className="font-black text-xs uppercase text-slate-300">Konfigurasi Gambar QRIS</h3>
-                      <p className="text-[10px] text-slate-500 leading-normal">Ganti gambar kode QR Donasi Masjid Jami Al Abrar.</p>
+                {/* QRIS & Audio Configuration */}
+                <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8">
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500">
+                      <Settings className="w-5 h-5" />
                     </div>
-                    <div className="bg-[#020b06]/60 p-4 border border-emerald-500/10 rounded-2xl">
-                      <QrisUploader onAddLog={addLog} />
+                    <div className="text-left">
+                      <h3 className="text-sm font-black text-white uppercase tracking-widest font-display">System Assets</h3>
+                      <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight mt-0.5">Manage QRIS & Audio Signals</p>
                     </div>
                   </div>
 
-                  {/* Audio */}
-                  <div className="space-y-3">
-                    <div className="border-b border-emerald-500/10 pb-2">
-                      <h3 className="font-black text-xs uppercase text-slate-300">Suara Adzan Dan Alarm Masjid</h3>
-                      <p className="text-[10px] text-slate-500 leading-normal">Pasang file audio kustom untuk alarm pengingat adzan otomatis.</p>
+                  <div className="space-y-6">
+                    {/* QRIS Section */}
+                    <div className="p-6 bg-primary-900/20 border border-primary-800/30 rounded-2xl space-y-4">
+                      <div className="text-left">
+                        <h4 className="text-[11px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                           <QrCode className="w-4 h-4" />
+                           QRIS Donation Code
+                        </h4>
+                        <p className="text-[10px] text-slate-400 mt-1">Upload the QRIS code for mosque donations.</p>
+                      </div>
+                      <QrisUploader onAddLog={addLog} />
                     </div>
-                    <div className="bg-[#020b06]/60 p-4 border border-emerald-500/10 rounded-2xl space-y-3.5">
-                      <AudioUploader 
-                        onAddLog={addLog} 
-                        onUpload={(_dataUrl: string) => {
-                          addLog('Audio Uploaded', 'Berkas audio Adzan kustom diupload berhasil.', 'success');
-                        }}
-                      />
-                      <button
-                        onClick={() => {
-                          triggerAudioPlayback();
-                          addLog('Uji Audio Sirene', 'Memulai pengujian suara sirine adzan.', 'system');
-                        }}
-                        className="w-full py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 font-bold rounded-lg text-[10px] uppercase transition tracking-wider active:scale-95"
-                      >
-                        🔔 Uji Coba Playback Audio
-                      </button>
+
+                    {/* Audio Section */}
+                    <div className="p-6 bg-primary-900/20 border border-primary-800/30 rounded-2xl space-y-4">
+                      <div className="text-left">
+                        <h4 className="text-[11px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                           <Music className="w-4 h-4" />
+                           Adzan & Alarm Signal
+                        </h4>
+                        <p className="text-[10px] text-slate-400 mt-1">Configure audio files for automated adzan alerts.</p>
+                      </div>
+                      <div className="space-y-4">
+                        <AudioUploader 
+                          onAddLog={addLog} 
+                          onUpload={(_dataUrl: string) => {
+                            addLog('Audio Uploaded', 'Custom adzan signal updated successfully.', 'success');
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            triggerAudioPlayback();
+                            addLog('Audio Test', 'Triggered adzan signal playback test.', 'system');
+                          }}
+                          className="w-full py-4 bg-primary-800/50 hover:bg-emerald-600 text-emerald-500 hover:text-white border border-emerald-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95"
+                        >
+                          🔔 Test Signal Playback
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Media Slider banner management */}
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl text-left space-y-4">
-                  <div className="border-b border-emerald-500/10 pb-3">
-                    <h3 className="font-black text-xs uppercase text-slate-300">Papan Banner Media Informasi (Slider Beranda)</h3>
-                    <p className="text-[10px] text-slate-500 leading-normal">Seluruh slide banner media dapat dikelola dengan mengaktifkan tab manajemen media di Jadwal Hub subtab "Manajemen Media".</p>
+                {/* Media Slider Banner Management */}
+                <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500">
+                        <ImageIcon className="w-5 h-5" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-sm font-black text-white uppercase tracking-widest font-display">Media Slider</h3>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight mt-0.5">Homepage Hero Banners</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('jadwal')}
+                      className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-600 hover:text-white transition-colors"
+                    >
+                      Open Editor
+                    </button>
                   </div>
                   
-                  {/* Preview Slides */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Preview Slides Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto no-scrollbar pr-2">
                     {slides.length === 0 ? (
-                      <div className="col-span-2 py-10 text-center text-slate-500 text-xs font-semibold">Tidak ada banner informasi terpasang.</div>
+                      <div className="col-span-2 py-20 text-center bg-primary-900/20 border border-dashed border-primary-800/50 rounded-3xl">
+                        <ImageIcon className="w-12 h-12 text-primary-800 mx-auto mb-4" />
+                        <p className="text-[10px] font-black text-primary-600 uppercase tracking-widest">No active banners detected</p>
+                      </div>
                     ) : (
                       slides.map((s, i) => (
-                        <div key={s.id || i} className="relative rounded-xl overflow-hidden border border-emerald-500/10 aspect-video shadow-md bg-black">
-                          <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover opacity-80" referrerPolicy="no-referrer" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30 p-2.5 flex flex-col justify-between">
-                            <span className="text-[8px] font-mono font-black text-amber-300 bg-black/60 px-2 py-0.5 rounded-full border border-amber-500/10 self-start">SLIDE {s.order || i + 1}</span>
+                        <div key={s.id || i} className="group relative aspect-video rounded-[2rem] overflow-hidden border border-primary-800/50 bg-black shadow-2xl">
+                          <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-primary-950 via-primary-950/20 to-transparent p-5 flex flex-col justify-end">
+                            <span className="absolute top-4 left-4 text-[8px] font-black text-amber-500 bg-primary-950/80 px-2.5 py-1 rounded-full border border-amber-500/20 backdrop-blur-md uppercase tracking-widest">
+                              Slide {s.order || i + 1}
+                            </span>
                             <div className="text-left">
-                              <p className="text-[10px] font-black text-white truncate leading-none">{s.title}</p>
-                              <p className="text-[8px] text-slate-300 truncate font-semibold mt-0.5">{s.description}</p>
+                              <h4 className="text-[10px] font-black text-white uppercase tracking-wider truncate mb-1">{s.title}</h4>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter truncate">{s.description}</p>
                             </div>
                           </div>
                         </div>
@@ -524,12 +525,11 @@ export default function AdminDashboardPortal({
                     )}
                   </div>
 
-                  <button
-                    onClick={() => setActiveTab('jadwal')}
-                    className="w-full py-3 bg-[#020b06]/85 text-emerald-450 rounded-xl text-xs font-bold ring-1 ring-emerald-500/10 active:scale-95 duration-200 mt-2 block"
-                  >
-                    Buka Editor Jadwal Hub & Media Banner
-                  </button>
+                  <div className="p-6 bg-primary-900/10 border border-primary-800/30 rounded-2xl">
+                     <p className="text-[9px] text-slate-500 uppercase font-bold leading-relaxed text-center italic">
+                       *All slides can be managed in detail within the "Management Media" subtab in Jadwal Hub.
+                     </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -537,62 +537,72 @@ export default function AdminDashboardPortal({
 
           {/* TAB 3: PROFIL & JAMAAH */}
           {activeTab === 'profil' && (
-            <div className="space-y-6 bg-[#03150d] border border-emerald-500/10 p-3 xs:p-5 sm:p-6 rounded-2xl">
-              <div className="flex border-b border-emerald-500/10 pb-4 mb-4 items-center justify-between">
-                <div className="text-left">
-                  <h3 className="font-black text-sm uppercase text-slate-300">Profil Struktur Yayasan & Agenda Jamaah</h3>
-                  <p className="text-[10px] text-slate-500">Form pengeditan data sejarah masjid, pengurus, struktur, dan pencatatan registrasi kartu keluarga jamaah.</p>
-                </div>
-              </div>
-              
-              <div className="space-y-6 sm:space-y-8">
-                {/* Section Jamaah */}
-                <div className="p-3 xs:p-4 sm:p-5 bg-[#020d08] border border-emerald-500/10 rounded-2xl space-y-4">
-                  <div className="border-b border-emerald-500/10 pb-2 text-left">
-                    <h4 className="text-[11px] font-black text-amber-400 uppercase tracking-wider">● Database Keluarga & Data Jamaah (CRUD)</h4>
-                    <p className="text-[10px] text-slate-400">Panel penambahan, pengubahan, dan pemrosesan hapus data jamaah masjid Al Abrar secara terintegrasi.</p>
+            <div className="space-y-10 animate-fade-in">
+              <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-left">
+                <div className="flex items-center gap-4 border-b border-primary-800/50 pb-6">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500">
+                    <Users className="w-6 h-6" />
                   </div>
-                  
-                  <div className="p-1 rounded-xl bg-slate-950/50">
-                    <ManajemenJamaah 
-                      isAdmin={true}
-                      onAddLog={addLog} 
-                    />
+                  <div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight font-display">Jamaah & Organization</h3>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mt-0.5">Manage historical data, community members, and structural board</p>
                   </div>
                 </div>
-
-                {/* Section Pengurus Lengkap */}
-                <div className="p-3 xs:p-4 sm:p-5 bg-[#020d08] border border-emerald-500/10 rounded-2xl space-y-4">
-                  <div className="border-b border-emerald-500/10 pb-2 text-left">
-                    <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider">● Database Pengurus Lengkap & Foto</h4>
-                    <p className="text-[10px] text-slate-400">Manajemen struktur organisasi lengkap dengan dukungan unggah foto profil tiap bidang.</p>
-                  </div>
-                  
-                  <div className="p-1 rounded-xl bg-slate-950/50">
-                    <ManajemenPengurusLengkap 
-                      detailedBoard={detailedBoard}
-                      onAddLog={addLog}
-                    />
-                  </div>
-                </div>
-
-                {/* Section Sejarah, Visi Misi, Pengurus */}
-                <div className="p-3 xs:p-4 sm:p-5 bg-[#020d08] border border-emerald-500/10 rounded-2xl text-left space-y-4">
-                  <div className="border-b border-emerald-500/10 pb-2">
-                    <h4 className="text-[11px] font-black text-amber-400 uppercase tracking-wider">● Manajemen Konten Profil & Sejarah</h4>
-                    <p className="text-[10px] text-slate-400 font-medium">Perbarui teks informasi umum, sejarah, visi misi, dan daftar tanya jawab masjid.</p>
-                  </div>
-                  
-                  <div className="p-1.5 bg-slate-950/20 border border-emerald-500/5 rounded-xl">
-                    <EditorProfilMasjid 
-                      mosqueSettings={mosqueSettings}
-                      onAddLog={addLog}
-                    />
+                
+                <div className="space-y-10">
+                  {/* Database Jamaah Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 px-2">
+                       <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                       <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Community Registry (CRUD)</h4>
+                    </div>
+                    <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-8 shadow-inner overflow-hidden">
+                      <ManajemenJamaah 
+                        isAdmin={true}
+                        onAddLog={addLog} 
+                      />
+                    </div>
                   </div>
 
-                  <div className="border-t border-emerald-500/10 pt-4 mt-2">
-                    <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider mb-2">Pratinjau Sandbox Landing Profil</h4>
-                    <InfoMasjid activeSubTab="info_umum" detailedBoard={detailedBoard} mosqueSettings={mosqueSettings} />
+                  {/* Organization Board Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 px-2">
+                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                       <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Mosque Structural Board</h4>
+                    </div>
+                    <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-8 shadow-inner overflow-hidden">
+                      <ManajemenPengurusLengkap 
+                        detailedBoard={detailedBoard}
+                        onAddLog={addLog}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Profile Settings Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 px-2">
+                       <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                       <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Mosque Information Editor</h4>
+                    </div>
+                    <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-8 shadow-inner overflow-hidden">
+                      <EditorProfilMasjid 
+                        mosqueSettings={mosqueSettings}
+                        onAddLog={addLog}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Preview Sandbox */}
+                  <div className="pt-8 border-t border-primary-800/30">
+                    <div className="flex items-center justify-between mb-6 px-2">
+                      <h4 className="text-[11px] font-black text-primary-500 uppercase tracking-[0.2em]">Live Landing Preview (Sandbox)</h4>
+                      <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest bg-primary-900/50 px-3 py-1 rounded-full border border-primary-800/50">Read Only View</span>
+                    </div>
+                    <div className="bg-primary-950/80 rounded-[2.5rem] border border-primary-800/50 p-1 overflow-hidden shadow-2xl">
+                      <div className="max-h-[600px] overflow-y-auto no-scrollbar rounded-[2.2rem]">
+                        <InfoMasjid activeSubTab="info_umum" detailedBoard={detailedBoard} mosqueSettings={mosqueSettings} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -601,136 +611,178 @@ export default function AdminDashboardPortal({
 
           {/* TAB 4: JADWAL & SHYAR (SCHEDULER JADWALHUB) */}
           {activeTab === 'jadwal' && (
-            <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl">
-              <div className="text-left border-b border-emerald-500/10 pb-4 mb-5">
-                <h3 className="font-black text-sm uppercase text-slate-300">Pusat Jadwal Waktu Shalat, Syiar Kajian, dan Acara</h3>
-                <p className="text-[10px] text-slate-500 mt-1">Gunakan simulator subtab dan modul scheduler di bawah ini untuk mengakses fungsionalitas CRUD secara menyeluruh.</p>
-              </div>
+            <div className="space-y-10 animate-fade-in">
+              <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-left">
+                <div className="flex items-center gap-4 border-b border-primary-800/50 pb-6">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
+                    <Calendar className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight font-display">Religious Scheduler</h3>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mt-0.5">Control prayer times, study sessions, and special events</p>
+                  </div>
+                </div>
 
-              <div className="p-2 sm:p-4 bg-slate-950/40 rounded-2xl border border-emerald-500/5">
-                <JadwalHub 
-                  prayers={prayers}
-                  nextDetails={nextDetails}
-                  logs={logs}
-                  notificationPermission={notificationPermission as any}
-                  selectedAudio={selectedAudio as any}
-                  isMuted={isMuted}
-                  volume={volume}
-                  isAudioPlaying={isAudioPlaying}
-                  testNotificationTimeLeft={testNotificationTimeLeft}
-                  showConfigInfo={showConfigInfo}
-                  editingPrayer={editingPrayer}
-                  editTimeValue={editTimeValue}
-                  onSetShowConfigInfo={onSetShowConfigInfo}
-                  onTriggerQuickTest={onTriggerQuickTest}
-                  onRequestNotificationPermission={onRequestNotificationPermission}
-                  onSetSelectedAudio={onSetSelectedAudio}
-                  onSetIsMuted={onSetIsMuted}
-                  onSetVolume={onSetVolume}
-                  onToggleSoundPlay={onToggleSoundPlay}
-                  onResetDefaults={onResetDefaults}
-                  onStartEditing={onStartEditing}
-                  onSetEditTimeValue={onSetEditTimeValue}
-                  onSavePrayerEdit={onSavePrayerEdit}
-                  onCancelEdit={onCancelEdit}
-                  onClearLogs={onClearLogs}
-                  onNavigate={() => {}}
-                  onDeleteLog={onDeleteLog}
-                  onAddPrayer={onAddPrayer}
-                  onDeletePrayer={onDeletePrayer}
-                  isAdmin={true}
-                  slides={slides}
-                  onUpdateSlides={async () => {}}
-                  onAddLog={addLog}
-                  kajian={kajian}
-                  onUpdateKajian={() => {}}
-                  jumat={jumat}
-                  onUpdateJumat={() => {}}
-                  ramadan={ramadan}
-                  routine={routine}
-                />
+                <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-4 lg:p-8 shadow-inner">
+                  <JadwalHub 
+                    prayers={prayers}
+                    nextDetails={nextDetails}
+                    logs={logs}
+                    notificationPermission={notificationPermission as any}
+                    selectedAudio={selectedAudio as any}
+                    isMuted={isMuted}
+                    volume={volume}
+                    isAudioPlaying={isAudioPlaying}
+                    testNotificationTimeLeft={testNotificationTimeLeft}
+                    showConfigInfo={showConfigInfo}
+                    editingPrayer={editingPrayer}
+                    editTimeValue={editTimeValue}
+                    onSetShowConfigInfo={onSetShowConfigInfo}
+                    onTriggerQuickTest={onTriggerQuickTest}
+                    onRequestNotificationPermission={onRequestNotificationPermission}
+                    onSetSelectedAudio={onSetSelectedAudio}
+                    onSetIsMuted={onSetIsMuted}
+                    onSetVolume={onSetVolume}
+                    onToggleSoundPlay={onToggleSoundPlay}
+                    onResetDefaults={onResetDefaults}
+                    onStartEditing={onStartEditing}
+                    onSetEditTimeValue={onSetEditTimeValue}
+                    onSavePrayerEdit={onSavePrayerEdit}
+                    onCancelEdit={onCancelEdit}
+                    onClearLogs={onClearLogs}
+                    onNavigate={() => {}}
+                    onDeleteLog={onDeleteLog}
+                    onAddPrayer={onAddPrayer}
+                    onDeletePrayer={onDeletePrayer}
+                    isAdmin={true}
+                    slides={slides}
+                    onUpdateSlides={async () => {}}
+                    onAddLog={addLog}
+                    kajian={kajian}
+                    onUpdateKajian={() => {}}
+                    jumat={jumat}
+                    onUpdateJumat={() => {}}
+                    ramadan={ramadan}
+                    routine={routine}
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* TAB 5: GALERI MASJID */}
           {activeTab === 'galeri' && (
-            <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl">
-              <div className="text-left border-b border-emerald-500/10 pb-3 mb-5">
-                <h3 className="font-black text-sm uppercase text-slate-300">Manajemen Album Galeri Foto Dokumentasi</h3>
-                <p className="text-[10px] text-slate-500">Tambahkan atau hapus foto, serta kelola deskripsi/keterangan visual di galeri utama masjid.</p>
-              </div>
+            <div className="space-y-10 animate-fade-in">
+              <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-left">
+                <div className="flex items-center gap-4 border-b border-primary-800/50 pb-6">
+                  <div className="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center text-sky-500">
+                    <ImageIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight font-display">Media Gallery</h3>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mt-0.5">Curate documentation, events, and mosque visuals</p>
+                  </div>
+                </div>
 
-              <div className="p-2 rounded-2xl bg-slate-950/55">
-                <GaleriMasjid isAdmin={true} />
+                <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-4 lg:p-8 shadow-inner overflow-hidden">
+                  <GaleriMasjid isAdmin={true} />
+                </div>
               </div>
             </div>
           )}
 
           {/* TAB 6: DONASI & AMAL JARIYAH */}
           {activeTab === 'donasi' && (
-            <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl">
-              <div className="text-left border-b border-emerald-500/10 pb-3 mb-5">
-                <h3 className="font-black text-sm uppercase text-slate-300">Manajemen Program Donasi Digital (Zakat, Sedekah, Infaq)</h3>
-                <p className="text-[10px] text-slate-500">Buat program kampanye baru, edit target pencapaian dana, pantau donatur aktif, dan kelola status pencairan donasi.</p>
-              </div>
+            <div className="space-y-10 animate-fade-in">
+              <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-left">
+                <div className="flex items-center gap-4 border-b border-primary-800/50 pb-6">
+                  <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
+                    <Heart className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight font-display">Donation Hub</h3>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mt-0.5">Manage digital fundraising, campaigns, and charity programs</p>
+                  </div>
+                </div>
 
-              <div className="p-2 rounded-2xl bg-[#020b05]/65 border border-emerald-500/5">
-                <DonationOpen 
-                  isAdmin={true}
-                  campaigns={campaigns}
-                  onUpdateCampaigns={() => {}}
-                  onDonationSuccess={onDonationSuccess}
-                  onAddLog={addLog}
-                />
+                <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-4 lg:p-8 shadow-inner overflow-hidden">
+                  <DonationOpen 
+                    isAdmin={true}
+                    campaigns={campaigns}
+                    onUpdateCampaigns={() => {}}
+                    onDonationSuccess={onDonationSuccess}
+                    onAddLog={addLog}
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* TAB 7: KAS & KEUANGAN */}
           {activeTab === 'keuangan' && (
-            <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl">
-              <div className="text-left border-b border-emerald-500/10 pb-3 mb-5">
-                <h3 className="font-black text-sm uppercase text-slate-300">Sistem Keuangan, Pembukuan Kas, & Donatur Tetap</h3>
-                <p className="text-[10px] text-slate-550">Catat transaksi debit/kredit, verifikasi slip setoran, audit rekap donatur tahunan bulanan lengkap.</p>
-              </div>
+            <div className="space-y-10 animate-fade-in">
+              <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-left">
+                <div className="flex items-center gap-4 border-b border-primary-800/50 pb-6">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
+                    <Coins className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight font-display">Financial Center</h3>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mt-0.5">Audit transaction logs, cash flow, and donor reports</p>
+                  </div>
+                </div>
 
-              <div className="p-2 rounded-2xl bg-slate-950/60">
-                <KeuanganMasjid 
-                  isAdmin={true} 
-                  onAddLog={addLog} 
-                />
+                <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-4 lg:p-8 shadow-inner overflow-hidden">
+                  <KeuanganMasjid 
+                    isAdmin={true} 
+                    onAddLog={addLog} 
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* TAB 8: INVENTARIS / ASET */}
           {activeTab === 'inventaris' && (
-            <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl">
-              <div className="text-left border-b border-emerald-500/10 pb-3 mb-5">
-                <h3 className="font-black text-sm uppercase text-slate-330">Sensus Logistik, Aset, Dan Inventaris Masjid</h3>
-                <p className="text-[10px] text-slate-500">Kontrol stok ketersediaan, update status kondisi barang (baik, rusak), input kode seri inventaris milik masjid.</p>
-              </div>
+            <div className="space-y-10 animate-fade-in">
+              <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-left">
+                <div className="flex items-center gap-4 border-b border-primary-800/50 pb-6">
+                  <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500">
+                    <Package className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight font-display">Asset Management</h3>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mt-0.5">Track mosque logistics, condition census, and equipment inventory</p>
+                  </div>
+                </div>
 
-              <div className="p-2 rounded-2xl bg-slate-950/70 border border-emerald-500/5">
-                <InventarisMasjid 
-                  isAdmin={true} 
-                  onAddLog={addLog} 
-                />
+                <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-4 lg:p-8 shadow-inner overflow-hidden">
+                  <InventarisMasjid 
+                    isAdmin={true} 
+                    onAddLog={addLog} 
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* TAB 9: INBOX / CONTACT FEEDBACK */}
           {activeTab === 'kontak' && (
-            <div className="bg-[#03150d] border border-emerald-500/10 p-3.5 xs:p-5 sm:p-6 rounded-2xl">
-              <div className="text-left border-b border-emerald-500/10 pb-3 mb-5">
-                <h3 className="font-black text-sm uppercase text-slate-330">Pemberitahuan Guest Messages & Hubungi Kami</h3>
-                <p className="text-[10px] text-slate-500">Monitor pesan langsung, saran jamaah, formulir konsultasi syariah, serta edit kontak pengurus masjid.</p>
-              </div>
+            <div className="space-y-10 animate-fade-in">
+              <div className="bg-primary-950/50 border border-primary-800/50 p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-left">
+                <div className="flex items-center gap-4 border-b border-primary-800/50 pb-6">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500">
+                    <Phone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight font-display">Communications Hub</h3>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mt-0.5">Review guest messages, feedback, and emergency contacts</p>
+                  </div>
+                </div>
 
-              <div className="p-2 rounded-2xl bg-slate-950/65">
-                <KontakMasjid isAdmin={true} />
+                <div className="bg-primary-900/10 border border-primary-800/30 rounded-[2rem] p-4 lg:p-8 shadow-inner overflow-hidden">
+                  <KontakMasjid isAdmin={true} />
+                </div>
               </div>
             </div>
           )}
@@ -837,35 +889,37 @@ export default function AdminDashboardPortal({
             </div>
           )}
 
+          </div>
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation Bar (Elegant Floating Glass Capsule) */}
-      <div className="xl:hidden fixed bottom-4 left-4 right-4 z-40 bg-[#03110a]/90 backdrop-blur-xl border border-emerald-500/20 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.75)] transition-all">
-        <div className="flex items-center justify-around px-2.5 py-2">
-          {['overview', 'jadwal', 'keuangan', 'profil'].map(id => {
-            const item = menuItems.find(m => m.id === id);
-            if (!item) return null;
+      {/* Mobile Bottom Navigation Bar (Floating Premium Capsule) */}
+      <div className="xl:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-lg animate-slide-up">
+        <div className="bg-primary-950/90 backdrop-blur-2xl border border-primary-800/50 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] px-2 py-2 flex items-center justify-around">
+          {menuItems.slice(0, 4).map(item => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as any)}
-                className={`flex flex-col items-center justify-center w-14 h-13 gap-1 rounded-xl transition-all duration-300 relative ${
-                  isActive ? 'text-amber-300' : 'text-slate-400 hover:text-slate-200'
-                }`}
+                className={`
+                  flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-500 relative
+                  ${isActive ? 'text-white' : 'text-slate-500 hover:text-slate-300'}
+                `}
               >
                 {isActive && (
-                  <span className="absolute inset-0 bg-emerald-500/10 border border-emerald-500/20 rounded-xl transition-all duration-300"></span>
+                  <motion.div 
+                    layoutId="activeTabMobile"
+                    className="absolute inset-0 bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-900/40"
+                  />
                 )}
-                <div className={`transition-transform duration-300 z-10 ${isActive ? 'scale-110 mb-0.5' : 'scale-100'}`}>
+                <div className={`transition-all duration-500 relative z-10 ${isActive ? 'scale-110 -translate-y-1' : 'scale-100'}`}>
                   {item.mobileIcon || item.icon}
                 </div>
-                <span className={`text-[9px] font-extrabold tracking-wide z-10 ${isActive ? 'text-white' : 'text-slate-400/80'}`}>
-                  {item.shortLabel}
-                </span>
                 {isActive && (
-                  <span className="absolute -bottom-1.5 w-6 h-1 rounded-t-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                  <span className="text-[8px] font-black uppercase tracking-widest mt-1 relative z-10 animate-fade-in">
+                    {item.shortLabel}
+                  </span>
                 )}
               </button>
             );
@@ -873,56 +927,47 @@ export default function AdminDashboardPortal({
           
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className={`flex flex-col items-center justify-center w-14 h-13 gap-1 rounded-xl transition-all duration-300 relative ${
-              isSidebarOpen ? 'text-amber-300' : 'text-slate-400 hover:text-slate-200'
-            }`}
+            className="flex flex-col items-center justify-center w-14 h-14 rounded-2xl text-slate-500 hover:text-white transition-all relative"
           >
-            {isSidebarOpen && (
-               <span className="absolute inset-0 bg-emerald-500/10 border border-emerald-500/20 rounded-xl transition-all duration-300"></span>
-            )}
-            <div className={`transition-transform duration-300 z-10 ${isSidebarOpen ? 'scale-110 mb-0.5' : 'scale-100'}`}>
+            <div className="bg-primary-900/50 w-10 h-10 rounded-xl flex items-center justify-center border border-primary-800/50">
               <Menu className="h-5 w-5" />
             </div>
-            <span className="text-[9px] font-extrabold tracking-wide z-10 text-slate-400/80">Menu</span>
-            {isSidebarOpen && (
-               <span className="absolute -bottom-1.5 w-6 h-1 rounded-t-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
-            )}
           </button>
         </div>
       </div>
 
       {/* Mobile Bottom Sheet (More Menu) */}
       <div 
-        className={`xl:hidden fixed inset-0 z-50 flex flex-col justify-end transition-all duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`xl:hidden fixed inset-0 z-[80] flex flex-col justify-end transition-all duration-700 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       >
         <div 
-          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+          className="absolute inset-0 bg-primary-950/80 backdrop-blur-md"
           onClick={() => setIsSidebarOpen(false)}
         />
         <div 
-          className={`relative bg-[#03110a] border-t border-emerald-500/25 rounded-t-[28px] shadow-[0_-8px_40px_rgba(0,0,0,0.8)] transition-transform duration-300 transform ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`}
+          className={`relative bg-primary-950 border-t border-primary-800/50 rounded-t-[3rem] shadow-[0_-20px_60px_rgba(0,0,0,0.9)] transition-all duration-700 transform ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`}
           style={{ maxHeight: '85vh' }}
         >
           {/* Grab Bar */}
-          <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing animate-bounce-slow" onClick={() => setIsSidebarOpen(false)}>
-            <div className="w-12 h-1.5 bg-emerald-500/20 rounded-full" />
+          <div className="flex justify-center pt-5 pb-2 cursor-grab active:cursor-grabbing" onClick={() => setIsSidebarOpen(false)}>
+            <div className="w-16 h-1.5 bg-primary-800/50 rounded-full" />
           </div>
           
-          <div className="px-5 pb-8 pt-2 flex flex-col h-full max-h-[calc(85vh-2rem)] overflow-y-auto no-scrollbar">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h3 className="text-xs font-black tracking-widest text-emerald-400 uppercase">KATEGORI ADMINISTRATOR</h3>
-                <p className="text-[8px] text-slate-400 mt-0.5">Kelola data dan fungsionalitas masjid</p>
+          <div className="px-8 pb-12 pt-6 flex flex-col h-full max-h-[calc(85vh-3rem)] overflow-y-auto no-scrollbar">
+            <div className="flex items-center justify-between mb-8">
+              <div className="text-left">
+                <h3 className="text-sm font-black tracking-[0.25em] text-emerald-500 uppercase font-display">System Hub</h3>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Select administrative module</p>
               </div>
               <button 
                 onClick={() => setIsSidebarOpen(false)} 
-                className="p-2 bg-emerald-500/15 hover:bg-emerald-500/20 transition-colors text-emerald-400 rounded-full border border-emerald-500/10"
+                className="w-12 h-12 bg-primary-900/50 hover:bg-primary-800 transition-colors text-white rounded-2xl border border-primary-800/50 flex items-center justify-center"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
             
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {menuItems.map(item => {
                 const isActive = activeTab === item.id;
                 return (
@@ -932,36 +977,39 @@ export default function AdminDashboardPortal({
                       setActiveTab(item.id as any);
                       setIsSidebarOpen(false);
                     }}
-                    className={`flex flex-col items-center justify-center p-3 rounded-2xl group relative border transition-all duration-300 ${
-                      isActive 
-                        ? 'bg-gradient-to-br from-[#062417] to-[#03110a] border-emerald-500/40 text-amber-300 shadow-[0_4px_20px_rgba(16,185,129,0.15)] scale-102' 
-                        : 'bg-[#020b06]/60 border-emerald-500/5 text-slate-300 hover:bg-[#041910] hover:text-emerald-400'
-                    }`}
+                    className={`
+                      flex flex-col items-start p-6 rounded-3xl border transition-all duration-500 text-left
+                      ${isActive 
+                        ? 'bg-emerald-600 border-emerald-500 text-white shadow-xl shadow-emerald-950/40 scale-[1.02]' 
+                        : 'bg-primary-900/40 border-primary-800/50 text-slate-400 hover:border-primary-700 hover:bg-primary-900'}
+                    `}
                   >
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-amber-400/10 text-amber-300' : 'bg-emerald-950/40 border border-emerald-500/15 text-emerald-400 group-hover:scale-110'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-colors ${isActive ? 'bg-white/20 text-white' : 'bg-primary-800/50 text-emerald-500'}`}>
                       {item.mobileIcon || item.icon}
                     </div>
-                    <span className={`text-[10px] font-black mt-2 text-center leading-tight transition-colors ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
-                      {item.shortLabel}
+                    <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-tight">
+                      {item.label}
                     </span>
-                    {item.badge && (
-                      <span className="absolute top-2 right-2 w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)] border border-[#03110a]" />
+                    {item.badge && !isActive && (
+                      <span className="mt-2 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary-800 text-emerald-500 border border-primary-700/50">
+                        {item.badge}
+                      </span>
                     )}
                   </button>
                 )
               })}
             </div>
 
-            <div className="mt-8 pt-5 border-t border-emerald-500/10">
+            <div className="mt-10 pt-8 border-t border-primary-800/50">
               <button
                 onClick={() => {
                   setIsSidebarOpen(false);
                   onLogout();
                 }}
-                className="w-full py-3.5 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-transparent text-rose-400 hover:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2.5 shadow-lg transition duration-300 active:scale-95 uppercase tracking-wider"
+                className="w-full py-5 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-[2rem] flex items-center justify-center gap-3 shadow-2xl transition-all active:scale-95 uppercase tracking-[0.2em]"
               >
-                <LogOut className="h-4 w-4" />
-                Sign Out / Kunci Panel
+                <LogOut className="h-5 w-5" />
+                Sign Out & Lock Panel
               </button>
             </div>
           </div>
