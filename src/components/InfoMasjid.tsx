@@ -81,13 +81,13 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
           {/* Main Info Header */}
           <section className="text-center space-y-12">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 border border-primary-100 rounded-full text-primary-700">
                 <Info className="h-4 w-4" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">Pusat Informasi Digital Al Abrar</span>
               </div>
               <h2 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-tight uppercase font-display">
                 Latar Belakang <br />
-                <span className="text-emerald-600">Digitalisasi Masjid.</span>
+                <span className="text-primary-600">Digitalisasi Masjid.</span>
               </h2>
               <p className="text-slate-500 text-sm leading-relaxed max-w-2xl mx-auto font-medium">
                 Digitalisasi Masjid Jami Al Abrar Parepare dilatarbelakangi oleh visi luhur Pengurus Takmir untuk menghadirkan tata kelola rumah ibadah yang modern, transparan, akuntabel, dan berorientasi pada peningkatan layanan keumatan.
@@ -97,12 +97,12 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
             {/* Identitas Utama Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto px-4">
               {[
-                { label: 'Tahun Berdiri', value: '1961', icon: <Landmark className="w-5 h-5" />, color: 'bg-amber-50 text-amber-600' },
+                { label: 'Tahun Berdiri', value: '1961', icon: <Landmark className="w-5 h-5" />, color: 'bg-accent-gold/10 text-amber-600' },
                 { label: 'Kapasitas', value: '± 800 Jamaah', icon: <Users className="w-5 h-5" />, color: 'bg-blue-50 text-blue-600' },
-                { label: 'Status Tanah', value: 'Wakaf Sah', icon: <Award className="w-5 h-5" />, color: 'bg-emerald-50 text-emerald-600' },
+                { label: 'Status Tanah', value: 'Wakaf Sah', icon: <Award className="w-5 h-5" />, color: 'bg-primary-50 text-primary-600' },
                 { label: 'Lokasi', value: 'Lapadde, Parepare', icon: <MapPin className="w-5 h-5" />, color: 'bg-rose-50 text-rose-600' },
               ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-150 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all group">
+                <div key={i} className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-150 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-primary-900/5 transition-all group">
                   <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                     {item.icon}
                   </div>
@@ -125,7 +125,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                 Sebagai salah satu masjid utama yang terletak strategis di Kelurahan Lapadde, Kecamatan Ujung, Kota Parepare, Masjid Jami Al Abrar terus mengalami lonjakan jamaah dan dinamika kepengurusan. Seiring berjalannya waktu, metode pencatatan manual untuk laporan keuangan, penyebaran selebaran kertas untuk jadwal petugas Jumat, serta papan pengumuman fisik dinilai kurang memadai untuk memenuhi mobilitas tinggi kejamaahan era modern.
               </p>
               <p>
-                Menjawab tantangan tersebut, Badan Kesejahteraan/Takmir Masjid Al Abrar pada tahun 2024 berkomitmen meluncurkan <strong className="text-emerald-700">Sistem Digitalisasi Terpadu</strong>. Platform ini menghubungkan takmir dan jamaah dalam satu ekosistem cloud, memastikan transparansi penuh atas kas umat, serta menjamin keakuratan jadwal ibadah dan program syiar sepanjang tahun.
+                Menjawab tantangan tersebut, Badan Kesejahteraan/Takmir Masjid Al Abrar pada tahun 2024 berkomitmen meluncurkan <strong className="text-primary-700">Sistem Digitalisasi Terpadu</strong>. Platform ini menghubungkan takmir dan jamaah dalam satu ekosistem cloud, memastikan transparansi penuh atas kas umat, serta menjamin keakuratan jadwal ibadah dan program syiar sepanjang tahun.
               </p>
             </div>
           </section>
@@ -154,8 +154,8 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                   icon: '👥'
                 }
               ].map((item, i) => (
-                <div key={i} className="bg-white border border-slate-200 rounded-[2.5rem] p-8 space-y-4 shadow-sm hover:border-emerald-250 transition-all text-left group">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                <div key={i} className="bg-white border border-slate-200 rounded-[2.5rem] p-8 space-y-4 shadow-sm hover:border-primary-250 transition-all text-left group">
+                  <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
                     {item.icon}
                   </div>
                   <h3 className="text-base font-black text-slate-900 tracking-tight">{item.title}</h3>
@@ -183,7 +183,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                 <div 
                   key={idx}
                   className={`bg-white border rounded-3xl overflow-hidden transition-all duration-300 ${
-                    activeFaq === idx ? 'border-emerald-500 ring-4 ring-emerald-500/5' : 'border-slate-150 hover:border-slate-300'
+                    activeFaq === idx ? 'border-primary-500 ring-4 ring-primary-500/5' : 'border-slate-150 hover:border-slate-300'
                   }`}
                 >
                   <button 
@@ -191,7 +191,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                     className="w-full flex items-center justify-between p-6 text-left outline-none"
                   >
                     <span className="font-bold text-slate-800 text-sm">{faq.q}</span>
-                    <ChevronDown className={`h-5 w-5 text-slate-300 transition-transform duration-300 ${activeFaq === idx ? 'rotate-180 text-emerald-500' : ''}`} />
+                    <ChevronDown className={`h-5 w-5 text-slate-300 transition-transform duration-300 ${activeFaq === idx ? 'rotate-180 text-primary-500' : ''}`} />
                   </button>
                   
                   <div className={`transition-all duration-300 ease-in-out px-6 overflow-hidden ${activeFaq === idx ? 'max-h-40 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -210,13 +210,13 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
       {activeTab === 'sejarah' && (
         <div className="space-y-8 text-left animate-fade-in">
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-50 border border-amber-100 rounded-full text-amber-700">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent-gold/10 border border-accent-gold/20 rounded-full text-amber-700">
               <Landmark className="h-4 w-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Kilas Sejarah Perjuangan</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-display uppercase">
               Riwayat Masjid Jami <br />
-              <span className="text-emerald-600">Al Abrar Lapadde.</span>
+              <span className="text-primary-600">Al Abrar Lapadde.</span>
             </h2>
             <p className="text-slate-500 text-sm max-w-2xl mx-auto font-medium">
               Perjalanan spiritual berdirinya sarana ibadah agung tumpuan iman masyarakat Kelurahan Lapadde, Ujung, Parepare.
@@ -233,7 +233,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
               ⌛ Milestones & Garis Waktu Perkembangan
             </h3>
             
-            <div className="relative border-l-4 border-emerald-50 ml-4 space-y-12 pl-10 py-4">
+            <div className="relative border-l-4 border-primary-50 ml-4 space-y-12 pl-10 py-4">
               {[
                 {
                   year: '1961',
@@ -275,22 +275,22 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                   className="relative group text-left"
                 >
                   {/* Floating Year Badge */}
-                  <div className="absolute -left-[54px] top-0 w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 z-10 group-hover:scale-110 transition-transform">
+                  <div className="absolute -left-[54px] top-0 w-10 h-10 rounded-2xl bg-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-600/30 z-10 group-hover:scale-110 transition-transform">
                     <span className="text-[10px] font-black rotate-[-90deg] whitespace-nowrap">{m.year}</span>
                   </div>
                   
                   {/* Connecting Dot */}
-                  <div className="absolute -left-[45px] top-4 w-4 h-4 rounded-full bg-white border-4 border-emerald-500 shadow-sm z-20 group-hover:scale-125 transition-transform"></div>
+                  <div className="absolute -left-[45px] top-4 w-4 h-4 rounded-full bg-white border-4 border-primary-500 shadow-sm z-20 group-hover:scale-125 transition-transform"></div>
 
-                  <div className="bg-white border border-slate-150 rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all group-hover:border-emerald-200">
+                  <div className="bg-white border border-slate-150 rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:shadow-primary-900/5 transition-all group-hover:border-primary-200">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                       <div className="space-y-1">
-                        <h4 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-emerald-700 transition-colors">
+                        <h4 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-primary-700 transition-colors">
                           {m.title}
                         </h4>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/50">Momen Bersejarah</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-primary-600/50">Momen Bersejarah</span>
                       </div>
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                      <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-colors">
                         {m.icon}
                       </div>
                     </div>
@@ -309,13 +309,13 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
       {activeTab === 'visi_misi' && (
         <div className="space-y-8 text-left animate-fade-in">
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 border border-primary-100 rounded-full text-primary-700">
               <Award className="h-4 w-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Arah & Tujuan Mulia</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-display uppercase">
               Visi dan Misi Utama <br />
-              <span className="text-emerald-700">Kemakmuran Masjid.</span>
+              <span className="text-primary-700">Kemakmuran Masjid.</span>
             </h2>
             <p className="text-slate-500 text-sm max-w-md mx-auto font-medium">
               Landasan operasional takmir dalam memakmurkan tempat suci dan mengayomi kedamaian jamaah.
@@ -324,13 +324,13 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
 
           {/* Vision card */}
           <section className="relative group perspective-1000">
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative bg-gradient-to-br from-emerald-800 to-emerald-950 text-white rounded-[2.5rem] p-10 sm:p-14 shadow-2xl space-y-6 overflow-hidden">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-teal-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-gradient-to-br from-primary-800 to-primary-950 text-white rounded-[2.5rem] p-10 sm:p-14 shadow-2xl space-y-6 overflow-hidden">
               <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 opacity-10 group-hover:scale-110 transition-transform duration-700">
                 <Landmark className="w-80 h-80" />
               </div>
               <div className="relative z-10 space-y-4">
-                <h4 className="text-[11px] font-black tracking-[0.4em] text-emerald-400 uppercase leading-none">VISI UTAMA AL ABRAR</h4>
+                <h4 className="text-[11px] font-black tracking-[0.4em] text-primary-400 uppercase leading-none">VISI UTAMA AL ABRAR</h4>
                 <blockquote className="text-2xl sm:text-4xl font-black leading-tight font-display tracking-tight text-white italic pt-6 border-t border-white/10 max-w-4xl">
                   "{visionText}"
                 </blockquote>
@@ -341,7 +341,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
           {/* Mission list */}
           <section className="space-y-8 pt-6">
             <div className="flex items-center gap-3 px-1">
-              <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+              <div className="w-1.5 h-6 bg-primary-500 rounded-full"></div>
               <h3 className="text-xl font-black uppercase tracking-wider text-slate-900">Misi Pelayanan & Pembinaan Islam</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -352,9 +352,9 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-white border border-slate-150 rounded-3xl p-8 shadow-sm flex gap-6 hover:border-emerald-200 hover:shadow-md transition-all group"
+                  className="bg-white border border-slate-150 rounded-3xl p-8 shadow-sm flex gap-6 hover:border-primary-200 hover:shadow-md transition-all group"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-colors">
                     <Check className="w-6 h-6 font-bold" />
                   </div>
                   <div className="space-y-2 min-w-0">
@@ -397,7 +397,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-display uppercase">
               Susunan Pengurus Takmir <br />
-              <span className="text-emerald-600">Masjid Jami Al Abrar.</span>
+              <span className="text-primary-600">Masjid Jami Al Abrar.</span>
             </h2>
             <p className="text-slate-500 text-sm max-w-xl mx-auto font-medium">
               Sinergi jajaran pengurus penasehat, idarah, imarah, serta riayah dalam satu komite pelayanan umat terpadu.
@@ -418,9 +418,9 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
           {/* Category Sections Based on detailedBoard */}
           {[
             { id: 'penasehat', label: 'Dewan Pelindung / Penasehat', icon: '⭐', colorClass: 'text-blue-800', borderClass: 'border-blue-500' },
-            { id: 'inti', label: 'Jajaran Pengurus Inti (Harian)', icon: '👥', colorClass: 'text-emerald-700', borderClass: 'border-emerald-600' },
-            { id: 'idarah', label: 'Bidang Idarah (Administrasi & Dana)', icon: '📁', colorClass: 'text-amber-700', borderClass: 'border-amber-500' },
-            { id: 'imarah', label: 'Bidang Imarah (Kemakmuran & Ibadah)', icon: '🕌', colorClass: 'text-emerald-600', borderClass: 'border-emerald-600' },
+            { id: 'inti', label: 'Jajaran Pengurus Inti (Harian)', icon: '👥', colorClass: 'text-primary-700', borderClass: 'border-primary-600' },
+            { id: 'idarah', label: 'Bidang Idarah (Administrasi & Dana)', icon: '📁', colorClass: 'text-amber-700', borderClass: 'border-accent-gold' },
+            { id: 'imarah', label: 'Bidang Imarah (Kemakmuran & Ibadah)', icon: '🕌', colorClass: 'text-primary-600', borderClass: 'border-primary-600' },
             { id: 'riayah', label: 'Bidang Riayah (Sarana & Prasarana)', icon: '🛠️', colorClass: 'text-sky-700', borderClass: 'border-sky-600' }
           ].map((cat) => {
             const members = detailedBoard.filter(m => m.category === cat.id);
@@ -454,9 +454,9 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                             <motion.div 
                               key={mIdx} 
                               whileHover={{ y: -8 }}
-                              className="flex flex-col items-center text-center group bg-white p-6 rounded-[2rem] border border-slate-150 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all"
+                              className="flex flex-col items-center text-center group bg-white p-6 rounded-[2rem] border border-slate-150 shadow-sm hover:shadow-xl hover:shadow-primary-900/5 transition-all"
                             >
-                              <div className="w-20 h-20 rounded-3xl overflow-hidden border-2 border-slate-100 group-hover:border-emerald-500 transition-all duration-500 shadow-md mb-4 rotate-3 group-hover:rotate-0">
+                              <div className="w-20 h-20 rounded-3xl overflow-hidden border-2 border-slate-100 group-hover:border-primary-500 transition-all duration-500 shadow-md mb-4 rotate-3 group-hover:rotate-0">
                                 {m.imageUrl ? (
                                   <img 
                                     src={m.imageUrl} 
@@ -470,7 +470,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                                   </div>
                                 )}
                               </div>
-                              <span className="text-xs font-black text-slate-900 leading-tight block mb-1 group-hover:text-emerald-700 transition-colors">{m.name}</span>
+                              <span className="text-xs font-black text-slate-900 leading-tight block mb-1 group-hover:text-primary-700 transition-colors">{m.name}</span>
                               <span className={`text-[9px] font-black uppercase tracking-wider ${cat.colorClass} opacity-60 group-hover:opacity-100 transition-opacity`}>{m.role}</span>
                             </motion.div>
                           ))}

@@ -6,6 +6,18 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-serif: "Playfair Display", Georgia, serif;
+
+  /* Unified Brand Colors */
+  --color-primary-950: #021a11;
+  --color-primary-900: #042f1f;
+  --color-primary-800: #064e3b;
+  --color-primary-700: #047857;
+  --color-primary-600: #059669;
+  --color-primary-500: #10b981;
+  --color-primary-400: #34d399;
+  
+  --color-accent-gold: #fbbf24;
+  --color-accent-amber: #f59e0b;
 }
 
 @layer utilities {

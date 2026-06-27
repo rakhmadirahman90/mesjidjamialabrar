@@ -104,12 +104,12 @@ function MemberCard({ name, role, imageUrl, onEdit, onDelete, isAdmin }: { name:
         className="w-10 h-10 rounded-full object-cover object-top border-2 border-white shadow-md group-hover:scale-105 transition shrink-0"
       />
       <div className="min-w-0 flex-1">
-        {role && <span className="block text-[8px] font-black text-emerald-700 uppercase font-mono tracking-widest mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{role}</span>}
+        {role && <span className="block text-[8px] font-black text-primary-700 uppercase font-mono tracking-widest mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{role}</span>}
         <h4 className="font-bold text-[11px] text-slate-800 truncate tracking-tight">{name}</h4>
       </div>
       {isAdmin && onEdit && (
         <div className="flex gap-1">
-          <button onClick={onEdit} className="p-1.5 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100"><Edit2 className="h-3 w-3" /></button>
+          <button onClick={onEdit} className="p-1.5 bg-white text-slate-400 hover:text-primary-600 rounded-lg shadow-sm border border-slate-100"><Edit2 className="h-3 w-3" /></button>
           {onDelete && <button onClick={onDelete} className="p-1.5 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100"><Trash2 className="h-3 w-3" /></button>}
         </div>
       )}
@@ -311,7 +311,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
     <div className="space-y-6 animate-fade-in" id="profile_mosque_view">
       
       {/* Editorial Header Banner Card */}
-      <div className="bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-3xl p-6 sm:p-10 relative overflow-hidden shadow-xl border-b-4 border-amber-400">
+      <div className="bg-gradient-to-br from-primary-900 to-teal-950 text-white rounded-3xl p-6 sm:p-10 relative overflow-hidden shadow-xl border-b-4 border-amber-400">
         <img
           src={profile.mosqueImageUrl || "https://images.unsplash.com/photo-1591604466107-ec97de577aff?q=80&w=1200&auto=format&fit=crop"}
           alt="Masjid Al Abrar"
@@ -331,25 +331,25 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
         <div className="absolute right-0 bottom-0 top-0 w-2/5 opacity-10 select-none hidden md:block" style={{ backgroundImage: `radial-gradient(circle, #fbbf24 1px, transparent 1px)`, backgroundSize: '12px 12px' }}></div>
         
         <div className="max-w-2xl space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-emerald-800/60 border border-emerald-700 text-amber-300 font-bold text-xs uppercase px-3 py-1.5 rounded-full tracking-wider">
+          <div className="inline-flex items-center gap-2 bg-primary-800/60 border border-primary-700 text-amber-300 font-bold text-xs uppercase px-3 py-1.5 rounded-full tracking-wider">
             <Building className="h-4 w-4" /> Profil Peradaban
           </div>
           
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-display text-white">
             Masjid Jami <span className="text-amber-400">Al Abrar</span> Lapadde
           </h1>
-          <p className="text-emerald-100/90 text-sm sm:text-base leading-relaxed">
+          <p className="text-primary-100/90 text-sm sm:text-base leading-relaxed">
             Jl jend A Yani Km 5 Kecamatan ujung kelurahan lapadde.
           </p>
           
           <div className="flex flex-wrap gap-4 pt-2 text-xs">
-            <span className="flex items-center gap-1.5 bg-emerald-950/40 px-3 py-2 rounded-xl text-emerald-200">
+            <span className="flex items-center gap-1.5 bg-primary-950/40 px-3 py-2 rounded-xl text-primary-200">
               <MapPin className="h-3.5 w-3.5 text-amber-400" /> Parepare, Sulsel
             </span>
-            <span className="flex items-center gap-1.5 bg-emerald-950/40 px-3 py-2 rounded-xl text-emerald-200">
+            <span className="flex items-center gap-1.5 bg-primary-950/40 px-3 py-2 rounded-xl text-primary-200">
               <Calendar className="h-3.5 w-3.5 text-amber-400" /> Berdiri Sejak 1961
             </span>
-            <span className="flex items-center gap-1.5 bg-emerald-950/40 px-3 py-2 rounded-xl text-emerald-200">
+            <span className="flex items-center gap-1.5 bg-primary-950/40 px-3 py-2 rounded-xl text-primary-200">
               <Award className="h-3.5 w-3.5 text-amber-400" /> Sertifikasi Masjid Jami
             </span>
           </div>
@@ -365,12 +365,12 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
           <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-                <span className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">🕌</span> Sejarah Singkat Masjid
+                <span className="p-2 bg-primary-50 text-primary-700 rounded-xl">🕌</span> Sejarah Singkat Masjid
               </h3>
               {isAdmin && !isEditingMain && (
                 <button 
                   onClick={() => { setIsEditingMain(true); setEditForm(profile); }}
-                  className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-emerald-600 hover:text-white transition shadow-sm"
+                  className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-primary-600 hover:text-white transition shadow-sm"
                 >
                   <Edit2 className="h-4 w-4" />
                 </button>
@@ -382,7 +382,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                 <textarea 
                   value={editForm.history}
                   onChange={e => setEditForm({...editForm, history: e.target.value})}
-                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none h-48"
+                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary-500 outline-none h-48"
                 />
                 <div className="flex gap-2 justify-end">
                   <button onClick={() => setIsEditingMain(false)} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold font-mono">BATAL</button>
@@ -407,7 +407,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
           <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-5">
             <div className="space-y-1">
               <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-                <span className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">🎯</span> Visi & Misi Masjid
+                <span className="p-2 bg-primary-50 text-primary-700 rounded-xl">🎯</span> Visi & Misi Masjid
               </h3>
               <p className="text-slate-500 text-xs">Arah perjuangan Takmir Masjid Jami Al Abrar Lapadde.</p>
             </div>
@@ -420,7 +420,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                     type="text" 
                     value={editForm.vision}
                     onChange={e => setEditForm({...editForm, vision: e.target.value})}
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary-500 outline-none"
                   />
                 </div>
                 <div className="space-y-3">
@@ -435,7 +435,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                           newMissions[idx] = e.target.value;
                           setEditForm({...editForm, mision: newMissions});
                         }}
-                        className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
+                        className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-primary-500 outline-none"
                       />
                       <button 
                         onClick={() => {
@@ -450,7 +450,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                   ))}
                   <button 
                     onClick={() => setEditForm({...editForm, mision: [...editForm.mision, '']})}
-                    className="w-full py-3 border-2 border-dashed border-emerald-100 rounded-2xl text-xs font-black text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition flex items-center justify-center gap-2"
+                    className="w-full py-3 border-2 border-dashed border-primary-100 rounded-2xl text-xs font-black text-primary-600 hover:bg-primary-50 hover:border-primary-300 transition flex items-center justify-center gap-2"
                   >
                     <Plus className="h-4 w-4" /> TAMBAH MISI
                   </button>
@@ -458,8 +458,8 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               </div>
             ) : (
               <>
-                <div className="bg-gradient-to-r from-emerald-50 to-teal-50/50 rounded-2xl p-5 border border-emerald-100/50 group relative">
-                  <span className="block text-xs font-bold text-emerald-800/80 uppercase tracking-widest font-mono mb-1.5">VISI UTAMA</span>
+                <div className="bg-gradient-to-r from-primary-50 to-teal-50/50 rounded-2xl p-5 border border-primary-100/50 group relative">
+                  <span className="block text-xs font-bold text-primary-800/80 uppercase tracking-widest font-mono mb-1.5">VISI UTAMA</span>
                   {editingVision ? (
                     <div className="flex flex-wrap gap-2">
                       <input 
@@ -467,15 +467,15 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                         onChange={e => setVisionForm(e.target.value)} 
                         className="flex-1 min-w-[200px] p-2 border rounded-lg text-sm bg-white shadow-sm"
                       />
-                      <button onClick={() => { saveProfile({...profile, vision: visionForm}); setEditingVision(false); }} className="p-2 bg-emerald-600 text-white rounded-lg flex-shrink-0"><Save className="h-4 w-4"/></button>
+                      <button onClick={() => { saveProfile({...profile, vision: visionForm}); setEditingVision(false); }} className="p-2 bg-primary-600 text-white rounded-lg flex-shrink-0"><Save className="h-4 w-4"/></button>
                     </div>
                   ) : (
-                    <p className="text-base font-extrabold text-emerald-950 font-display italic">
+                    <p className="text-base font-extrabold text-primary-950 font-display italic">
                       "{profile.vision}"
                     </p>
                   )}
                   {isAdmin && !editingVision && (
-                    <button onClick={() => { setVisionForm(profile.vision); setEditingVision(true); }} className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow-sm transition text-slate-500 hover:text-emerald-600"><Edit2 className="h-3 w-3"/></button>
+                    <button onClick={() => { setVisionForm(profile.vision); setEditingVision(true); }} className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow-sm transition text-slate-500 hover:text-primary-600"><Edit2 className="h-3 w-3"/></button>
                   )}
                 </div>
 
@@ -491,11 +491,11 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                               onChange={e => setMissionForm(e.target.value)} 
                               className="flex-1 p-2 border rounded-lg text-xs"
                             />
-                            <button onClick={handleSaveMission} className="p-2 bg-emerald-600 text-white rounded-lg"><Save className="h-3 w-3"/></button>
+                            <button onClick={handleSaveMission} className="p-2 bg-primary-600 text-white rounded-lg"><Save className="h-3 w-3"/></button>
                           </div>
                         ) : (
                           <>
-                            <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                            <span className="w-5 h-5 rounded-full bg-primary-600 text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                               {idx + 1}
                             </span>
                             <span className="text-xs font-medium text-slate-700 leading-relaxed">
@@ -503,7 +503,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                             </span>
                             {isAdmin && (
                               <div className="absolute top-2 right-2 flex gap-1 transition">
-                                <button onClick={() => handleEditMission(idx)} className="p-1 text-slate-400 hover:text-emerald-600"><Edit2 className="h-3 w-3" /></button>
+                                <button onClick={() => handleEditMission(idx)} className="p-1 text-slate-400 hover:text-primary-600"><Edit2 className="h-3 w-3" /></button>
                                 <button onClick={() => handleDeleteMission(idx)} className="p-1 text-slate-400 hover:text-rose-600"><Trash2 className="h-3 w-3" /></button>
                               </div>
                             )}
@@ -526,12 +526,12 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
           <div className="bg-white rounded-2xl p-6 border border-slate-150 shadow-sm space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-                <span className="p-1.5 bg-emerald-50 text-emerald-700 rounded-xl">👥</span> Tokoh Pengurus Inti
+                <span className="p-1.5 bg-primary-50 text-primary-700 rounded-xl">👥</span> Tokoh Pengurus Inti
               </h3>
               {isAdmin && (
                 <button 
                   onClick={handleAddMember}
-                  className="p-2 bg-emerald-100 text-emerald-700 rounded-xl hover:bg-emerald-600 hover:text-white transition shadow-sm"
+                  className="p-2 bg-primary-100 text-primary-700 rounded-xl hover:bg-primary-600 hover:text-white transition shadow-sm"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -634,7 +634,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               Periode 2025 - 2028
             </span>
             <h2 className="text-2xl sm:text-3xl font-display font-black text-slate-800 tracking-tight leading-none uppercase">
-              Susunan Pengurus Masjid Jami <span className="text-emerald-700">Al-Abrar</span>
+              Susunan Pengurus Masjid Jami <span className="text-primary-700">Al-Abrar</span>
             </h2>
             <p className="text-slate-500 text-sm">Kelurahan Lapadde, Kecamatan Ujung, Kota Parepare — Lengkap Sesuai Ketetapan Panitia.</p>
           </div>
@@ -643,7 +643,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
         </div>
 
         {/* Pelindung / Penasehat Header */}
-        <div className="bg-emerald-950 text-white p-6 rounded-3xl relative overflow-hidden shadow-lg">
+        <div className="bg-primary-950 text-white p-6 rounded-3xl relative overflow-hidden shadow-lg">
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-amber-400 transform skew-x-12 translate-x-16 opacity-20"></div>
           <div className="relative z-10 text-center space-y-4">
             <h3 className="text-xs font-bold font-mono uppercase tracking-[0.3em] text-amber-400">PELINDUNG / PENASEHAT</h3>
@@ -665,7 +665,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
             <>
               {/* Seksi Idarah Sections */}
               <div className="space-y-6">
-                <div className="border-l-4 border-emerald-600 pl-4 space-y-4">
+                <div className="border-l-4 border-primary-600 pl-4 space-y-4">
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">Pengurus Harian</h4>
                   <div className="space-y-3">
                     {DETAILED_STRUCTURE.idarah.harian.map((p, i) => (
@@ -676,7 +676,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               </div>
 
               <div className="space-y-6">
-                <div className="border-l-4 border-emerald-600 pl-4 space-y-4">
+                <div className="border-l-4 border-primary-600 pl-4 space-y-4">
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">Seksi Dana</h4>
                   <div className="grid grid-cols-1 gap-3">
                     {DETAILED_STRUCTURE.idarah.seksi_dana.map((name, i) => (
@@ -687,7 +687,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               </div>
 
               <div className="space-y-6">
-                <div className="border-l-4 border-emerald-600 pl-4 space-y-4">
+                <div className="border-l-4 border-primary-600 pl-4 space-y-4">
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">Seksi Ekonomi & Usaha</h4>
                   <div className="grid grid-cols-1 gap-3">
                     {DETAILED_STRUCTURE.idarah.seksi_ekonomi.map((name, i) => (
@@ -698,7 +698,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               </div>
 
               <div className="space-y-6">
-                <div className="border-l-4 border-emerald-600 pl-4 space-y-4">
+                <div className="border-l-4 border-primary-600 pl-4 space-y-4">
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">Seksi Kemasyarakatan</h4>
                   <div className="space-y-4">
                     <div className="bg-slate-900 text-white p-3 rounded-xl border-b-2 border-amber-400">
@@ -754,7 +754,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
                 <div className="border-l-4 border-teal-600 pl-4 space-y-4">
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">Seksi Akhwat / Perempuan</h4>
                   <div className="space-y-4">
-                    <div className="bg-slate-900 text-white p-3 rounded-xl border-b-2 border-emerald-400">
+                    <div className="bg-slate-900 text-white p-3 rounded-xl border-b-2 border-primary-400">
                       <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">KOORDINATOR</span>
                       <span className="font-black text-xs">{DETAILED_STRUCTURE.imarah.akhwat.koordinator}</span>
                     </div>
@@ -795,7 +795,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               </div>
 
               <div className="space-y-6">
-                <div className="border-l-4 border-emerald-800/80 pl-4 space-y-4">
+                <div className="border-l-4 border-primary-800/80 pl-4 space-y-4">
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">Seksi Kebersihan</h4>
                   <div className="grid grid-cols-1 gap-3">
                     {DETAILED_STRUCTURE.riayah.kebersihan.map((name, i) => (
@@ -845,7 +845,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1 text-left">
             <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight flex items-center gap-2">
-              <span className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">🛠️</span> Sarana & Prasana Masjid
+              <span className="p-2 bg-primary-50 text-primary-700 rounded-xl">🛠️</span> Sarana & Prasana Masjid
             </h3>
             <p className="text-slate-500 text-xs">Sarana fisik penunjang kemudahan ibadah dan kebersihan di Masjid Al Abrar.</p>
           </div>
@@ -854,20 +854,20 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               onClick={handleAddFacility}
               className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
             >
-              <Plus className="h-4 w-4 text-emerald-400" /> Tambah Fasilitas
+              <Plus className="h-4 w-4 text-primary-400" /> Tambah Fasilitas
             </button>
           )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {((profile && profile.facilities) || []).map((fac, idx) => (
-            <div key={idx} className="p-4 rounded-xl border border-slate-150 bg-slate-50 flex items-start gap-3.5 hover:border-emerald-300 transition duration-150 relative overflow-hidden group">
+            <div key={idx} className="p-4 rounded-xl border border-slate-150 bg-slate-50 flex items-start gap-3.5 hover:border-primary-300 transition duration-150 relative overflow-hidden group">
               <span className="text-3xl bg-white p-2 rounded-xl shadow-sm border border-slate-100 block group-hover:scale-110 transition">{fac.icon}</span>
               <div className="space-y-1 z-10 text-left">
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-xs text-slate-800">{fac.name}</h4>
                   <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                    fac.status === 'Baik' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    fac.status === 'Baik' ? 'bg-primary-100 text-primary-800' : 'bg-amber-100 text-amber-800'
                   }`}>
                     {fac.status}
                   </span>
@@ -876,7 +876,7 @@ export default function MosqueProfile({ isAdmin, onAddLog }: MosqueProfileProps)
               </div>
               {isAdmin && (
                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handleEditFacility(idx)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
+                  <button onClick={() => handleEditFacility(idx)} className="p-1 px-2 bg-white text-slate-400 hover:text-primary-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
                   <button onClick={() => handleDeleteFacility(idx)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
                 </div>
               )}

@@ -127,7 +127,7 @@ export default function MasjidDashboard({
       title: 'Jadwal & Agenda', 
       desc: 'Informasi waktu shalat, pengajian rutin, dan agenda kegiatan masjid lainnya.', 
       icon: <Calendar className="w-6 h-6" />, 
-      color: 'bg-emerald-50 text-emerald-600'
+      color: 'bg-primary-50 text-primary-600'
     },
     { 
       id: 'donasi', 
@@ -141,7 +141,7 @@ export default function MasjidDashboard({
       title: 'Tentang Masjid', 
       desc: 'Mengenal sejarah, visi misi, serta struktur pengurus Masjid Al Abrar.', 
       icon: <Database className="w-6 h-6" />, 
-      color: 'bg-amber-50 text-amber-600'
+      color: 'bg-accent-gold/10 text-amber-600'
     },
   ];
 
@@ -155,7 +155,7 @@ export default function MasjidDashboard({
   ];
 
   const getPrayerIcon = (id: string, isActive: boolean) => {
-    const iconClass = `h-7 w-7 ${isActive ? 'text-white' : 'text-emerald-450'} transition`;
+    const iconClass = `h-7 w-7 ${isActive ? 'text-white' : 'text-primary-400'} transition`;
     switch (id) {
       case 'shubuh':
         return <CloudMoon className={iconClass} />;
@@ -169,7 +169,7 @@ export default function MasjidDashboard({
         return (
           <div className="relative">
             <Moon className={iconClass} />
-            <span className={`absolute -top-1.5 -right-1.5 text-[9px] ${isActive ? 'text-white' : 'text-emerald-400'}`}>★</span>
+            <span className={`absolute -top-1.5 -right-1.5 text-[9px] ${isActive ? 'text-white' : 'text-primary-400'}`}>★</span>
           </div>
         );
       default:
@@ -185,10 +185,10 @@ export default function MasjidDashboard({
         {/* Live Video Streaming Section - Spans 2 columns */}
         <section className="space-y-1.5 lg:col-span-2">
           <h3 className="text-lg font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
-          <div className="bg-[#031d14] rounded-[1.8rem] p-1 sm:p-2 border border-emerald-500/10 shadow-xl overflow-hidden group">
-             <div className="relative pt-[50%] sm:pt-[45%] rounded-[1.4rem] overflow-hidden bg-emerald-950 flex items-center justify-center border border-white/5 shadow-inner">
-               <div className="absolute inset-0 flex flex-col items-center justify-center text-emerald-400/30 group-hover:text-emerald-400/50 transition-colors">
-                 <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2 border border-emerald-500/20 group-hover:scale-110 transition-transform duration-700">
+          <div className="bg-primary-950 rounded-[1.8rem] p-1 sm:p-2 border border-primary-500/10 shadow-xl overflow-hidden group">
+             <div className="relative pt-[50%] sm:pt-[45%] rounded-[1.4rem] overflow-hidden bg-primary-900/50 flex items-center justify-center border border-white/5 shadow-inner">
+               <div className="absolute inset-0 flex flex-col items-center justify-center text-primary-400/30 group-hover:text-primary-400/50 transition-colors">
+                 <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-primary-500/10 flex items-center justify-center mb-2 border border-primary-500/20 group-hover:scale-110 transition-transform duration-700">
                    <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-current border-b-[6px] border-b-transparent ml-1"></div>
                  </div>
                  <span className="text-[8px] font-black uppercase tracking-[0.3em]">Channel Masjid Jami Al Abrar</span>
@@ -202,12 +202,12 @@ export default function MasjidDashboard({
              </div>
              <div className="flex items-center justify-between px-2.5 py-1 sm:py-1.5">
                <div className="flex flex-col">
-                 <p className="text-[7px] text-emerald-500/60 font-black uppercase tracking-[0.2em] mb-0.5">Media Informasi</p>
+                 <p className="text-[7px] text-primary-500/60 font-black uppercase tracking-[0.2em] mb-0.5">Media Informasi</p>
                  <p className="text-xs sm:text-sm font-black text-white tracking-tight">Kajian Rutin & Shalat Berjamaah</p>
                </div>
-               <div className="flex items-center gap-1 px-2 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/10">
-                 <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
-                 <span className="text-[7px] font-black text-emerald-400 tracking-widest uppercase">Streaming</span>
+               <div className="flex items-center gap-1 px-2 py-1 bg-primary-500/10 rounded-lg border border-primary-500/10">
+                 <div className="w-1 h-1 rounded-full bg-primary-500"></div>
+                 <span className="text-[7px] font-black text-primary-400 tracking-widest uppercase">Streaming</span>
                </div>
              </div>
           </div>
@@ -220,7 +220,7 @@ export default function MasjidDashboard({
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-emerald-600 rounded-[1.8rem] p-3.5 sm:p-4.5 h-[calc(100%-2.25rem)] flex flex-col text-white shadow-xl shadow-emerald-900/20 relative overflow-hidden group"
+            className="bg-primary-600 rounded-[1.8rem] p-3.5 sm:p-4.5 h-[calc(100%-2.25rem)] flex flex-col text-white shadow-xl shadow-primary-900/20 relative overflow-hidden group"
           >
             {/* Background Decorations */}
             <div className="absolute top-0 right-0 p-5 opacity-10 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
@@ -229,14 +229,14 @@ export default function MasjidDashboard({
 
             <div className="relative z-10 mb-3">
               <div className="flex items-center justify-between mb-0.5">
-                <p className="text-[8px] font-black tracking-[0.2em] text-emerald-100 uppercase">Parepare, Sulsel</p>
+                <p className="text-[8px] font-black tracking-[0.2em] text-primary-100 uppercase">Parepare, Sulsel</p>
                 <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/20 rounded-full border border-white/10">
-                  <div className="w-1 h-1 rounded-full bg-amber-400 animate-pulse"></div>
+                  <div className="w-1 h-1 rounded-full bg-accent-gold animate-pulse"></div>
                   <span className="text-[8px] font-black tracking-widest uppercase">{targetName}</span>
                 </div>
               </div>
               <h4 className="text-xl font-black tracking-tight leading-tight">{hijriFormatted}</h4>
-              <p className="text-emerald-100/70 text-[8px] font-bold uppercase tracking-widest">{currentDateFormatted}</p>
+              <p className="text-primary-100/70 text-[8px] font-bold uppercase tracking-widest">{currentDateFormatted}</p>
             </div>
 
             {/* Prayer List Vertical - Tighter Spacing */}
@@ -251,19 +251,19 @@ export default function MasjidDashboard({
                     key={fp.id}
                     className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-300 ${
                       isActive 
-                        ? 'bg-white text-emerald-600 shadow-md scale-[1.02] border-0' 
-                        : 'bg-emerald-700/30 border border-white/5 hover:bg-emerald-700/40'
+                        ? 'bg-white text-primary-600 shadow-md scale-[1.02] border-0' 
+                        : 'bg-primary-700/30 border border-white/5 hover:bg-primary-700/40'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className={isActive ? 'text-emerald-600' : 'text-emerald-300'}>
+                      <div className={isActive ? 'text-primary-600' : 'text-primary-300'}>
                         {React.cloneElement(getPrayerIcon(fp.id, isActive) as React.ReactElement, { className: "w-3.5 h-3.5" })}
                       </div>
-                      <span className={`text-[10px] font-black tracking-widest uppercase ${isActive ? 'text-emerald-700' : 'text-emerald-100'}`}>
+                      <span className={`text-[10px] font-black tracking-widest uppercase ${isActive ? 'text-primary-700' : 'text-primary-100'}`}>
                         {fp.label}
                       </span>
                     </div>
-                    <span className={`font-mono text-xs font-black ${isActive ? 'text-emerald-700' : 'text-white'}`}>
+                    <span className={`font-mono text-xs font-black ${isActive ? 'text-primary-700' : 'text-white'}`}>
                       {displayTime}
                     </span>
                   </div>
@@ -274,7 +274,7 @@ export default function MasjidDashboard({
             {/* Countdown Banner at bottom */}
             <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/10 rounded-xl p-2 flex items-center justify-between mt-auto">
               <div className="flex flex-col">
-                <span className="text-[7px] font-black tracking-[0.2em] text-emerald-100 uppercase leading-none mb-1">Menuju {targetName}</span>
+                <span className="text-[7px] font-black tracking-[0.2em] text-primary-100 uppercase leading-none mb-1">Menuju {targetName}</span>
                 <span className="text-base font-black tracking-tighter leading-none">{timeLeft}</span>
               </div>
               <motion.button
@@ -283,7 +283,7 @@ export default function MasjidDashboard({
                 onClick={() => onNavigate('jadwal')}
                 className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md"
               >
-                <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                <Calendar className="w-3.5 h-3.5 text-primary-600" />
               </motion.button>
             </div>
           </motion.div>
@@ -343,7 +343,7 @@ export default function MasjidDashboard({
 
               {/* Pill Button */}
               <div className="w-full mt-auto relative z-10">
-                <div className="w-full py-2.5 bg-emerald-600 group-hover:bg-emerald-500 text-white font-black text-[10px] tracking-[0.2em] rounded-xl uppercase text-center transition-all duration-300 shadow-md shadow-emerald-600/10">
+                <div className="w-full py-2.5 bg-primary-600 group-hover:bg-primary-500 text-white font-black text-[10px] tracking-[0.2em] rounded-xl uppercase text-center transition-all duration-300 shadow-md shadow-primary-600/10">
                   PILIH LAYANAN
                 </div>
               </div>

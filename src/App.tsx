@@ -193,8 +193,21 @@ export default function App() {
         }
       }
     };
+
+    const checkAdminPath = () => {
+      const path = window.location.pathname;
+      if (path === '/admin' || path === '/login') {
+        setActiveTab('admin');
+      }
+    };
+
+    checkAdminPath();
     window.addEventListener('change_subtab', handleSubtabSync);
-    return () => window.removeEventListener('change_subtab', handleSubtabSync);
+    window.addEventListener('popstate', checkAdminPath);
+    return () => {
+      window.removeEventListener('change_subtab', handleSubtabSync);
+      window.removeEventListener('popstate', checkAdminPath);
+    };
   }, []);
 
   // Admin Mode States
@@ -1035,6 +1048,7 @@ export default function App() {
     jadwal: [
       { label: 'Waktu Shalat', key: 'sholat', icon: '🕌', desc: 'Jadwal adzan 5 waktu Parepare' },
       { label: 'Kajian & Ta\'lim', key: 'kajian', icon: '📖', desc: 'Program & kajian rutin keagamaan' },
+      { label: 'Agenda Rutin', key: 'routine', icon: '📅', desc: 'Kegiatan rutin mingguan & bulanan' },
       { label: 'Khutbah Jum\'at', key: 'jumat', icon: '🎙️', desc: 'Jadwal khotib & muadzin Jum’at' },
       { label: 'Agenda Ramadan', key: 'ramadan', icon: '🌙', desc: 'Tarawih, takjil & i\'tikaf masjid' }
     ],
@@ -1162,7 +1176,7 @@ export default function App() {
       {/* Floating Glass Navbar Capsule mimicking the premium Istiqlal UI/UX */}
       {activeTab !== 'admin' && (
       <header className="sticky top-0 sm:top-1 z-50 w-full max-w-[1400px] mx-auto px-1 sm:px-4 lg:px-8 select-none overflow-visible" id="header_navbar">
-          <div className="bg-[#0b1f17]/95 backdrop-blur-md border border-emerald-500/20 rounded-xl sm:rounded-full px-2 py-1 sm:px-4 sm:py-1 shadow-[0_12px_30px_rgba(4,47,31,0.25)] flex items-center justify-between gap-1 text-white transition-all duration-300 overflow-visible">
+          <div className="bg-primary-950/95 backdrop-blur-md border border-primary-500/20 rounded-xl sm:rounded-full px-2 py-1 sm:px-4 sm:py-1 shadow-[0_12px_30px_rgba(2,26,17,0.25)] flex items-center justify-between gap-1 text-white transition-all duration-300 overflow-visible">
             
             {/* Brand Left Silhouette Logo Area */}
             <div 
@@ -1175,13 +1189,13 @@ export default function App() {
                 setActiveDropdown(null);
               }}
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 border border-white/10 flex items-center justify-center text-sm sm:text-lg shadow-lg shrink-0 transform group-hover:scale-105 transition-all duration-300">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 border border-white/10 flex items-center justify-center text-sm sm:text-lg shadow-lg shrink-0 transform group-hover:scale-105 transition-all duration-300">
                 <Landmark className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
               <div className="text-left leading-tight hidden xs:block">
-                <span className="text-[6px] sm:text-[7px] font-black tracking-[0.2em] text-emerald-400 uppercase leading-none block mb-0.5">Pusat Ibadah</span>
+                <span className="text-[6px] sm:text-[7px] font-black tracking-[0.2em] text-primary-400 uppercase leading-none block mb-0.5">Pusat Ibadah</span>
                 <h1 className="text-[10px] sm:text-xs font-black tracking-wider text-white uppercase whitespace-nowrap">
-                  Masjid Jami Al Abrar <span className="text-emerald-400">Parepare</span>
+                  Masjid Jami Al Abrar <span className="text-primary-400">Parepare</span>
                 </h1>
               </div>
             </div>
@@ -1217,18 +1231,18 @@ export default function App() {
                     }}
                     className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all duration-300 relative outline-none whitespace-nowrap overflow-visible select-none font-bold tracking-tight ${
                       isActive
-                        ? 'text-emerald-400 font-extrabold bg-emerald-500/5 shadow-[inset_0_0_10px_rgba(16,185,129,0.1)]'
+                        ? 'text-primary-400 font-extrabold bg-primary-500/5 shadow-[inset_0_0_10px_rgba(16,185,129,0.1)]'
                         : 'text-slate-200/90 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     <span className="text-[11px] sm:text-[12px]">{tab.label}</span>
                     {tab.hasSub && (
-                      <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${activeDropdown === tab.id ? 'rotate-180' : ''} ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+                      <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${activeDropdown === tab.id ? 'rotate-180' : ''} ${isActive ? 'text-primary-400' : 'text-slate-500'}`} />
                     )}
                     {isActive && (
                       <motion.span
                         layoutId="activeFloatingIndicator"
-                        className="absolute bottom-0 left-3 right-3 h-[2px] bg-emerald-400 rounded-full"
+                        className="absolute bottom-0 left-3 right-3 h-[2px] bg-primary-400 rounded-full"
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       />
                     )}
@@ -1242,15 +1256,15 @@ export default function App() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-3.5 bg-[#0b1f17]/98 backdrop-blur-xl border border-emerald-500/20 shadow-[0_30px_60px_rgba(0,0,0,0.5)] rounded-3xl p-5 min-w-[340px] z-55 flex flex-col gap-2.5 overflow-hidden text-left"
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-3.5 bg-primary-950/98 backdrop-blur-xl border border-primary-500/20 shadow-[0_30px_60px_rgba(0,0,0,0.5)] rounded-3xl p-5 min-w-[340px] z-55 flex flex-col gap-2.5 overflow-hidden text-left"
                         style={{ transformOrigin: 'top center' }}
                         onMouseEnter={() => setActiveDropdown(tab.id)}
                         onMouseLeave={() => setActiveDropdown(null)}
                       >
                          {/* Dropdown Header */}
                          <div className="flex items-center justify-between pb-2.5 border-b border-white/5 mb-1 select-none">
-                           <span className="text-[9px] font-black text-emerald-400 tracking-wider uppercase">PILIH LAYANAN {tab.label}</span>
-                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                           <span className="text-[9px] font-black text-primary-400 tracking-wider uppercase">PILIH LAYANAN {tab.label}</span>
+                           <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse"></span>
                          </div>
                          <div className="grid grid-cols-1 gap-1">
                            {submenusMap[tab.id]
@@ -1267,22 +1281,22 @@ export default function App() {
                                    onClick={() => handleSubtabClick(tab.id, sub.key)}
                                    className={`w-full flex items-start text-left gap-3.5 p-2.5 rounded-2xl transition-all duration-150 ${
                                      isSelected
-                                       ? 'bg-emerald-600/20 text-white font-bold border-l-4 border-emerald-400 shadow-inner'
+                                       ? 'bg-primary-600/20 text-white font-bold border-l-4 border-primary-400 shadow-inner'
                                        : 'hover:bg-white/5 text-slate-300 hover:text-white hover:translate-x-1'
                                    }`}
                                  >
                                    <span className={`text-base shrink-0 p-2 border rounded-xl transition-colors ${
-                                     isSelected ? 'bg-emerald-500/20 border-emerald-500/40' : 'bg-white/5 border-white/10'
+                                     isSelected ? 'bg-primary-500/20 border-primary-500/40' : 'bg-white/5 border-white/10'
                                    }`}>{sub.icon}</span>
                                    <div className="min-w-0 flex-1">
                                      <p className={`text-xs font-extrabold tracking-tight flex items-center justify-between ${
                                        isSelected ? 'text-white' : 'text-slate-200'
                                      }`}>
                                        <span>{sub.label}</span>
-                                       {sub.adminOnly && <span className="bg-amber-400 text-amber-950 text-[8px] px-1.5 rounded font-black">ADMIN</span>}
+                                       {sub.adminOnly && <span className="bg-accent-amber text-amber-950 text-[8px] px-1.5 rounded font-black">ADMIN</span>}
                                      </p>
                                      <p className={`text-[9px] mt-1 font-medium leading-normal ${
-                                       isSelected ? 'text-emerald-200/60' : 'text-slate-500'
+                                       isSelected ? 'text-primary-200/60' : 'text-slate-500'
                                      }`}>{sub.desc}</p>
                                    </div>
                                  </button>
@@ -1505,8 +1519,8 @@ export default function App() {
       {/* Category Submenu Pill Row (When a desktop tab has submenus, float beneath the sticky navbar in gorgeous dark-emerald gold glass wrapper) */}
       {submenusMap[activeTab] && (
         <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-1 select-none z-30 relative animate-fade-in">
-          <div className="bg-[#031d12]/90 backdrop-blur-md px-3 py-1.5 sm:py-2 border border-emerald-500/15 shadow-[0_10px_25px_rgba(4,47,31,0.2)] rounded-xl flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth">
-            <span className="text-[9px] font-black text-emerald-400/60 uppercase tracking-widest shrink-0 hidden xl:inline-block border-r border-emerald-500/10 pr-3.5 mr-0.5">Kategori:</span>
+          <div className="bg-primary-950/90 backdrop-blur-md px-3 py-1.5 sm:py-2 border border-primary-500/15 shadow-[0_10px_25px_rgba(2,26,17,0.2)] rounded-xl flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth">
+            <span className="text-[9px] font-black text-primary-400/60 uppercase tracking-widest shrink-0 hidden xl:inline-block border-r border-primary-500/10 pr-3.5 mr-0.5">Kategori:</span>
             <div className="flex gap-2 min-w-max">
               {submenusMap[activeTab]
                 .filter(sub => !sub.adminOnly || isAdmin)
@@ -1522,7 +1536,7 @@ export default function App() {
                       onClick={() => handleSubtabClick(activeTab, sub.key)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[9px] sm:text-xs font-black tracking-wider transition-all duration-300 transform active:scale-95 border uppercase ${
                         isSelected
-                          ? 'bg-emerald-600 text-white font-black shadow-[0_0_12px_rgba(16,185,129,0.25)] border-emerald-500'
+                          ? 'bg-primary-600 text-white font-black shadow-[0_0_12px_rgba(16,185,129,0.25)] border-primary-500'
                           : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                       }`}
                     >
@@ -1541,10 +1555,10 @@ export default function App() {
       {/* Premium Editorial Header Banner for Non-Home tabs (mimicking the clean, institutional banner backdrop) */}
       {activeTab !== 'beranda' && (
         <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-2 select-none relative animate-fade-in z-10">
-          <div className="relative h-24 sm:h-32 bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-950 text-white rounded-2xl flex items-end px-5 sm:px-8 pb-4 sm:pb-5 overflow-hidden shadow-lg border border-emerald-900/40">
+          <div className="relative h-24 sm:h-32 bg-gradient-to-tr from-primary-950 via-primary-900 to-slate-950 text-white rounded-2xl flex items-end px-5 sm:px-8 pb-4 sm:pb-5 overflow-hidden shadow-lg border border-primary-900/40">
             {/* Background pattern */}
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent pointer-events-none"></div>
-            <div className="absolute -bottom-8 -right-8 w-44 h-44 sm:w-64 sm:h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-primary-400 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute -bottom-8 -right-8 w-44 h-44 sm:w-64 sm:h-64 bg-primary-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative z-10 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-left">
               <div>
@@ -1578,12 +1592,12 @@ export default function App() {
         
         {/* Banner Running Text / Pengumuman - Integrated beneath headers */}
         {showAnnouncement && (
-          <div className="bg-emerald-950 border border-emerald-900 rounded-2xl py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden shadow-inner font-sans">
-            <span className="bg-amber-400 text-emerald-950 text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 sm:py-1 rounded-md shrink-0 tracking-wider flex items-center gap-1 shadow-sm">
+          <div className="bg-primary-950 border border-primary-900 rounded-2xl py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden shadow-inner font-sans">
+            <span className="bg-accent-gold text-primary-950 text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 sm:py-1 rounded-md shrink-0 tracking-wider flex items-center gap-1 shadow-sm">
               📢 PENGUMUMAN
             </span>
             <div className="relative flex-1 overflow-hidden h-5 flex items-center">
-              <div className="absolute whitespace-nowrap text-[11px] sm:text-xs text-emerald-100 font-medium tracking-wide animate-marquee hover:pause-marquee">
+              <div className="absolute whitespace-nowrap text-[11px] sm:text-xs text-primary-100 font-medium tracking-wide animate-marquee hover:pause-marquee">
                 {announcement}
               </div>
             </div>
@@ -1801,9 +1815,12 @@ export default function App() {
 
       </main>
 
-      <footer className="bg-[#0b1f17] text-emerald-400/60 py-4 px-4 border-t border-emerald-500/10" id="footer_section">
-        <div className="max-w-[1440px] mx-auto text-center">
+      <footer className="bg-[#0b1f17] text-emerald-400/60 py-6 px-4 border-t border-emerald-500/10" id="footer_section">
+        <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[9px] font-black uppercase tracking-[0.3em]">@2026 Masjid Jami Al Abrar Parepare</p>
+          <div className="flex items-center gap-6">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-800">Versi 4.2.0</span>
+          </div>
         </div>
       </footer>
 

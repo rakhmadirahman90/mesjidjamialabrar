@@ -223,7 +223,7 @@ export default function DonationOpen({
                   onClick={handleAddCampaign}
                   className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
                 >
-                  <Plus className="h-4 w-4 text-emerald-400" /> Tambah Program
+                  <Plus className="h-4 w-4 text-primary-400" /> Tambah Program
                 </button>
               </div>
             )}
@@ -243,13 +243,13 @@ export default function DonationOpen({
                     onClick={() => setSelectedCampId(c.id)}
                     className={`w-full text-left p-6 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden flex flex-col justify-between h-64 outline-none ${
                       isActive 
-                        ? 'border-emerald-500 bg-emerald-50/50 shadow-2xl shadow-emerald-900/10 ring-4 ring-emerald-500/5'
+                        ? 'border-primary-500 bg-primary-50/50 shadow-2xl shadow-primary-900/10 ring-4 ring-primary-500/5'
                         : 'border-slate-150 bg-white hover:border-slate-300'
                     }`}
                   >
                     <div className="space-y-3 z-10">
                       <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-full tracking-widest ${
-                        isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                        isActive ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-500'
                       }`}>
                         {percent === 100 ? 'Target Tercapai' : 'Donasi Aktif'}
                       </span>
@@ -263,28 +263,28 @@ export default function DonationOpen({
                       <div className="flex justify-between items-end">
                         <div className="space-y-0.5">
                           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Terkumpul</span>
-                          <span className={`text-sm font-black font-mono ${isActive ? 'text-emerald-700' : 'text-slate-600'}`}>
+                          <span className={`text-sm font-black font-mono ${isActive ? 'text-primary-700' : 'text-slate-600'}`}>
                             Rp {c.raised.toLocaleString('id-ID')}
                           </span>
                         </div>
-                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg">{percent}%</span>
+                        <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-2 py-0.5 rounded-lg">{percent}%</span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
                           animate={{ width: `${percent}%` }}
-                          className={`h-full ${percent >= 100 ? 'bg-amber-400' : 'bg-emerald-500'}`}
+                          className={`h-full ${percent >= 100 ? 'bg-accent-gold' : 'bg-primary-500'}`}
                         ></motion.div>
                       </div>
                     </div>
 
                     {/* Decor */}
-                    <Heart className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.03] transition-transform duration-700 group-hover:scale-125 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                    <Heart className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.03] transition-transform duration-700 group-hover:scale-125 ${isActive ? 'text-primary-600' : 'text-slate-400'}`} />
                   </button>
                   
                   {isAdmin && (
                     <div className="absolute top-4 right-4 flex gap-2 z-20">
-                      <button onClick={() => handleEditCampaign(c)} className="p-2 bg-white/90 backdrop-blur shadow-sm border border-slate-100 rounded-xl text-emerald-600 hover:bg-emerald-50 transition"><Plus className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => handleEditCampaign(c)} className="p-2 bg-white/90 backdrop-blur shadow-sm border border-slate-100 rounded-xl text-primary-600 hover:bg-primary-50 transition"><Plus className="h-3.5 w-3.5" /></button>
                       <button onClick={() => deleteCampaign(c.id)} className="p-2 bg-white/90 backdrop-blur shadow-sm border border-slate-100 rounded-xl text-rose-500 hover:bg-rose-50 transition"><Trash className="h-3.5 w-3.5" /></button>
                     </div>
                   )}
@@ -317,7 +317,7 @@ export default function DonationOpen({
                   placeholder="Isi 'Hamba Allah' jika ingin anonim"
                   value={donorName}
                   onChange={(e) => setDonorName(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-emerald-600"
+                  className="w-full text-xs p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-primary-600"
                 />
               </div>
 
@@ -328,7 +328,7 @@ export default function DonationOpen({
                   placeholder="Contoh: Semoga dilancarkan rezekinya..."
                   value={donorMessage}
                   onChange={(e) => setDonorMessage(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-emerald-600"
+                  className="w-full text-xs p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-primary-600"
                 />
               </div>
             </div>
@@ -345,7 +345,7 @@ export default function DonationOpen({
                     onClick={() => handleQuickAmount(amt)}
                     className={`py-2 px-1 text-center font-bold font-mono text-xs rounded-xl border transition ${
                       donateAmount === amt && !customAmountText
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500/20'
+                        ? 'border-primary-600 bg-primary-50 text-primary-800 ring-1 ring-primary-500/20'
                         : 'border-slate-150 bg-slate-50 text-slate-600 hover:border-slate-200'
                     }`}
                   >
@@ -363,7 +363,7 @@ export default function DonationOpen({
                     placeholder="Masukkan nominal lain secara spesifik..."
                     value={customAmountText}
                     onChange={(e) => handleCustomAmountChange(e.target.value)}
-                    className="w-full text-xs p-3 pl-9 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-emerald-600 font-mono font-bold"
+                    className="w-full text-xs p-3 pl-9 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-primary-600 font-mono font-bold"
                   />
                 </div>
               </div>
@@ -374,13 +374,12 @@ export default function DonationOpen({
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-sans">Metode Penyaluran Kas</label>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                
-                <button
+                                <button
                   type="button"
                   onClick={() => setPaymentMethod('qris')}
                   className={`p-4 rounded-2xl text-left border flex items-center justify-between transition-all ${
                     paymentMethod === 'qris'
-                      ? 'border-emerald-600 bg-emerald-50/50'
+                      ? 'border-primary-600 bg-primary-50/50'
                       : 'border-slate-150 hover:border-slate-200'
                   }`}
                 >
@@ -391,7 +390,7 @@ export default function DonationOpen({
                       <span className="block text-[10px] text-slate-400">Verifikasi instan tanpa perlu unggah bukti transfer.</span>
                     </div>
                   </div>
-                  <input type="radio" checked={paymentMethod === 'qris'} readOnly className="h-4 w-4 accent-emerald-600 shrink-0 ml-2" />
+                  <input type="radio" checked={paymentMethod === 'qris'} readOnly className="h-4 w-4 accent-primary-600 shrink-0 ml-2" />
                 </button>
 
                 <button
@@ -399,7 +398,7 @@ export default function DonationOpen({
                   onClick={() => setPaymentMethod('transfer')}
                   className={`p-4 rounded-2xl text-left border flex items-center justify-between transition-all ${
                     paymentMethod === 'transfer'
-                      ? 'border-emerald-600 bg-emerald-50/50'
+                      ? 'border-primary-600 bg-primary-50/50'
                       : 'border-slate-150 hover:border-slate-200'
                   }`}
                 >
@@ -410,7 +409,7 @@ export default function DonationOpen({
                       <span className="block text-[10px] text-slate-400">Transfer bank manual BSI No: 7111222339.</span>
                     </div>
                   </div>
-                  <input type="radio" checked={paymentMethod === 'transfer'} readOnly className="h-4 w-4 accent-emerald-600 shrink-0 ml-2" />
+                  <input type="radio" checked={paymentMethod === 'transfer'} readOnly className="h-4 w-4 accent-primary-600 shrink-0 ml-2" />
                 </button>
 
               </div>
@@ -429,10 +428,10 @@ export default function DonationOpen({
             </div>
 
             {/* Action Trigger Card */}
-            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="p-4 bg-primary-50 rounded-2xl border border-primary-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-0.5 text-left">
                 <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">KONFIRMASI NOMINAL LAZIM</span>
-                <span className="block text-lg font-black text-emerald-800 font-mono">
+                <span className="block text-lg font-black text-primary-800 font-mono">
                   Rp {donateAmount.toLocaleString('id-ID')}
                 </span>
                 <span className="block text-[10px] text-slate-500 italic">Penyaluran: {selectedCampaign?.title || 'Memuat...'}</span>
@@ -440,7 +439,7 @@ export default function DonationOpen({
               
               <button
                 type="submit"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow flex items-center justify-center gap-2"
+                className="bg-primary-600 hover:bg-primary-700 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition shadow flex items-center justify-center gap-2"
               >
                 <CheckCircle className="h-4 w-4" /> Proses Infaq Sekarang
               </button>
@@ -476,7 +475,7 @@ export default function DonationOpen({
                   <QrCode className="h-40 w-40 text-slate-800" />
                 )}
                 {/* Simulated center scan light glow effect */}
-                <span className="absolute inset-x-0 h-1 bg-emerald-500 opacity-60 top-0 animate-bounce"></span>
+                <span className="absolute inset-x-0 h-1 bg-primary-500 opacity-60 top-0 animate-bounce"></span>
               </div>
               <span className="block text-[9px] font-bold text-slate-400 pt-2 font-mono uppercase tracking-wider">Metode Aman Bersertifikasi BI</span>
             </div>
@@ -485,7 +484,7 @@ export default function DonationOpen({
               <span className="block text-[8px] font-mono text-slate-500 uppercase tracking-widest">Invois Infaq Digital</span>
               <div className="flex justify-between items-center text-xs font-mono font-bold">
                 <span>Nilai Transfer:</span>
-                <span className="text-amber-400">Rp {donateAmount.toLocaleString('id-ID')}</span>
+                <span className="text-accent-amber">Rp {donateAmount.toLocaleString('id-ID')}</span>
               </div>
               <p className="text-[9px] text-slate-400 leading-relaxed text-center pt-1 italic">
                 Scan QR di atas menggunakan GoPay, OVO, ShopeePay, Dana, LinkAja, atau m-Banking Anda.
@@ -493,7 +492,7 @@ export default function DonationOpen({
             </div>
             
             <p className="text-[10px] text-slate-500 flex items-center gap-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Dijamin 100% Bebas Riba & Transparan
+              <ShieldCheck className="h-3.5 w-3.5 text-primary-400" /> Dijamin 100% Bebas Riba & Transparan
             </p>
           </div>
         ) : (
@@ -501,7 +500,7 @@ export default function DonationOpen({
             <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider font-mono text-left">🏦 REKENING BANK TRANSFER (BSI)</h4>
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2 text-left">
               <span className="block text-[10px] font-bold text-slate-400">BANK SYARIAH INDONESIA (BSI)</span>
-              <span className="block text-lg font-black text-emerald-800 font-mono tracking-wider">711 1222 339</span>
+              <span className="block text-lg font-black text-primary-800 font-mono tracking-wider">711 1222 339</span>
               <span className="block text-xs text-slate-600 font-bold">A/N: Kas Masjid Jami Al Abrar Lapadde</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed text-left">
@@ -536,7 +535,7 @@ export default function DonationOpen({
                     <span className="font-bold text-slate-800 block text-left">{d.name}</span>
                     <span className="text-[9px] font-mono text-slate-400 block text-left">{d.timestamp}</span>
                   </div>
-                  <span className="font-bold font-mono text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-lg text-[10px]">
+                  <span className="font-bold font-mono text-primary-700 bg-primary-50 border border-primary-100 px-2 py-0.5 rounded-lg text-[10px]">
                     +Rp {d.amount.toLocaleString('id-ID')}
                   </span>
                 </div>

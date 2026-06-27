@@ -95,11 +95,12 @@ export default function JadwalHub({
   kajian,
   jumat,
   ramadan,
+  routine,
   onDeleteLog,
   onAddPrayer,
   onDeletePrayer
 }: JadwalHubProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
+  const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log' | 'routine'>('sholat');
 
   // Local state for custom prayer schedule creation
   const [showAddForm, setShowAddForm] = useState(false);
@@ -295,6 +296,66 @@ export default function JadwalHub({
     setEditingRamadan(null);
   };
 
+  const deleteRamadan = (id: string) => {
+    if (confirm('Hapus kegiatan Ramadan ini?')) {
+      const rToDelete = ramadan.find(r => r.id === id);
+      if (rToDelete && rToDelete.id) {
+        deleteDocument('ramadan_schedule', rToDelete.id);
+        onAddLog('Ramadan Dihapus', 'Kegiatan Ramadan berhasil dihapus.', 'alert');
+      }
+    }
+  };
+
+  const [editingRoutine, setEditingRoutine] = useState<RoutineEntry | null>(null);
+  const [routineForm, setRoutineForm] = useState<Partial<RoutineEntry>>({});
+
+  const handleEditRoutine = (r: RoutineEntry) => {
+    setEditingRoutine(r);
+    setRoutineForm(r);
+  };
+
+  const handleAddRoutine = () => {
+    const newRoutine: RoutineEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: '',
+      time: '',
+      day: '',
+      description: '',
+      category: 'Harian'
+    };
+    setEditingRoutine(newRoutine);
+    setRoutineForm(newRoutine);
+  };
+
+  const saveRoutine = () => {
+    if (!routineForm.title || !routineForm.day) {
+      onAddLog('Gagal', 'Judul dan Hari wajib diisi!', 'alert');
+      return;
+    }
+    
+    if (editingRoutine && editingRoutine.id) {
+       const existing = routine.find(r => r.id === editingRoutine.id);
+       if (existing && existing.id) {
+         updateDocument('routine_schedule', existing.id, routineForm);
+         onAddLog('Agenda Diperbarui', `Kegiatan ${routineForm.title} berhasil diperbarui.`, 'success');
+       }
+    } else {
+       addDocument('routine_schedule', routineForm);
+       onAddLog('Agenda Ditambah', `Kegiatan ${routineForm.title} berhasil ditambahkan.`, 'success');
+    }
+    setEditingRoutine(null);
+  };
+
+  const deleteRoutine = (id: string) => {
+    if (confirm('Hapus agenda rutin ini?')) {
+      const rToDelete = routine.find(r => r.id === id);
+      if (rToDelete && rToDelete.id) {
+        deleteDocument('routine_schedule', rToDelete.id);
+        onAddLog('Agenda Dihapus', 'Agenda rutin berhasil dihapus.', 'alert');
+      }
+    }
+  };
+
 
   return (
     <div className="space-y-6 animate-fade-in" id="jadwal_hub_container">
@@ -305,19 +366,19 @@ export default function JadwalHub({
         <div className="space-y-6">
           {/* Banner Infomasi Database Firestore */}
           {showConfigInfo && (
-            <div className="bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 rounded-2xl p-4 flex items-start gap-3 relative overflow-hidden" id="db_connected_banner">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-700 shrink-0 text-sm">
+            <div className="bg-primary-500/10 text-primary-800 border border-primary-500/20 rounded-2xl p-4 flex items-start gap-3 relative overflow-hidden" id="db_connected_banner">
+              <div className="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-700 shrink-0 text-sm">
                 ✨
               </div>
               <div className="flex-1 space-y-1">
-                <h4 className="font-bold text-sm text-emerald-900">Database Real-time Terintegrasi</h4>
-                <p className="text-xs text-emerald-700 leading-relaxed md:max-w-4xl">
+                <h4 className="font-bold text-sm text-primary-900">Database Real-time Terintegrasi</h4>
+                <p className="text-xs text-primary-700 leading-relaxed md:max-w-4xl">
                   Alhamdulillah, sistem kami menggunakan penyimpanan cloud aman serta redundansi database berbasis localStorage. Perangkat Anda akan terus mendapatkan notifikasi tepat waktu.
                 </p>
               </div>
               <button 
                 onClick={() => onSetShowConfigInfo(false)}
-                className="text-xs text-emerald-700 hover:text-emerald-900 hover:bg-emerald-500/10 w-6 h-6 rounded-full flex items-center justify-center transition"
+                className="text-xs text-primary-700 hover:text-primary-900 hover:bg-primary-500/10 w-6 h-6 rounded-full flex items-center justify-center transition"
               >
                 ✕
               </button>
@@ -325,11 +386,11 @@ export default function JadwalHub({
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 bg-gradient-to-br from-emerald-900 to-emerald-800 text-white rounded-3xl shadow-xl p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between border-b-4 border-amber-400">
+            <div className="lg:col-span-8 bg-gradient-to-br from-primary-900 to-primary-800 text-white rounded-3xl shadow-xl p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between border-b-4 border-amber-400">
               <div className="relative z-10">
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
-                    <span className="text-[10px] bg-emerald-950/40 text-emerald-300 border border-emerald-700 font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                    <span className="text-[10px] bg-primary-950/40 text-primary-300 border border-primary-700 font-bold tracking-widest uppercase px-3 py-1 rounded-full">
                       ACUAN JADWAL TERDEKAT
                     </span>
                     {nextDetails && nextDetails.prayer ? (
@@ -340,21 +401,21 @@ export default function JadwalHub({
                       <h2 className="text-2xl font-black tracking-wide mt-2">Memuat Waktu Shalat...</h2>
                     )}
                   </div>
-                  <div className="p-3 bg-emerald-950/40 backdrop-blur rounded-2xl border border-emerald-700 animate-bounce">
+                  <div className="p-3 bg-primary-950/40 backdrop-blur rounded-2xl border border-primary-700 animate-bounce">
                     <Bell className="h-6 w-6 text-amber-400" />
                   </div>
                 </div>
 
                 {nextDetails && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 mb-6 border-t border-b border-emerald-700/60 py-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 mb-6 border-t border-b border-primary-700/60 py-6">
                     <div>
-                      <span className="block text-xs text-emerald-300 tracking-wide font-medium uppercase">COUNTDOWN ADZAN</span>
+                      <span className="block text-xs text-primary-300 tracking-wide font-medium uppercase">COUNTDOWN ADZAN</span>
                       <div className="text-3xl font-black text-amber-300 tracking-wide mt-1 font-mono">
                         {nextDetails.countdownPrayer}
                       </div>
                     </div>
-                    <div className="border-t md:border-t-0 md:border-l border-emerald-700/60 pt-4 md:pt-0 md:pl-6">
-                      <span className="block text-xs text-emerald-300 tracking-wide font-medium uppercase">🔔 PERINGATAN 10 MENIT</span>
+                    <div className="border-t md:border-t-0 md:border-l border-primary-700/60 pt-4 md:pt-0 md:pl-6">
+                      <span className="block text-xs text-primary-300 tracking-wide font-medium uppercase">🔔 PERINGATAN 10 MENIT</span>
                       <div className="text-3xl font-black text-white tracking-wide mt-1 font-mono">
                         {nextDetails.countdownAlert}
                       </div>
@@ -363,15 +424,15 @@ export default function JadwalHub({
                 )}
 
                 {isAdmin && (
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-emerald-950/40 backdrop-blur-md p-4 rounded-2xl border border-emerald-700">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-primary-950/40 backdrop-blur-md p-4 rounded-2xl border border-primary-700">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">📣</span>
-                      <p className="text-[10px] text-emerald-300">Gunakan simulator instan ini untuk memicu alarm 10 menit sebelum waktu simulasi.</p>
+                      <p className="text-[10px] text-primary-300">Gunakan simulator instan ini untuk memicu alarm 10 menit sebelum waktu simulasi.</p>
                     </div>
                     <button
                       onClick={onTriggerQuickTest}
                       disabled={testNotificationTimeLeft !== null}
-                      className="sm:ml-auto px-5 py-2 w-full sm:w-auto bg-amber-400 hover:bg-amber-500 disabled:bg-amber-400/40 text-emerald-950 font-black rounded-xl shadow text-[11px] uppercase transition active:scale-95 whitespace-nowrap"
+                      className="sm:ml-auto px-5 py-2 w-full sm:w-auto bg-amber-400 hover:bg-amber-500 disabled:bg-amber-400/40 text-primary-950 font-black rounded-xl shadow text-[11px] uppercase transition active:scale-95 whitespace-nowrap"
                     >
                       {testNotificationTimeLeft !== null 
                         ? `Menguji (${testNotificationTimeLeft}s)...`
@@ -385,22 +446,22 @@ export default function JadwalHub({
             <div className="lg:col-span-4 bg-white rounded-3xl shadow-lg border border-slate-100 p-6 flex flex-col justify-between">
               <div className="space-y-4">
                 <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-emerald-600" /> Koneksi
+                  <Settings className="h-5 w-5 text-primary-600" /> Koneksi
                 </h3>
-                <div className={`p-4 rounded-2xl border ${notificationPermission === 'granted' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-amber-50 border-amber-100 text-amber-800'}`}>
+                <div className={`p-4 rounded-2xl border ${notificationPermission === 'granted' ? 'bg-primary-50 border-primary-100 text-primary-800' : 'bg-amber-50 border-amber-100 text-amber-800'}`}>
                   <p className="text-[10px] font-black uppercase tracking-widest mb-1">NOTIFIKASI DESKTOP</p>
                   <p className="text-xs font-semibold leading-relaxed">
                     {notificationPermission === 'granted' ? 'Izin Aktif! Notifikasi akan muncul otomatis.' : 'Izin Belum Diberikan. Aktifkan agar pengingat berbunyi.'}
                   </p>
                   {notificationPermission !== 'granted' && (
-                    <button onClick={onRequestNotificationPermission} className="mt-3 w-full py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow">Aktifkan Notifikasi</button>
+                    <button onClick={onRequestNotificationPermission} className="mt-3 w-full py-2 bg-primary-600 text-white font-bold rounded-xl text-xs shadow">Aktifkan Notifikasi</button>
                   )}
                 </div>
                 <div className="space-y-3">
                   <span className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">VOLUME & NADA</span>
                   <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
                     <button onClick={() => onSetIsMuted(!isMuted)} className="p-2 text-slate-600">{isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}</button>
-                    <input type="range" min="0" max="1" step="0.05" value={volume} onChange={(e) => onSetVolume(parseFloat(e.target.value))} className="flex-1 accent-emerald-600" />
+                    <input type="range" min="0" max="1" step="0.05" value={volume} onChange={(e) => onSetVolume(parseFloat(e.target.value))} className="flex-1 accent-primary-600" />
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {(['chime', 'gong', 'adzan'] as const).map(audio => (
@@ -409,7 +470,7 @@ export default function JadwalHub({
                         onClick={() => onSetSelectedAudio(audio)}
                         className={`py-1.5 rounded-xl border text-[9px] font-black uppercase transition ${
                           selectedAudio === audio 
-                            ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
+                            ? 'bg-primary-600 border-primary-600 text-white shadow-sm'
                             : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300'
                         }`}
                       >
@@ -421,7 +482,7 @@ export default function JadwalHub({
               </div>
               <button 
                 onClick={onToggleSoundPlay} 
-                className={`w-full py-3 mt-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 border transition ${isAudioPlaying ? 'bg-amber-500 text-white border-amber-600' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}
+                className={`w-full py-3 mt-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 border transition ${isAudioPlaying ? 'bg-amber-500 text-white border-amber-600' : 'bg-primary-50 text-primary-800 border-primary-200'}`}
               >
                 {isAudioPlaying ? <Square className="h-3 w-3" /> : <Play className="h-3 w-3" />}
                 {isAudioPlaying ? 'HENTIKAN TES' : 'PUTAR TES ALARM'}
@@ -433,13 +494,13 @@ export default function JadwalHub({
             <div className="lg:col-span-8 bg-white rounded-3xl shadow-lg border border-slate-100 p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2.5">
-                  <Database className="h-5 w-5 text-emerald-600" /> Jadwal Waktu Shalat
+                  <Database className="h-5 w-5 text-primary-600" /> Jadwal Waktu Shalat
                 </h3>
                 {isAdmin && (
                   <div className="flex items-center gap-2 flex-wrap">
                     <button 
                       onClick={() => setShowAddForm(!showAddForm)} 
-                      className="text-[10px] text-white bg-emerald-600 hover:bg-emerald-700 font-black px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow"
+                      className="text-[10px] text-white bg-primary-600 hover:bg-primary-700 font-black px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow"
                     >
                       <Plus className="h-3.5 w-3.5" /> TAMBAH JADWAL
                     </button>
@@ -451,9 +512,9 @@ export default function JadwalHub({
               </div>
 
               {showAddForm && isAdmin && (
-                <form onSubmit={handleAddNewPrayer} className="p-4 bg-emerald-50/50 border border-emerald-500/10 rounded-2xl space-y-3 mb-4 text-left animate-fade-in">
-                  <div className="flex justify-between items-center border-b border-emerald-500/10 pb-2 mb-2">
-                    <h4 className="text-xs font-black text-emerald-800 uppercase tracking-wider">Tambah Jadwal Baru</h4>
+                <form onSubmit={handleAddNewPrayer} className="p-4 bg-primary-50/50 border border-primary-500/10 rounded-2xl space-y-3 mb-4 text-left animate-fade-in">
+                  <div className="flex justify-between items-center border-b border-primary-500/10 pb-2 mb-2">
+                    <h4 className="text-xs font-black text-primary-800 uppercase tracking-wider">Tambah Jadwal Baru</h4>
                     <button type="button" onClick={() => setShowAddForm(false)} className="text-slate-400 hover:text-slate-600">
                       <X className="h-4 w-4" />
                     </button>
@@ -467,7 +528,7 @@ export default function JadwalHub({
                         placeholder="e.g. Dhuha, Tahajjud, Isyraq" 
                         value={newPrayerName} 
                         onChange={(e) => setNewPrayerName(e.target.value)} 
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-primary-500"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -477,7 +538,7 @@ export default function JadwalHub({
                         required 
                         value={newPrayerTime} 
                         onChange={(e) => setNewPrayerTime(e.target.value)} 
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 font-mono"
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-primary-500 font-mono"
                       />
                     </div>
                     <div className="sm:col-span-4">
@@ -488,7 +549,7 @@ export default function JadwalHub({
                             key={ico} 
                             type="button" 
                             onClick={() => setNewPrayerIcon(ico)} 
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border transition shrink-0 ${newPrayerIcon === ico ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border transition shrink-0 ${newPrayerIcon === ico ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-slate-200 hover:border-slate-300'}`}
                           >
                             {ico}
                           </button>
@@ -503,7 +564,7 @@ export default function JadwalHub({
                       placeholder="e.g. Batas akhir shalat Israk dan mulainya waktu Dhuha" 
                       value={newPrayerDesc} 
                       onChange={(e) => setNewPrayerDesc(e.target.value)} 
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-primary-500"
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-1">
@@ -516,7 +577,7 @@ export default function JadwalHub({
                     </button>
                     <button 
                       type="submit" 
-                      className="px-4 py-1.5 bg-emerald-600 text-white text-xs font-black rounded-lg hover:bg-emerald-700 transition"
+                      className="px-4 py-1.5 bg-primary-600 text-white text-xs font-black rounded-lg hover:bg-primary-700 transition"
                     >
                       Simpan Jadwal
                     </button>
@@ -549,12 +610,12 @@ export default function JadwalHub({
                       return (
                         <tr key={prayer.id} className="hover:bg-slate-50/50 transition">
                           <td className="py-4 px-3 flex items-center gap-3">
-                            <span className="text-xl w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">{prayer.icon}</span>
+                            <span className="text-xl w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">{prayer.icon}</span>
                             <span className="font-extrabold text-slate-800 text-sm">{prayer.name}</span>
                           </td>
                           <td className="py-4 px-3">
                             {isEditingThis ? (
-                              <input type="time" value={editTimeValue} onChange={(e) => onSetEditTimeValue(e.target.value)} className="px-3 py-1.5 bg-slate-50 border border-emerald-500 rounded-lg text-sm font-black font-mono" />
+                              <input type="time" value={editTimeValue} onChange={(e) => onSetEditTimeValue(e.target.value)} className="px-3 py-1.5 bg-slate-50 border border-primary-500 rounded-lg text-sm font-black font-mono" />
                             ) : (
                               <span className="font-black text-slate-800 font-mono text-sm bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">{prayer.time}</span>
                             )}
@@ -568,12 +629,12 @@ export default function JadwalHub({
                             <td className="py-4 px-3 text-right">
                               {isEditingThis ? (
                                 <div className="flex items-center justify-end gap-1.5">
-                                  <button onClick={onSavePrayerEdit} className="p-1 px-3 bg-emerald-600 text-white rounded-lg text-xs font-black">SIMPAN</button>
+                                  <button onClick={onSavePrayerEdit} className="p-1 px-3 bg-primary-600 text-white rounded-lg text-xs font-black">SIMPAN</button>
                                   <button onClick={onCancelEdit} className="p-1 px-3 bg-slate-100 text-slate-600 rounded-lg text-xs font-black">BATAL</button>
                                 </div>
                               ) : (
                                 <div className="flex items-center justify-end gap-1.5">
-                                  <button onClick={() => onStartEditing(prayer)} className="text-[10px] text-emerald-700 bg-emerald-50 font-black px-3 py-1.5 rounded-lg border border-emerald-100 transition">EDIT</button>
+                                  <button onClick={() => onStartEditing(prayer)} className="text-[10px] text-primary-700 bg-primary-50 font-black px-3 py-1.5 rounded-lg border border-primary-100 transition">EDIT</button>
                                   {!['imsak', 'shubuh', 'syuruk', 'dzuhur', 'ashar', 'maghrib', 'isya'].includes(prayer.id) && onDeletePrayer && (
                                     <button 
                                       type="button"
@@ -602,7 +663,7 @@ export default function JadwalHub({
             <div className="lg:col-span-4 bg-white rounded-3xl shadow-lg border border-slate-100 p-6 flex flex-col">
               <div className="flex items-center justify-between mb-4 text-left">
                 <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                  <History className="h-5 w-5 text-emerald-600" /> Riwayat
+                  <History className="h-5 w-5 text-primary-600" /> Riwayat
                 </h3>
                 {isAdmin && <button onClick={onClearLogs} className="text-[10px] font-black text-slate-400 hover:text-red-500">BERSIHKAN</button>}
               </div>
@@ -612,7 +673,7 @@ export default function JadwalHub({
                 ) : (
                   logs.map((log) => (
                     <div key={log.id} className="p-3.5 rounded-2xl border text-[11px] bg-slate-50 border-slate-100 relative pl-4">
-                      <span className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-600" />
+                      <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600" />
                       <div className="flex justify-between items-start mb-1 text-left">
                         <span className="font-black text-slate-800 text-left">{log.title}</span>
                         <span className="font-mono text-[9px] text-slate-400 font-black whitespace-nowrap ml-2">{log.timestamp}</span>
@@ -640,7 +701,7 @@ export default function JadwalHub({
             </div>
           )}
           {ramadan.map((item) => (
-            <div key={item.id} className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4 text-left group hover:border-emerald-500 transition-colors border-t-4 border-rose-400">
+            <div key={item.id} className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4 text-left group hover:border-primary-500 transition-colors border-t-4 border-rose-400">
               <div className="flex justify-between items-start">
                  <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-xl">{item.icon}</div>
                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-black uppercase">{item.category}</span>
@@ -654,6 +715,45 @@ export default function JadwalHub({
               {isAdmin && (
                 <div className="flex gap-2 mt-4 pt-2 border-t border-slate-100">
                   <button onClick={() => handleEditRamadan(item)} className="p-2 bg-slate-100 text-slate-600 hover:text-rose-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                  <button onClick={() => deleteRamadan(item.id)} className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl flex-1 text-[10px] font-black uppercase">HAPUS</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activeSubTab === 'routine' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in text-left">
+          {isAdmin && (
+            <div className="col-span-full flex justify-end">
+              <button 
+                onClick={handleAddRoutine}
+                className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-primary-700 transition shadow-lg"
+              >
+                <Plus className="h-4 w-4" /> Tambah Agenda Rutin
+              </button>
+            </div>
+          )}
+          {routine.map((item) => (
+            <div key={item.id} className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-4 text-left group hover:border-primary-500 transition-colors border-t-4 border-primary-400">
+              <div className="flex justify-between items-start">
+                 <div className="w-12 h-12 bg-primary-50 rounded-2xl flex items-center justify-center text-xl">📅</div>
+                 <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-black uppercase">{item.category}</span>
+              </div>
+              <div className="space-y-1 text-left">
+                <h4 className="font-black text-lg text-slate-800">{item.title}</h4>
+                <div className="flex gap-2">
+                  <span className="text-[10px] font-black text-primary-600 font-mono uppercase bg-primary-50 px-2 py-0.5 rounded">{item.day}</span>
+                  <span className="text-[10px] font-black text-primary-600 font-mono uppercase bg-primary-50 px-2 py-0.5 rounded">{item.time}</span>
+                </div>
+              </div>
+              <p className="text-slate-500 text-xs leading-relaxed">{item.description}</p>
+              {item.imageUrl && <img src={item.imageUrl} className="w-full h-32 object-cover rounded-xl" />}
+              {isAdmin && (
+                <div className="flex gap-2 mt-4 pt-2 border-t border-slate-100">
+                  <button onClick={() => handleEditRoutine(item)} className="p-2 bg-slate-100 text-slate-600 hover:text-primary-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                  <button onClick={() => deleteRoutine(item.id)} className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl flex-1 text-[10px] font-black uppercase">HAPUS</button>
                 </div>
               )}
             </div>
@@ -669,7 +769,7 @@ export default function JadwalHub({
                 onClick={handleAddKajian}
                 className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-slate-800 transition shadow-lg"
               >
-                <Plus className="h-4 w-4 text-emerald-400" /> Tambah Jadwal Kajian
+                <Plus className="h-4 w-4 text-primary-400" /> Tambah Jadwal Kajian
               </button>
             </div>
           )}
@@ -691,7 +791,7 @@ export default function JadwalHub({
                       </div>
                       <div className="space-y-1 flex-1">
                         <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
-                        <p className="text-xs font-bold text-emerald-700">{item.lecturer}</p>
+                        <p className="text-xs font-bold text-primary-700">{item.lecturer}</p>
                         <div className="flex items-center gap-3 pt-1">
                           <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
                             <Clock className="h-3 w-3" /> {item.time} WITA
@@ -705,7 +805,7 @@ export default function JadwalHub({
                     )}
                     {isAdmin && (
                       <div className="flex gap-2 pt-2 border-t border-slate-100">
-                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-2 bg-slate-100 text-slate-600 hover:text-emerald-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-2 bg-slate-100 text-slate-600 hover:text-primary-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
                         <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-2 bg-slate-100 text-slate-600 hover:text-rose-600 rounded-xl flex-1 text-[10px] font-black uppercase">HAPUS</button>
                       </div>
                     )}
@@ -714,9 +814,9 @@ export default function JadwalHub({
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-6 border-t-4 border-emerald-600">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-150 shadow-sm space-y-6 border-t-4 border-primary-600">
               <div className="space-y-1">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black font-mono uppercase bg-primary-500/10 text-primary-700 border border-primary-500/20">
                   BA'DA MAGHRIB
                 </span>
                 <h3 className="text-xl font-display font-black text-slate-800 tracking-tight leading-none uppercase text-left">Kajian Kitab & Fiqh</h3>
@@ -726,8 +826,8 @@ export default function JadwalHub({
                 {kajian.filter(k => k.category === 'Ba\'da Maghrib' || k.category === 'Lainnya').map((item) => (
                   <div key={item.id} onClick={() => setSelectedKajianDetail(item)} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white transition-all shadow-sm cursor-pointer space-y-4">
                     <div className="flex gap-4">
-                      <div className="w-12 h-12 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-emerald-200">
-                        <span className="text-[10px] font-black text-emerald-700 uppercase">{item.day}</span>
+                      <div className="w-12 h-12 bg-primary-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-primary-200">
+                        <span className="text-[10px] font-black text-primary-700 uppercase">{item.day}</span>
                       </div>
                       <div className="space-y-1 flex-1">
                         <h4 className="font-black text-sm text-slate-900">{item.title}</h4>
@@ -736,7 +836,7 @@ export default function JadwalHub({
                           <span className="text-[10px] font-black text-slate-400 flex items-center gap-1">
                             <Clock className="h-3 w-3" /> {item.time} WITA
                           </span>
-                          <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{item.theme || item.category}</span>
+                          <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">{item.theme || item.category}</span>
                         </div>
                       </div>
                     </div>
@@ -745,7 +845,7 @@ export default function JadwalHub({
                     )}
                     {isAdmin && (
                       <div className="flex gap-2 pt-2 border-t border-slate-100">
-                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-2 bg-slate-100 text-slate-600 hover:text-emerald-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleEditKajian(item); }} className="p-2 bg-slate-100 text-slate-600 hover:text-primary-600 rounded-xl flex-1 text-[10px] font-black uppercase">EDIT</button>
                         <button onClick={(e) => { e.stopPropagation(); deleteKajian(item.id); }} className="p-2 bg-slate-100 text-slate-600 hover:text-rose-600 rounded-xl flex-1 text-[10px] font-black uppercase">HAPUS</button>
                       </div>
                     )}
@@ -807,7 +907,7 @@ export default function JadwalHub({
                 </div>
                 {isAdmin && (
                   <div className="flex gap-2">
-                    <button onClick={() => handleEditJumat(j)} className={`p-2 rounded-xl border flex-1 text-[10px] font-black ${i === jumat.length - 1 ? 'bg-blue-50 text-blue-700 border-blue-400' : 'bg-white text-slate-600 hover:text-emerald-600 border-slate-200'}`}>EDIT</button>
+                    <button onClick={() => handleEditJumat(j)} className={`p-2 rounded-xl border flex-1 text-[10px] font-black ${i === jumat.length - 1 ? 'bg-blue-50 text-blue-700 border-blue-400' : 'bg-white text-slate-600 hover:text-primary-600 border-slate-200'}`}>EDIT</button>
                     <button onClick={() => deleteJumat(j.id)} className={`p-2 rounded-xl border flex-1 text-[10px] font-black ${i === jumat.length - 1 ? 'bg-white text-rose-600 border-rose-400' : 'bg-white text-slate-600 hover:text-rose-600 border-slate-200'}`}>HAPUS</button>
                   </div>
                 )}
@@ -828,7 +928,7 @@ export default function JadwalHub({
 
 
       {editingKajian && (
-        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-primary-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-indigo-100">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div className="space-y-1">
@@ -918,12 +1018,12 @@ export default function JadwalHub({
       )}
 
       {editingJumat && (
-        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-emerald-100">
+        <div className="fixed inset-0 z-50 bg-primary-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-primary-100">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div className="space-y-1">
                 <h4 className="text-xl font-black text-slate-800">Agenda Petugas Jumat</h4>
-                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Manajemen Ibadah Mingguan</p>
+                <p className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">Manajemen Ibadah Mingguan</p>
               </div>
               <button 
                 onClick={() => setEditingJumat(null)} 
@@ -939,7 +1039,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.khatib} 
                   onChange={e => setJumatForm({...jumatForm, khatib: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
                 />
               </div>
               <div className="space-y-1 col-span-2">
@@ -948,7 +1048,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.imam} 
                   onChange={e => setJumatForm({...jumatForm, imam: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
                 />
               </div>
               <div className="space-y-1 col-span-2">
@@ -957,7 +1057,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.muazin} 
                   onChange={e => setJumatForm({...jumatForm, muazin: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
                 />
               </div>
               <div className="space-y-1 col-span-1">
@@ -966,7 +1066,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.date} 
                   onChange={e => setJumatForm({...jumatForm, date: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-primary-500 transition"
                   placeholder="e.g. 15 Juni"
                 />
               </div>
@@ -976,14 +1076,14 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.month} 
                   onChange={e => setJumatForm({...jumatForm, month: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-primary-500 transition"
                   placeholder="e.g. Juni 2026"
                 />
               </div>
             </div>
             <button 
               onClick={saveJumat}
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-emerald-200 active:scale-95"
+              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-primary-200 active:scale-95"
             >
               Simpan Jadwal Jumat
             </button>
@@ -1016,10 +1116,10 @@ export default function JadwalHub({
               logs.map((log) => (
                 <div 
                   key={log.id} 
-                  className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-start gap-4 hover:bg-white hover:border-emerald-200 transition group relative text-left"
+                  className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-start gap-4 hover:bg-white hover:border-primary-200 transition group relative text-left"
                 >
                   <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center text-lg ${
-                    log.type === 'success' ? 'bg-emerald-50 text-emerald-600 font-bold' :
+                    log.type === 'success' ? 'bg-primary-50 text-primary-600 font-bold' :
                     log.type === 'alert' ? 'bg-rose-50 text-rose-600' :
                     'bg-slate-100 text-slate-400'
                   }`}>
@@ -1046,12 +1146,12 @@ export default function JadwalHub({
       )}
 
       {editingRamadan && (
-        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-emerald-100">
+        <div className="fixed inset-0 z-50 bg-primary-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-primary-100">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div className="space-y-1">
                 <h4 className="text-xl font-black text-slate-800">Agenda Ramadan</h4>
-                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Detail Kegiatan Masjid</p>
+                <p className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">Detail Kegiatan Masjid</p>
               </div>
               <button 
                 onClick={() => setEditingRamadan(null)} 
@@ -1067,7 +1167,7 @@ export default function JadwalHub({
                   type="text" 
                   value={ramadanForm.title} 
                   onChange={e => setRamadanForm({...ramadanForm, title: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
                   placeholder="e.g. Tarawih Berjamaah"
                 />
               </div>
@@ -1077,7 +1177,7 @@ export default function JadwalHub({
                   type="text" 
                   value={ramadanForm.time} 
                   onChange={e => setRamadanForm({...ramadanForm, time: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 font-mono outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 font-mono outline-none focus:border-primary-500 transition"
                   placeholder="e.g. 19:30"
                 />
               </div>
@@ -1087,7 +1187,7 @@ export default function JadwalHub({
                   type="text" 
                   value={ramadanForm.icon} 
                   onChange={e => setRamadanForm({...ramadanForm, icon: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xl text-center outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xl text-center outline-none focus:border-primary-500 transition"
                   placeholder="🌙"
                 />
               </div>
@@ -1097,7 +1197,7 @@ export default function JadwalHub({
                   rows={3}
                   value={ramadanForm.description} 
                   onChange={e => setRamadanForm({...ramadanForm, description: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 outline-none focus:border-emerald-500 transition resize-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 outline-none focus:border-primary-500 transition resize-none"
                   placeholder="Jelaskan detail singkat kegiatan..."
                 />
               </div>
@@ -1118,7 +1218,7 @@ export default function JadwalHub({
                       onClick={() => setRamadanForm({...ramadanForm, category: cat})}
                       className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition border ${
                         ramadanForm.category === cat 
-                          ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200' 
+                          ? 'bg-primary-600 border-primary-600 text-white shadow-lg shadow-primary-200' 
                           : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-200'
                       }`}
                     >
@@ -1130,7 +1230,7 @@ export default function JadwalHub({
             </div>
             <button 
               onClick={saveRamadan}
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-emerald-200 active:scale-95"
+              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-primary-200 active:scale-95"
             >
               Simpan Agenda Ramadan
             </button>
@@ -1139,7 +1239,7 @@ export default function JadwalHub({
       )}
 
       {editingKajian && (
-        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-primary-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-indigo-100">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div className="space-y-1">
@@ -1217,17 +1317,39 @@ export default function JadwalHub({
                 </select>
               </div>
             </div>
+            <button 
+              onClick={() => {
+                if (!kajianForm.title || !kajianForm.lecturer) {
+                  onAddLog('Gagal', 'Judul dan Pemateri wajib diisi!', 'alert');
+                  return;
+                }
+                if (editingKajian && editingKajian.id) {
+                   const existingKajian = kajian.find(k => k.id === editingKajian.id);
+                   if (existingKajian && existingKajian.id) {
+                     updateDocument('kajian_schedule', existingKajian.id, kajianForm);
+                     onAddLog('Kajian Diperbarui', `Jadwal ${kajianForm.title} berhasil diperbarui.`, 'success');
+                   }
+                } else {
+                   addDocument('kajian_schedule', kajianForm);
+                   onAddLog('Kajian Ditambah', `Jadwal ${kajianForm.title} berhasil ditambahkan.`, 'success');
+                }
+                setEditingKajian(null);
+              }}
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-indigo-200 active:scale-95"
+            >
+              Simpan Jadwal Kajian
+            </button>
           </div>
         </div>
       )}
 
       {editingJumat && (
-        <div className="fixed inset-0 z-50 bg-emerald-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-emerald-100">
+        <div className="fixed inset-0 z-50 bg-primary-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-primary-100">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div className="space-y-1">
                 <h4 className="text-xl font-black text-slate-800">Agenda Petugas Jumat</h4>
-                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Manajemen Ibadah Mingguan</p>
+                <p className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">Manajemen Ibadah Mingguan</p>
               </div>
               <button 
                 onClick={() => setEditingJumat(null)} 
@@ -1243,7 +1365,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.khatib} 
                   onChange={e => setJumatForm({...jumatForm, khatib: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
                 />
               </div>
               <div className="space-y-1 col-span-2">
@@ -1252,7 +1374,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.imam} 
                   onChange={e => setJumatForm({...jumatForm, imam: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
                 />
               </div>
               <div className="space-y-1 col-span-2">
@@ -1261,7 +1383,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.muazin} 
                   onChange={e => setJumatForm({...jumatForm, muazin: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
                 />
               </div>
               <div className="space-y-1 col-span-1">
@@ -1270,7 +1392,7 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.date} 
                   onChange={e => setJumatForm({...jumatForm, date: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-primary-500 transition"
                   placeholder="e.g. 15 Juni"
                 />
               </div>
@@ -1280,16 +1402,101 @@ export default function JadwalHub({
                   type="text" 
                   value={jumatForm.month} 
                   onChange={e => setJumatForm({...jumatForm, month: e.target.value})}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-emerald-500 transition"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-primary-500 transition"
                   placeholder="e.g. Juni 2026"
                 />
               </div>
             </div>
             <button 
               onClick={saveJumat}
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-emerald-200 active:scale-95"
+              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl shadow-primary-200 active:scale-95"
             >
               Simpan Jadwal Jumat
+            </button>
+          </div>
+        </div>
+      )}
+
+      {editingRoutine && (
+        <div className="fixed inset-0 z-50 bg-primary-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl flex flex-col space-y-6 text-left border border-primary-100">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <div className="space-y-1">
+                <h4 className="text-xl font-black text-slate-800">Agenda Rutin Masjid</h4>
+                <p className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">Manajemen Program Mingguan</p>
+              </div>
+              <button 
+                onClick={() => setEditingRoutine(null)} 
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Agenda</label>
+                <input 
+                  type="text" 
+                  value={routineForm.title} 
+                  onChange={e => setRoutineForm({...routineForm, title: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:border-primary-500 transition"
+                  placeholder="e.g. Belajar Mengaji Dewasa"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hari</label>
+                <input 
+                  type="text" 
+                  value={routineForm.day} 
+                  onChange={e => setRoutineForm({...routineForm, day: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:border-primary-500 transition"
+                  placeholder="e.g. Selasa"
+                />
+              </div>
+              <div className="space-y-1 col-span-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu (Jam)</label>
+                <input 
+                  type="text" 
+                  value={routineForm.time} 
+                  onChange={e => setRoutineForm({...routineForm, time: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-slate-800 font-mono outline-none focus:border-primary-500 transition"
+                  placeholder="e.g. 16:00"
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deskripsi Ringkas</label>
+                <textarea 
+                  rows={2}
+                  value={routineForm.description} 
+                  onChange={e => setRoutineForm({...routineForm, description: e.target.value})}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 outline-none focus:border-primary-500 transition resize-none"
+                  placeholder="Jelaskan detail singkat kegiatan..."
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</label>
+                <div className="flex gap-2">
+                  {(['Harian', 'Bulanan'] as const).map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setRoutineForm({...routineForm, category: cat})}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition border ${
+                        routineForm.category === cat 
+                          ? 'bg-primary-600 border-primary-600 text-white shadow-lg' 
+                          : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-200'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button 
+              onClick={saveRoutine}
+              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition shadow-xl active:scale-95"
+            >
+              Simpan Agenda Rutin
             </button>
           </div>
         </div>

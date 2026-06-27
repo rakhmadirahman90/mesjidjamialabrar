@@ -269,13 +269,13 @@ export default function KeuanganMasjid({
       />
 
       {/* Sub-menu Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-emerald-500/10 pb-4">
+      <div className="flex items-center gap-2 border-b border-primary-500/10 pb-4">
         <button
           onClick={() => setActiveSubTab('kas_utama')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
             activeSubTab === 'kas_utama'
-              ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-              : 'bg-emerald-950/20 text-slate-400 hover:bg-emerald-950/40 hover:text-slate-200 border border-emerald-500/10'
+              ? 'bg-primary-500 text-slate-950 shadow-lg shadow-primary-500/20'
+              : 'bg-primary-950/20 text-slate-400 hover:bg-primary-950/40 hover:text-slate-200 border border-primary-500/10'
           }`}
         >
           <Wallet className="w-4 h-4" />
@@ -285,8 +285,8 @@ export default function KeuanganMasjid({
           onClick={() => setActiveSubTab('donatur_tetap')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
             activeSubTab === 'donatur_tetap'
-              ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-              : 'bg-emerald-950/20 text-slate-400 hover:bg-emerald-950/40 hover:text-slate-200 border border-emerald-500/10'
+              ? 'bg-primary-500 text-slate-950 shadow-lg shadow-primary-500/20'
+              : 'bg-primary-950/20 text-slate-400 hover:bg-primary-950/40 hover:text-slate-200 border border-primary-500/10'
           }`}
         >
           <Users className="w-4 h-4" />
@@ -296,8 +296,8 @@ export default function KeuanganMasjid({
           onClick={() => setActiveSubTab('tabungan_qurban')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
             activeSubTab === 'tabungan_qurban'
-              ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-              : 'bg-emerald-950/20 text-slate-400 hover:bg-emerald-950/40 hover:text-slate-200 border border-emerald-500/10'
+              ? 'bg-primary-500 text-slate-950 shadow-lg shadow-primary-500/20'
+              : 'bg-primary-950/20 text-slate-400 hover:bg-primary-950/40 hover:text-slate-200 border border-primary-500/10'
           }`}
         >
           <Calculator className="w-4 h-4" />
@@ -312,14 +312,14 @@ export default function KeuanganMasjid({
         <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm relative overflow-hidden flex items-center justify-between">
           <div className="space-y-1 text-left">
             <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">SALDO KAS MASJID DIGITAL</span>
-            <span className="block text-2xl font-black text-emerald-950 font-mono">
+            <span className="block text-2xl font-black text-primary-950 font-mono">
               Rp {totalBalance.toLocaleString('id-ID')}
             </span>
-            <span className="block text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 py-0.5 px-2 rounded-full inline-block font-sans font-medium">
+            <span className="block text-[10px] text-primary-600 bg-primary-50 border border-primary-100 py-0.5 px-2 rounded-full inline-block font-sans font-medium">
               Bebas Hutang / Surplus
             </span>
           </div>
-          <div className="p-4 bg-emerald-50 text-emerald-700 rounded-2xl">
+          <div className="p-4 bg-primary-50 text-primary-700 rounded-2xl">
             <Wallet className="h-6 w-6" />
           </div>
         </div>
@@ -328,14 +328,14 @@ export default function KeuanganMasjid({
         <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm relative overflow-hidden flex items-center justify-between">
           <div className="space-y-1 text-left">
             <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">TOTAL PEMASUKAN (DEBIT)</span>
-            <span className="block text-2xl font-black text-emerald-700 font-mono">
+            <span className="block text-2xl font-black text-primary-700 font-mono">
               +Rp {totalDebit.toLocaleString('id-ID')}
             </span>
             <span className="block text-[11px] text-slate-400 font-sans">
               Terakumulasi dari kotak jumat & infaq online
             </span>
           </div>
-          <div className="p-4 bg-teal-50 text-emerald-800 rounded-2xl">
+          <div className="p-4 bg-teal-50 text-primary-800 rounded-2xl">
             <TrendingUp className="h-6 w-6" />
           </div>
         </div>
@@ -374,12 +374,12 @@ export default function KeuanganMasjid({
                 </div>
                 <div className="relative z-10 space-y-1 text-left">
                   <span className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Terkumpul</span>
-                  <span className="block text-xl font-black font-mono text-emerald-400">
+                  <span className="block text-xl font-black font-mono text-primary-400">
                     Rp {permanentDonorsTotalCollected.toLocaleString('id-ID')}
                   </span>
                   <div className="flex items-center gap-2 mt-2">
                     <div className="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500" style={{ width: `${collectionPercentage}%` }}></div>
+                      <div className="h-full bg-primary-500" style={{ width: `${collectionPercentage}%` }}></div>
                     </div>
                     <span className="text-[10px] font-bold text-slate-500">{collectionPercentage.toFixed(1)}%</span>
                   </div>
@@ -387,7 +387,7 @@ export default function KeuanganMasjid({
               </div>
 
               <div className="bg-white rounded-3xl p-5 border border-slate-150 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center text-amber-600 shrink-0">
                   <Users className="h-6 w-6" />
                 </div>
                 <div className="text-left">
@@ -398,7 +398,7 @@ export default function KeuanganMasjid({
               </div>
 
               <div className="bg-white rounded-3xl p-5 border border-slate-150 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
                   <TrendingUp className="h-6 w-6" />
                 </div>
                 <div className="text-left">
@@ -444,7 +444,7 @@ export default function KeuanganMasjid({
                   {isAdmin && (
                     <button 
                       onClick={() => setShowAddDonorForm(true)}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-lg shadow-emerald-900/10 flex items-center gap-2 shrink-0 transition"
+                      className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-black rounded-xl shadow-lg shadow-primary-900/10 flex items-center gap-2 shrink-0 transition"
                     >
                       <PlusCircle className="h-3.5 w-3.5" />
                       Tambah Donatur
@@ -564,7 +564,7 @@ export default function KeuanganMasjid({
                                 </div>
                               ) : (
                                 <>
-                                  <span className="block font-black text-slate-800 text-sm group-hover:text-emerald-700 transition-colors uppercase">{d.name}</span>
+                                  <span className="block font-black text-slate-800 text-sm group-hover:text-primary-700 transition-colors uppercase">{d.name}</span>
                                   <span className="text-[9px] text-slate-400 font-bold font-mono tracking-tighter">ID: D-{String(d.no || 0).padStart(3, '0')}</span>
                                 </>
                               )}
@@ -585,18 +585,18 @@ export default function KeuanganMasjid({
                               <div className="flex flex-col items-center gap-1">
                                 <div className="flex items-center gap-1">
                                   <span className="font-mono font-black text-[10px] text-slate-700">{paidCount} / 12</span>
-                                  {paidCount === 12 && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full flex items-center justify-center text-[6px] text-slate-900 ring-2 ring-amber-100">★</div>}
+                                  {paidCount === 12 && <div className="w-2.5 h-2.5 bg-accent-gold rounded-full flex items-center justify-center text-[6px] text-slate-900 ring-2 ring-amber-100">★</div>}
                                 </div>
                                 <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
                                   <div 
-                                    className={`h-full transition-all duration-1000 ${paidCount === 12 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-amber-400'}`}
+                                    className={`h-full transition-all duration-1000 ${paidCount === 12 ? 'bg-primary-500 shadow-[0_0_10px_rgba(var(--primary-500),0.4)]' : 'bg-accent-gold'}`}
                                     style={{ width: `${progressPercent}%` }}
                                   ></div>
                                 </div>
                               </div>
                             </td>
                             <td className="py-3 px-3 text-right bg-slate-50/30 border border-slate-100">
-                              <span className="block font-mono font-black text-emerald-800 text-xs">
+                              <span className="block font-mono font-black text-primary-800 text-xs">
                                 Rp {(paidCount * (editingDonorId === dId ? (editDonorForm.amount || 0) : (d.amount || 0))).toLocaleString('id-ID')}
                               </span>
                               <span className="text-[8px] text-slate-400 uppercase font-black tracking-tighter">TOTAL TERKUMPUL</span>
@@ -605,12 +605,12 @@ export default function KeuanganMasjid({
                               <td className="py-3 px-2 border border-slate-100">
                                 {editingDonorId === dId ? (
                                   <div className="flex gap-2 justify-center">
-                                    <button onClick={saveDonorEdit} className="p-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"><Save className="h-3.5 w-3.5"/></button>
+                                    <button onClick={saveDonorEdit} className="p-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700"><Save className="h-3.5 w-3.5"/></button>
                                     <button onClick={() => setEditingDonorId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><X className="h-3.5 w-3.5"/></button>
                                   </div>
                                 ) : (
                                   <div className="flex items-center justify-center gap-2">
-                                    <button onClick={() => {setEditingDonorId(dId || null); setEditDonorForm(d);}} className="p-1.5 bg-slate-100 text-emerald-600 hover:bg-emerald-100 rounded-lg transition"><Edit2 className="h-3 w-3"/></button>
+                                    <button onClick={() => {setEditingDonorId(dId || null); setEditDonorForm(d);}} className="p-1.5 bg-slate-100 text-primary-600 hover:bg-primary-100 rounded-lg transition"><Edit2 className="h-3 w-3"/></button>
                                     <button onClick={() => handleRemoveDonor(d.no, d.name)} className="p-1.5 bg-slate-100 text-rose-500 hover:bg-rose-100 rounded-lg transition"><Trash2 className="h-3 w-3"/></button>
                                   </div>
                                 )}
@@ -624,7 +624,7 @@ export default function KeuanganMasjid({
                                   onClick={() => d.id && handleTogglePayment(d.id, m)}
                                   className={`py-3 px-1 border border-slate-100 transition-all font-mono font-black select-none text-xs cursor-pointer ${
                                     isPaid 
-                                      ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' 
+                                      ? 'bg-primary-50 text-primary-600 hover:bg-primary-600 hover:text-white' 
                                       : 'bg-white text-slate-200 hover:bg-slate-100'
                                   }`}
                                   title={`${d.name} - ${m}: Klik untuk toggle status.`}
@@ -680,7 +680,7 @@ export default function KeuanganMasjid({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="text-left">
                     <h3 className="font-extrabold text-base text-slate-800 flex items-center gap-2">
-                      <ClipboardCheck className="h-5 w-5 text-emerald-700" /> Jurnal Buku Kas Utama
+                      <ClipboardCheck className="h-5 w-5 text-primary-700" /> Jurnal Buku Kas Utama
                     </h3>
                     <p className="text-slate-400 text-xs">Arsip catatan transparan demi akuntabilitas khalayak jamaah.</p>
                   </div>
@@ -700,7 +700,7 @@ export default function KeuanganMasjid({
                       <button
                         onClick={() => setFilterType('debit')}
                         className={`px-3 py-1.5 rounded-lg font-bold transition ${
-                          filterType === 'debit' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-750'
+                          filterType === 'debit' ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-750'
                         }`}
                       >
                         Pemasukan
@@ -741,12 +741,12 @@ export default function KeuanganMasjid({
                     filteredTransactions.map(t => (
                       <div key={t.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between gap-4">
                           <div className='flex flex-col gap-1'>
-                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold inline-block w-max ${t.type === 'debit' ? 'bg-teal-50 text-teal-850' : 'bg-red-50 text-red-850' }`}> {t.category} </span>
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold inline-block w-max ${t.type === 'debit' ? 'bg-primary-50 text-primary-950' : 'bg-red-50 text-red-950' }`}> {t.category} </span>
                               <span className="text-xs font-semibold text-slate-800">{t.notes}</span>
                               <span className="text-[10px] text-slate-400">{t.date}</span>
                           </div>
                           <div className="flex flex-col items-end gap-1 shrink-0">
-                            <span className={`font-mono font-black text-sm ${t.type === 'debit' ? 'text-teal-700' : 'text-rose-600'}`}>
+                            <span className={`font-mono font-black text-sm ${t.type === 'debit' ? 'text-primary-700' : 'text-rose-600'}`}>
                                 {t.type === 'debit' ? '+' : '-'}Rp {t.amount.toLocaleString('id-ID')}
                             </span>
                             {isAdmin && (
@@ -807,7 +807,7 @@ export default function KeuanganMasjid({
                                 </select>
                               ) : (
                                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                                  t.type === 'debit' ? 'bg-teal-50 text-teal-850' : 'bg-red-50 text-red-850'
+                                  t.type === 'debit' ? 'bg-primary-50 text-primary-950' : 'bg-red-50 text-red-950'
                                 }`}>
                                   {t.category}
                                 </span>
@@ -829,7 +829,7 @@ export default function KeuanganMasjid({
                               )}
                             </td>
                             <td className={`py-3.5 font-mono font-bold text-right text-sm ${
-                              t.type === 'debit' ? 'text-teal-700' : 'text-rose-600'
+                              t.type === 'debit' ? 'text-primary-700' : 'text-rose-600'
                             }`}>
                               {editingTxId === t.id ? (
                                 <div className="flex flex-col items-end gap-1">
@@ -858,12 +858,12 @@ export default function KeuanganMasjid({
                               <td className="py-3.5 text-right">
                                 {editingTxId === t.id ? (
                                   <div className="flex justify-end gap-2 px-1">
-                                    <button onClick={saveEditTx} className="p-1.5 bg-emerald-600 text-white rounded-lg" title="Simpan"><Save className="h-3.5 w-3.5"/></button>
+                                    <button onClick={saveEditTx} className="p-1.5 bg-primary-600 text-white rounded-lg" title="Simpan"><Save className="h-3.5 w-3.5"/></button>
                                     <button onClick={() => setEditingTxId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg" title="Batal"><X className="h-3.5 w-3.5"/></button>
                                   </div>
                                 ) : (
                                   <div className="flex justify-end gap-3 px-1 text-[10px] font-bold">
-                                    <button onClick={() => startEditingTx(t)} className="text-emerald-600 hover:scale-110 transition shrink-0" title="Edit"><Edit2 className="h-3.5 w-3.5"/></button>
+                                    <button onClick={() => startEditingTx(t)} className="text-primary-600 hover:scale-110 transition shrink-0" title="Edit"><Edit2 className="h-3.5 w-3.5"/></button>
                                     <button onClick={() => handleRemoveTransaction(t.id, t.notes)} className="text-rose-500 hover:scale-110 transition shrink-0" title="Hapus"><Trash2 className="h-3.5 w-3.5"/></button>
                                   </div>
                                 )}
@@ -909,7 +909,7 @@ export default function KeuanganMasjid({
                           onClick={() => setTxType('debit')}
                           className={`py-2 text-center text-xs font-bold rounded-xl border transition ${
                             txType === 'debit' 
-                              ? 'bg-emerald-600 border-emerald-600 text-white'
+                              ? 'bg-primary-600 border-primary-600 text-white'
                               : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300'
                           }`}
                         >
@@ -974,7 +974,7 @@ export default function KeuanganMasjid({
 
                     <button
                       type="submit"
-                      className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow transition duration-150 flex items-center justify-center gap-1.5"
+                      className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-black text-xs rounded-xl shadow transition duration-150 flex items-center justify-center gap-1.5"
                     >
                       <PlusCircle className="h-4 w-4" /> Simpan & Publikasikan
                     </button>
@@ -995,7 +995,7 @@ export default function KeuanganMasjid({
                       <span>72%</span>
                     </div>
                     <div className="h-1.5 bg-slate-800 rounded-full">
-                      <div className="h-full bg-emerald-400 rounded-full w-[72%]"></div>
+                      <div className="h-full bg-primary-400 rounded-full w-[72%]"></div>
                     </div>
                   </div>
 

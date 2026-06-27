@@ -117,14 +117,14 @@ export default function AdminDashboardPortal({
 
   const menuItems = [
     { id: 'overview', label: 'Dashboard Overview', shortLabel: 'Beranda', icon: <Layers className="h-4.5 w-4.5" />, mobileIcon: <Layers className="h-5 w-5" />, badge: null },
-    { id: 'beranda', label: 'Manajemen Beranda', shortLabel: 'Media', icon: <Megaphone className="h-4.5 w-4.5" />, mobileIcon: <Megaphone className="h-5 w-5" />, badge: showAnnouncement ? 'Aktif' : null },
-    { id: 'profil', label: 'Profil & Jamaah', shortLabel: 'Profil', icon: <Users className="h-4.5 w-4.5" />, mobileIcon: <Users className="h-5 w-5" />, badge: null },
+    { id: 'beranda', label: 'Beranda (Media)', shortLabel: 'Media', icon: <Megaphone className="h-4.5 w-4.5" />, mobileIcon: <Megaphone className="h-5 w-5" />, badge: showAnnouncement ? 'Aktif' : null },
+    { id: 'profil', label: 'Profil Jami Al Abrar', shortLabel: 'Profil', icon: <Users className="h-4.5 w-4.5" />, mobileIcon: <Users className="h-5 w-5" />, badge: null },
     { id: 'jadwal', label: 'Jadwal & Syiar', shortLabel: 'Jadwal', icon: <Calendar className="h-4.5 w-4.5" />, mobileIcon: <Calendar className="h-5 w-5" />, badge: '5 Waktu' },
-    { id: 'galeri', label: 'Galeri Foto', shortLabel: 'Galeri', icon: <ImageIcon className="h-4.5 w-4.5" />, mobileIcon: <ImageIcon className="h-5 w-5" />, badge: null },
-    { id: 'donasi', label: 'Program Donasi', shortLabel: 'Donasi', icon: <Heart className="h-4.5 w-4.5" />, mobileIcon: <Heart className="h-5 w-5" />, badge: `${activeCampaignsCount} Program` },
+    { id: 'galeri', label: 'Galeri Dokumentasi', shortLabel: 'Galeri', icon: <ImageIcon className="h-4.5 w-4.5" />, mobileIcon: <ImageIcon className="h-5 w-5" />, badge: null },
     { id: 'keuangan', label: 'Laporan Keuangan', shortLabel: 'Keuangan', icon: <TrendingUp className="h-4.5 w-4.5" />, mobileIcon: <TrendingUp className="h-5 w-5" />, badge: null },
+    { id: 'donasi', label: 'Portal Donasi Digital', shortLabel: 'Donasi', icon: <Heart className="h-4.5 w-4.5" />, mobileIcon: <Heart className="h-5 w-5" />, badge: `${activeCampaignsCount} Program` },
     { id: 'inventaris', label: 'Inventaris & Aset', shortLabel: 'Aset', icon: <Package className="h-4.5 w-4.5" />, mobileIcon: <Package className="h-5 w-5" />, badge: null },
-    { id: 'kontak', label: 'Kontak & Pesan', shortLabel: 'Kontak', icon: <Phone className="h-4.5 w-4.5" />, mobileIcon: <Phone className="h-5 w-5" />, badge: null },
+    { id: 'kontak', label: 'Kontak Masjid (Inbox)', shortLabel: 'Kontak', icon: <Phone className="h-4.5 w-4.5" />, mobileIcon: <Phone className="h-5 w-5" />, badge: null },
     { id: 'keamanan', label: 'Sistem & Keamanan', shortLabel: 'Sistem', icon: <ShieldCheck className="h-4.5 w-4.5" />, mobileIcon: <ShieldCheck className="h-5 w-5" />, badge: null },
   ] as const;
 

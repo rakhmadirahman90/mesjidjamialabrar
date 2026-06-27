@@ -312,21 +312,21 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
     <div className="space-y-6 sm:space-y-8 pb-16 w-full" id="galeri_masjid_container">
       
       {/* 1. Header Banner & Filter Area */}
-      <section className="relative rounded-[2.5rem] bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-900 text-white p-8 sm:p-12 shadow-2xl">
+      <section className="relative rounded-[2.5rem] bg-gradient-to-tr from-primary-950 via-primary-900 to-slate-900 text-white p-8 sm:p-12 shadow-2xl">
         {/* Abstract motif backdrop decoration wrapped inside overflow-hidden to allow dropdown to pop out nicely */}
         <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_70%_20%,_var(--tw-gradient-stops))] from-yellow-400 via-transparent to-transparent"></div>
-          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px]"></div>
+          <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_70%_20%,_var(--tw-gradient-stops))] from-accent-gold via-transparent to-transparent"></div>
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary-500/10 rounded-full blur-[100px]"></div>
         </div>
 
         <div className="relative z-10 max-w-3xl space-y-6 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-800/40 border border-emerald-500/30 text-xs font-black text-emerald-300 uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-800/40 border border-primary-500/30 text-xs font-black text-primary-300 uppercase tracking-widest">
             <Sparkles className="h-3.5 w-3.5" /> Galeri Dokumentasi
           </div>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight uppercase leading-none font-display">
-            Galeri <span className="text-emerald-400 underline decoration-yellow-400 decoration-wavy">Visualisasi</span>
+            Galeri <span className="text-primary-400 underline decoration-accent-gold decoration-wavy">Visualisasi</span>
           </h1>
-          <p className="text-emerald-100/70 text-xs sm:text-sm max-w-xl font-medium tracking-wide">
+          <p className="text-primary-100/70 text-xs sm:text-sm max-w-xl font-medium tracking-wide">
             Visualisasi kegiatan jamaah, syiar keagamaan Islam, pembinaan umat, serta dokumentasi sarana prasarana Masjid Jami Al Abrar Parepare.
           </p>
         </div>
@@ -346,7 +346,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 placeholder="Ketik kata kunci..."
-                className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl py-3 pl-11 pr-4 text-xs font-black outline-none tracking-tight transition"
+                className="w-full bg-slate-50 border border-slate-200 focus:border-primary-500 focus:bg-white rounded-xl py-3 pl-11 pr-4 text-xs font-black outline-none tracking-tight transition"
               />
             </div>
           </div>
@@ -383,8 +383,8 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                           setSelectedMonth(month.value);
                           setShowMonthDropdown(false);
                         }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-medium hover:bg-emerald-50 hover:text-emerald-700 transition ${
-                          selectedMonth === month.value ? 'bg-emerald-50 text-emerald-800 font-bold' : 'text-slate-700'
+                        className={`w-full text-left px-4 py-2.5 text-xs font-medium hover:bg-primary-50 hover:text-primary-700 transition ${
+                          selectedMonth === month.value ? 'bg-primary-50 text-primary-800 font-bold' : 'text-slate-700'
                         }`}
                       >
                         {month.label}
@@ -402,7 +402,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
               setActiveSearch(searchKeyword);
               setActiveMonthFilter(selectedMonth);
             }}
-            className="w-full md:w-56 bg-[#004d40] hover:bg-[#003d33] text-white font-black uppercase text-xs tracking-widest py-3 px-6 rounded-xl transition duration-300 shadow-md flex items-center justify-center gap-2"
+            className="w-full md:w-56 bg-primary-950 hover:bg-primary-900 text-white font-black uppercase text-xs tracking-widest py-3 px-6 rounded-xl transition duration-300 shadow-md flex items-center justify-center gap-2"
           >
             Cari Album
           </button>
@@ -488,7 +488,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                     {newImages.map((img, idx) => (
                       img.trim() !== '' && (
                         <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group bg-slate-100">
-                          <img src={img} className="w-full h-full object-cover" />
+                          <img src={img} className="w-full h-full object-cover" loading="lazy" />
                           <button
                             type="button"
                             onClick={() => handleRemoveImageUrlField(idx)}
@@ -534,8 +534,8 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
           Object.keys(groupedAlbums).map((headingGroup) => (
             <div key={headingGroup} className="space-y-6 text-left">
               {/* Group Heading Line with deep-green style indicator line */}
-              <div className="border-b-2 border-yellow-500/80 pb-2 inline-block">
-                <h2 className="text-2xl sm:text-3xl font-black text-[#0c3c26] tracking-tight font-display">
+              <div className="border-b-2 border-accent-gold/80 pb-2 inline-block">
+                <h2 className="text-2xl sm:text-3xl font-black text-primary-900 tracking-tight font-display">
                   {headingGroup}
                 </h2>
               </div>
@@ -556,7 +556,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                         setActiveImageIdx(0);
                         setIsPlaying(false);
                       }}
-                      className="bg-white border border-slate-100 rounded-[2.5rem] p-5 shadow-sm hover:shadow-xl hover:border-emerald-700/20 transition-all duration-300 cursor-pointer text-left group flex flex-col justify-between"
+                      className="bg-white border border-slate-100 rounded-[2.5rem] p-5 shadow-sm hover:shadow-xl hover:border-primary-700/20 transition-all duration-300 cursor-pointer text-left group flex flex-col justify-between"
                     >
                       {/* Image Layout Exactly Like Screenshot 1 & 2 */}
                       <div className="w-full relative">
@@ -569,6 +569,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                                 src={firstImg} 
                                 alt={album.title}
                                 referrerPolicy="no-referrer"
+                                loading="lazy"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                             </div>
@@ -581,6 +582,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                                   src={secondImg || firstImg} 
                                   alt="Preview"
                                   referrerPolicy="no-referrer"
+                                  loading="lazy"
                                   className="w-full h-full object-cover"
                                 />
                               </div>
@@ -592,16 +594,17 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                                     src={thirdImg} 
                                     alt="Preview 2"
                                     referrerPolicy="no-referrer"
+                                    loading="lazy"
                                     className="w-full h-full object-cover opacity-80"
                                   />
                                 ) : (
-                                  <div className="w-full h-full bg-emerald-950 flex items-center justify-center">
-                                    <ImageIcon className="h-6 w-6 text-emerald-400" />
+                                  <div className="w-full h-full bg-primary-950 flex items-center justify-center">
+                                    <ImageIcon className="h-6 w-6 text-primary-400" />
                                   </div>
                                 )}
                                 
                                 {imageCount > 2 && (
-                                  <div className="absolute inset-0 bg-emerald-950/70 flex items-center justify-center backdrop-blur-[2px]">
+                                  <div className="absolute inset-0 bg-primary-950/70 flex items-center justify-center backdrop-blur-[2px]">
                                     <span className="text-white text-base sm:text-lg font-black tracking-wider">
                                       +{imageCount - 2}
                                     </span>
@@ -616,6 +619,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                               src={firstImg} 
                               alt={album.title}
                               referrerPolicy="no-referrer"
+                              loading="lazy"
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           </div>
@@ -635,12 +639,12 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
 
                       {/* Content details under physical mockup frame */}
                       <div className="mt-5 space-y-2">
-                        <span className="text-[10px] sm:text-[11px] font-black text-emerald-600 tracking-wider font-mono block">
+                        <span className="text-[10px] sm:text-[11px] font-black text-primary-600 tracking-wider font-mono block">
                           {formatIndoDate(album.date)}
                         </span>
                         
                         {/* Bold green title resembling image 2 */}
-                        <h4 className="text-sm sm:text-base font-extrabold text-slate-800 group-hover:text-emerald-800 transition-colors line-clamp-2 leading-snug">
+                        <h4 className="text-sm sm:text-base font-extrabold text-slate-800 group-hover:text-primary-800 transition-colors line-clamp-2 leading-snug">
                           {album.title}
                         </h4>
                       </div>
@@ -705,6 +709,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                   src={(activeAlbum.images || [])[activeImageIdx]} 
                   alt="Abrar Slides"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                   className={`object-contain max-h-[58vh] sm:max-h-[66vh] rounded-2xl shadow-2xl transition-all ${isFullScreen ? 'w-screen h-screen max-w-none max-h-none object-contain fixed inset-0 z-50 bg-black' : ''}`}
                 />
 
@@ -741,7 +746,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                   onClick={() => setIsPlaying(!isPlaying)}
                   className="flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/20 transition rounded-xl text-white outline-none active:scale-95"
                 >
-                  {isPlaying ? <Pause className="h-4 w-4 text-emerald-400" /> : <Play className="h-4 w-4" />}
+                  {isPlaying ? <Pause className="h-4 w-4 text-primary-400" /> : <Play className="h-4 w-4" />}
                   <span>Auto Play</span>
                 </button>
 
@@ -749,7 +754,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                   onClick={() => setIsFullScreen(!isFullScreen)}
                   className="flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/20 transition rounded-xl text-white outline-none active:scale-95"
                 >
-                  <Maximize2 className="h-4 w-4 text-yellow-400" />
+                  <Maximize2 className="h-4 w-4 text-accent-gold" />
                   <span>Full Screen</span>
                 </button>
               </div>
@@ -766,7 +771,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                     }}
                     className={`w-14 h-11 rounded-lg overflow-hidden shrink-0 transition-all ${
                       idx === activeImageIdx 
-                        ? 'ring-2 ring-emerald-500 scale-105 border-transparent' 
+                        ? 'ring-2 ring-primary-500 scale-105 border-transparent' 
                         : 'opacity-40 hover:opacity-100 border border-white/15'
                     }`}
                   >
@@ -774,6 +779,7 @@ export default function GaleriMasjid({ isAdmin }: GaleriMasjidProps) {
                       src={imgUrl} 
                       alt="Thumbnail" 
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   </button>

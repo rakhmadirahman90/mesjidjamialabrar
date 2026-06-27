@@ -142,7 +142,7 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
       <div className="lg:col-span-7 space-y-6">
         <div className="bg-white rounded-3xl p-6 border border-slate-150 shadow-sm space-y-6">
           <div className="space-y-1">
-            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-150 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1 bg-primary-50 text-primary-800 border border-primary-150 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" /> Persiapan Idul Adha 1448 H / 2027 M
             </span>
             <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Pilih Target Hewan Qurban</h3>
@@ -162,14 +162,14 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
                   }}
                   className={`p-4 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-3 relative overflow-hidden ${
                     isSelected
-                      ? 'bg-emerald-50/75 border-emerald-500 ring-1 ring-emerald-500 shadow-md shadow-emerald-500/5'
+                      ? 'bg-primary-50/75 border-primary-500 ring-1 ring-primary-500 shadow-md shadow-primary-500/5'
                       : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="text-2xl">{pkg.icon}</div>
                     {isSelected && (
-                      <span className="bg-emerald-600 text-white rounded-full p-0.5">
+                      <span className="bg-primary-600 text-white rounded-full p-0.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                       </span>
                     )}
@@ -192,14 +192,14 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
               onClick={() => setIsCustomPrice(true)}
               className={`p-4 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-3 ${
                 isCustomPrice
-                  ? 'bg-emerald-50/75 border-emerald-500 ring-1 ring-emerald-500 shadow-md shadow-emerald-500/5'
+                  ? 'bg-primary-50/75 border-primary-500 ring-1 ring-primary-500 shadow-md shadow-primary-500/5'
                   : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="text-2xl">💰</div>
                 {isCustomPrice && (
-                  <span className="bg-emerald-600 text-white rounded-full p-0.5">
+                  <span className="bg-primary-600 text-white rounded-full p-0.5">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                   </span>
                 )}
@@ -216,7 +216,7 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
                     value={customPrice}
                     onClick={(e) => e.stopPropagation()}
                     onChange={(e) => setCustomPrice(e.target.value.replace(/\D/g, ''))}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white border border-emerald-300 rounded-xl focus:border-emerald-500 outline-none font-mono font-bold"
+                    className="w-full px-2.5 py-1.5 text-xs bg-white border border-primary-300 rounded-xl focus:border-primary-500 outline-none font-mono font-bold"
                   />
                 ) : (
                   <div className="border-t border-slate-100 pt-2 flex items-center justify-between">
@@ -259,9 +259,9 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
                     max={12}
                     value={savingPeriodMonths}
                     onChange={(e) => setSavingPeriodMonths(parseInt(e.target.value))}
-                    className="flex-1 accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                    className="flex-1 accent-primary-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
                   />
-                  <span className="w-16 text-center text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-150 py-1.5 rounded-xl font-mono shrink-0">
+                  <span className="w-16 text-center text-xs font-black bg-primary-50 text-primary-800 border border-primary-150 py-1.5 rounded-xl font-mono shrink-0">
                     {savingPeriodMonths} Bln
                   </span>
                 </div>
@@ -278,7 +278,7 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
 
         {/* Edukasi Keutamaan Qurban */}
         <div className="bg-slate-50 border border-slate-200/60 rounded-3xl p-5 text-left flex items-start gap-3.5">
-          <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-2xl shrink-0">
+          <div className="p-2.5 bg-primary-50 text-primary-700 rounded-2xl shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
           <div className="space-y-1">
@@ -295,16 +295,16 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
         
         {/* Ringkasan Simulasi Tabungan */}
         <div className="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between space-y-6">
-          <div className="absolute -right-8 -top-8 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
+          <div className="absolute -right-8 -top-8 w-24 h-24 bg-primary-500/10 rounded-full blur-xl pointer-events-none"></div>
           
           <div className="text-left space-y-3">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">
+              <div className="p-2 bg-primary-500/10 text-primary-400 rounded-xl">
                 <PiggyBank className="w-5 h-5" />
               </div>
               <div>
                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider font-mono">REKOMENDASI TABUNGAN</h4>
-                <p className="text-[10px] text-emerald-400 font-bold">Rencana Anda Menuju Idul Adha</p>
+                <p className="text-[10px] text-primary-400 font-bold">Rencana Anda Menuju Idul Adha</p>
               </div>
             </div>
 
@@ -313,7 +313,7 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
             {/* Sisa dana target */}
             <div className="space-y-1 bg-slate-950/40 p-4 rounded-2xl border border-white/5">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider font-mono">Sisa Anggaran Perlu Ditabung</span>
-              <div className="text-2xl font-black font-mono text-emerald-400">{formatIDR(remainingTarget)}</div>
+              <div className="text-2xl font-black font-mono text-primary-400">{formatIDR(remainingTarget)}</div>
               <div className="flex justify-between text-[10px] text-slate-400 pt-1">
                 <span>Harga: {formatIDR(rawPrice)}</span>
                 <span>Tabungan: {formatIDR(rawInitial)}</span>
@@ -348,14 +348,14 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
               </div>
 
               {/* Harian */}
-              <div className="flex items-center justify-between p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-xl hover:bg-emerald-950/50 transition">
+              <div className="flex items-center justify-between p-3 bg-primary-950/30 border border-primary-500/20 rounded-xl hover:bg-primary-950/50 transition">
                 <div className="text-left">
-                  <span className="block text-[8px] font-bold text-emerald-400 uppercase tracking-widest font-mono">ESTIMASI HARIAN ✨</span>
-                  <span className="block text-xs text-emerald-200/90 font-medium">Hanya menyisihkan setiap hari</span>
+                  <span className="block text-[8px] font-bold text-primary-400 uppercase tracking-widest font-mono">ESTIMASI HARIAN ✨</span>
+                  <span className="block text-xs text-primary-200/90 font-medium">Hanya menyisihkan setiap hari</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-base font-black font-mono text-amber-300">{formatIDR(dailySavings)}</span>
-                  <span className="text-[8px] text-emerald-300 uppercase font-bold block">/ hari</span>
+                  <span className="text-base font-black font-mono text-accent-gold">{formatIDR(dailySavings)}</span>
+                  <span className="text-[8px] text-primary-300 uppercase font-bold block">/ hari</span>
                 </div>
               </div>
 
@@ -364,7 +364,7 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
 
           <div className="space-y-2 pt-2">
             <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium text-left bg-slate-950/50 p-2.5 rounded-xl border border-white/5">
-              <Calendar className="w-4 h-4 text-emerald-400 shrink-0" />
+              <Calendar className="w-4 h-4 text-primary-400 shrink-0" />
               <span>Idul Adha berikutnya diperkirakan jatuh pada <strong>16 Mei 2027</strong> (sekitar <strong>{daysLeft} hari</strong> lagi).</span>
             </div>
 
@@ -372,7 +372,7 @@ Dihitung via Kalkulator Tabungan Qurban Masjid Jami Al Abrar`;
               <button
                 type="button"
                 onClick={handleCopyPlan}
-                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-1.5"
               >
                 <Copy className="h-4 w-4" /> {copied ? 'Berhasil Disalin!' : 'Salin Rencana Tabunan'}
               </button>

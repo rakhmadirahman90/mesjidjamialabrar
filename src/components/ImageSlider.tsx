@@ -85,10 +85,10 @@ export default function ImageSlider({
   if (!activeSlide) return <div className="h-[450px] bg-slate-900 rounded-3xl flex items-center justify-center text-slate-500">Belum ada slider tersedia.</div>;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 shadow-md">
+    <div className="relative w-full overflow-hidden rounded-3xl border border-slate-200 bg-primary-950 shadow-md">
       
       {/* Decorative backdrop glow */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -translate-y-20 -translate-x-20"></div>
+      <div className="absolute top-0 left-0 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none -translate-y-20 -translate-x-20"></div>
       
       {/* Primary Slide Window */}
       <div className="relative h-[480px] sm:h-[540px] lg:h-[600px] w-full overflow-hidden">
@@ -108,13 +108,14 @@ export default function ImageSlider({
               alt={activeSlide.title}
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
+              loading="lazy"
             />
           </motion.div>
         </AnimatePresence>
 
         {/* Gradient Shadow Mask For Premium Contrast Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-slate-950/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-transparent to-transparent hidden md:block"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-950 via-primary-950/45 to-primary-950/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-950 via-transparent to-transparent hidden md:block"></div>
 
         {/* Slide Foreground Content Overlays */}
         <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-10 z-10 text-left">
@@ -160,8 +161,8 @@ export default function ImageSlider({
                 
                 {/* Premium quote accent strip mimicking the Istiqlal design */}
                 <div className="text-sm sm:text-2xl lg:text-3xl tracking-tight leading-snug font-serif font-semibold italic">
-                  <span className="text-emerald-400 block sm:inline">Menyinari Negeri, </span>
-                  <span className="text-amber-400 block sm:inline mt-0.5 sm:mt-0">Menjaga Harmoni.</span>
+                  <span className="text-primary-400 block sm:inline">Menyinari Negeri, </span>
+                  <span className="text-accent-gold block sm:inline mt-0.5 sm:mt-0">Menjaga Harmoni.</span>
                 </div>
 
                 <p className="text-slate-200/90 text-[11px] sm:text-sm md:text-base leading-relaxed max-w-2xl font-light line-clamp-3 sm:line-clamp-none">
@@ -180,7 +181,7 @@ export default function ImageSlider({
                         onNavigate(activeSlide.actionTab);
                       }
                     }}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-4.5 py-2.5 sm:px-6 sm:py-3 text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wider shadow-lg transform active:scale-95 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer border border-emerald-500/10"
+                    className="bg-primary-600 hover:bg-primary-500 text-white rounded-full px-4.5 py-2.5 sm:px-6 sm:py-3 text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wider shadow-lg transform active:scale-95 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer border border-primary-500/10"
                   >
                     <span>{activeSlide.actionText || 'Eksplorasi Layanan'}</span>
                     <span>→</span>
@@ -221,11 +222,11 @@ export default function ImageSlider({
       </div>
 
       {/* Under-slider visual pagination bar and telemetry status */}
-      <div className="bg-slate-950 border-t border-slate-900 p-1.5 sm:p-2.5 flex items-center justify-between gap-4">
+      <div className="bg-primary-950 border-t border-primary-900/50 p-1.5 sm:p-2.5 flex items-center justify-between gap-4">
         
         {/* Standard Info Pairings */}
         <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-500 font-mono">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="inline-block w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
           <span>DOKUMENTASI INTERAKTIF MASJID JAMI AL ABRAR PAREPARE ONLINE</span>
         </div>
 
@@ -236,7 +237,7 @@ export default function ImageSlider({
               key={i}
               onClick={() => handleDotClick(i)}
               className={`h-2 rounded-full transition-all duration-300 ${
-                i === current ? 'w-8 bg-emerald-500' : 'w-2 bg-slate-700 hover:bg-slate-500'
+                i === current ? 'w-8 bg-primary-500' : 'w-2 bg-slate-700 hover:bg-slate-500'
               }`}
               title={`Buka Slide ${i + 1}`}
             />
@@ -266,6 +267,7 @@ export default function ImageSlider({
                   alt={showTourModal.title}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
                 <button
