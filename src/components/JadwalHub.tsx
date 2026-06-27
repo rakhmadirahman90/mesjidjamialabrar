@@ -58,6 +58,8 @@ interface JadwalHubProps {
   ramadan: RamadanEntry[];
   routine: RoutineEntry[];
   onDeleteLog: (id: string) => void;
+  onAddPrayer?: (prayer: Omit<PrayerTime, 'id'>) => void;
+  onDeletePrayer?: (id: string) => void;
 }
 
 export default function JadwalHub({
@@ -93,9 +95,48 @@ export default function JadwalHub({
   kajian,
   jumat,
   ramadan,
-  onDeleteLog
+  onDeleteLog,
+  onAddPrayer,
+  onDeletePrayer
 }: JadwalHubProps) {
   const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log'>('sholat');
+
+  // Local state for custom prayer schedule creation
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newPrayerName, setNewPrayerName] = useState('');
+  const [newPrayerTime, setNewPrayerTime] = useState('');
+  const [newPrayerIcon, setNewPrayerIcon] = useState('🕌');
+  const [newPrayerDesc, setNewPrayerDesc] = useState('');
+
+  const handleAddNewPrayer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPrayerName || !newPrayerTime) {
+      alert('Nama Jadwal dan Waktu wajib diisi!');
+      return;
+    }
+    
+    // Simple validation "HH:MM"
+    const regex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!regex.test(newPrayerTime)) {
+      alert('Format waktu tidak valid! Gunakan format HH:MM.');
+      return;
+    }
+
+    if (onAddPrayer) {
+      onAddPrayer({
+        name: newPrayerName,
+        time: newPrayerTime,
+        icon: newPrayerIcon,
+        description: newPrayerDesc || `Jadwal khusus untuk ${newPrayerName}`
+      });
+      // Clear form
+      setNewPrayerName('');
+      setNewPrayerTime('');
+      setNewPrayerIcon('🕌');
+      setNewPrayerDesc('');
+      setShowAddForm(false);
+    }
+  };
 
 
 
@@ -395,11 +436,93 @@ export default function JadwalHub({
                   <Database className="h-5 w-5 text-emerald-600" /> Jadwal Waktu Shalat
                 </h3>
                 {isAdmin && (
-                  <button onClick={onResetDefaults} className="text-[10px] text-amber-700 bg-amber-50 font-black px-3 py-1.5 rounded-xl border border-amber-200 transition flex items-center gap-1.5">
-                    <RefreshCw className="h-3 w-3" /> RESET DEFAULT
-                  </button>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button 
+                      onClick={() => setShowAddForm(!showAddForm)} 
+                      className="text-[10px] text-white bg-emerald-600 hover:bg-emerald-700 font-black px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow"
+                    >
+                      <Plus className="h-3.5 w-3.5" /> TAMBAH JADWAL
+                    </button>
+                    <button onClick={onResetDefaults} className="text-[10px] text-amber-700 bg-amber-50 font-black px-3 py-1.5 rounded-xl border border-amber-200 transition flex items-center gap-1.5">
+                      <RefreshCw className="h-3 w-3" /> RESET DEFAULT
+                    </button>
+                  </div>
                 )}
               </div>
+
+              {showAddForm && isAdmin && (
+                <form onSubmit={handleAddNewPrayer} className="p-4 bg-emerald-50/50 border border-emerald-500/10 rounded-2xl space-y-3 mb-4 text-left animate-fade-in">
+                  <div className="flex justify-between items-center border-b border-emerald-500/10 pb-2 mb-2">
+                    <h4 className="text-xs font-black text-emerald-800 uppercase tracking-wider">Tambah Jadwal Baru</h4>
+                    <button type="button" onClick={() => setShowAddForm(false)} className="text-slate-400 hover:text-slate-600">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    <div className="sm:col-span-5">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Jadwal / Kegiatan</label>
+                      <input 
+                        type="text" 
+                        required 
+                        placeholder="e.g. Dhuha, Tahajjud, Isyraq" 
+                        value={newPrayerName} 
+                        onChange={(e) => setNewPrayerName(e.target.value)} 
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="sm:col-span-3">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Waktu (HH:MM)</label>
+                      <input 
+                        type="time" 
+                        required 
+                        value={newPrayerTime} 
+                        onChange={(e) => setNewPrayerTime(e.target.value)} 
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500 font-mono"
+                      />
+                    </div>
+                    <div className="sm:col-span-4">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Ikon</label>
+                      <div className="flex gap-1.5 overflow-x-auto py-1">
+                        {['🕌', '🌅', '☀️', '⛅', '🌇', '🌌', '🌙', '⏰'].map((ico) => (
+                          <button 
+                            key={ico} 
+                            type="button" 
+                            onClick={() => setNewPrayerIcon(ico)} 
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border transition shrink-0 ${newPrayerIcon === ico ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                          >
+                            {ico}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Deskripsi Ringkas</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Batas akhir shalat Israk dan mulainya waktu Dhuha" 
+                      value={newPrayerDesc} 
+                      onChange={(e) => setNewPrayerDesc(e.target.value)} 
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowAddForm(false)} 
+                      className="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition"
+                    >
+                      Batal
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="px-4 py-1.5 bg-emerald-600 text-white text-xs font-black rounded-lg hover:bg-emerald-700 transition"
+                    >
+                      Simpan Jadwal
+                    </button>
+                  </div>
+                </form>
+              )}
               <div className="overflow-x-auto -mx-6 px-6">
               <table className="w-full text-left border-collapse min-w-[550px]">
                   <thead>
@@ -449,7 +572,22 @@ export default function JadwalHub({
                                   <button onClick={onCancelEdit} className="p-1 px-3 bg-slate-100 text-slate-600 rounded-lg text-xs font-black">BATAL</button>
                                 </div>
                               ) : (
-                                <button onClick={() => onStartEditing(prayer)} className="text-[10px] text-emerald-700 bg-emerald-50 font-black px-3 py-1.5 rounded-lg border border-emerald-100 transition">EDIT</button>
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button onClick={() => onStartEditing(prayer)} className="text-[10px] text-emerald-700 bg-emerald-50 font-black px-3 py-1.5 rounded-lg border border-emerald-100 transition">EDIT</button>
+                                  {!['imsak', 'shubuh', 'syuruk', 'dzuhur', 'ashar', 'maghrib', 'isya'].includes(prayer.id) && onDeletePrayer && (
+                                    <button 
+                                      type="button"
+                                      onClick={() => {
+                                        if (confirm(`Apakah Anda yakin ingin menghapus jadwal ${prayer.name}?`)) {
+                                          onDeletePrayer(prayer.id);
+                                        }
+                                      }} 
+                                      className="text-[10px] text-red-700 bg-red-50 hover:bg-red-100 font-black px-3 py-1.5 rounded-lg border border-red-100 transition ml-1"
+                                    >
+                                      HAPUS
+                                    </button>
+                                  )}
+                                </div>
                               )}
                             </td>
                           )}

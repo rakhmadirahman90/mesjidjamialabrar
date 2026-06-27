@@ -211,6 +211,8 @@ export interface AdminDashboardPortalProps {
   onSavePrayerEdit: () => void;
   onCancelEdit: () => void;
   onDeleteLog: (id: string) => void;
+  onAddPrayer?: (prayer: Omit<PrayerTime, 'id'>) => void;
+  onDeletePrayer?: (id: string) => void;
   slides: SlideItem[];
   kajian: KajianEntry[];
   jumat: JumatEntry[];

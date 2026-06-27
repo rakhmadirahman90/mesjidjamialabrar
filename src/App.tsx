@@ -511,6 +511,29 @@ export default function App() {
     addLog('Database Diperbarui', 'Jadwal shalat baru telah disimpan ke database cloud.', 'info');
   };
 
+  const handleAddPrayer = (newPrayer: Omit<PrayerTime, 'id'>) => {
+    if (!isAdmin) {
+      addLog('Akses Ditolak', 'Silakan masuk ke menu Kontrol Admin terlebih dahulu.', 'alert');
+      return;
+    }
+    const id = 'custom_' + Math.random().toString(36).substring(2, 9);
+    const updated = [...(prayers || []), { ...newPrayer, id }];
+    savePrayersToDb(updated);
+    addLog('Tambah Jadwal Shalat', `Jadwal baru ${newPrayer.name} berhasil ditambahkan.`, 'success', id);
+  };
+
+  const handleDeletePrayer = (id: string) => {
+    if (!isAdmin) {
+      addLog('Akses Ditolak', 'Silakan masuk ke menu Kontrol Admin terlebih dahulu.', 'alert');
+      return;
+    }
+    const prayer = (prayers || []).find(p => p?.id === id);
+    if (!prayer) return;
+    const updated = (prayers || []).filter(p => p?.id !== id);
+    savePrayersToDb(updated);
+    addLog('Hapus Jadwal Shalat', `Jadwal ${prayer.name} berhasil dihapus.`, 'success', id);
+  };
+
   // Reset to default schedule
   const handleResetDefaults = () => {
     if (!isAdmin) {
@@ -1609,6 +1632,8 @@ export default function App() {
         onSavePrayerEdit={savePrayerEdit}
         onCancelEdit={() => setEditingPrayer(null)}
         onDeleteLog={deleteLog}
+        onAddPrayer={handleAddPrayer}
+        onDeletePrayer={handleDeletePrayer}
         slides={slides}
         kajian={kajian}
         jumat={jumat}

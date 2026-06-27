@@ -75,6 +75,8 @@ export default function AdminDashboardPortal({
   onSavePrayerEdit,
   onCancelEdit,
   onDeleteLog,
+  onAddPrayer,
+  onDeletePrayer,
   slides,
   kajian,
   jumat,
@@ -567,6 +569,8 @@ export default function AdminDashboardPortal({
                   onClearLogs={onClearLogs}
                   onNavigate={() => {}}
                   onDeleteLog={onDeleteLog}
+                  onAddPrayer={onAddPrayer}
+                  onDeletePrayer={onDeletePrayer}
                   isAdmin={true}
                   slides={slides}
                   onUpdateSlides={async () => {}}
