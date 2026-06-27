@@ -40,12 +40,7 @@ import EditorProfilMasjid from './EditorProfilMasjid';
 
 export default function AdminDashboardPortal({
   onLogout,
-  announcement,
-  announcementInput,
-  setAnnouncementInput,
   showAnnouncement,
-  onUpdateAnnouncement,
-  onToggleAnnouncement,
   adminPin,
   showPinChange,
   setShowPinChange,
@@ -83,7 +78,7 @@ export default function AdminDashboardPortal({
   onDeleteLog,
   onAddPrayer,
   onDeletePrayer,
-  slides,
+  slides = [],
   kajian,
   jumat,
   ramadan,
@@ -111,7 +106,6 @@ export default function AdminDashboardPortal({
   // Inventory Summary
   const totalAssets = (assets || []).reduce((acc, asset) => acc + (asset.quantity || 0), 0);
   const goodAssets = (assets || []).filter(a => a.condition === 'Baik' || a.condition === 'Sangat Baik').length;
-  const damagedAssets = (assets || []).filter(a => a.condition === 'Rusak Ringan' || a.condition === 'Rusak Berat').length;
 
   const recentLogs = (logs || []).slice(0, 10);
 

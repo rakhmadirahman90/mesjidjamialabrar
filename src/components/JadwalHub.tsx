@@ -90,7 +90,7 @@ export default function JadwalHub({
   onClearLogs,
   // onNavigate,
   isAdmin,
-  slides,
+  slides = [],
   onAddLog,
   kajian,
   jumat,
@@ -918,7 +918,7 @@ export default function JadwalHub({
       )}
 
       {activeSubTab === 'slider' && isAdmin && slides && (
-        <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-xl animate-fade-in text-left">
+        <div className="bg-primary-950/50 border border-primary-800/50 rounded-[2.5rem] p-8 shadow-2xl animate-fade-in text-left">
           <SliderManager 
             slides={slides} 
             onAddLog={onAddLog}
