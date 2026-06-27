@@ -16,8 +16,13 @@ import {
   RefreshCw, 
   Database,
   Menu,
-  X
+  X,
+  Settings,
+  QrCode,
+  Music,
+  Coins
 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 import InfoMasjid from './InfoMasjid';
 import DonationOpen from './DonationOpen';
