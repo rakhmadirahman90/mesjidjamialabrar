@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { SlideItem } from '../types';
 import { 
   Trash2, 
@@ -18,15 +18,27 @@ import { addDocument, updateDocument, deleteDocument } from '../lib/db';
 interface SliderManagerProps {
   slides: SlideItem[];
   onAddLog: (title: string, msg: string, type: any) => void;
+  initialEditId?: string | null;
+  onClearInitialEditId?: () => void;
 }
 
-export default function SliderManager({ slides, onAddLog }: SliderManagerProps) {
+export default function SliderManager({ slides, onAddLog, initialEditId, onClearInitialEditId }: SliderManagerProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<SlideItem>>({});
   const [isAdding, setIsAdding] = useState(false);
   const [previewSlide, setPreviewSlide] = useState<SlideItem | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (initialEditId && slides.length > 0) {
+      const slideToEdit = slides.find(s => s.id === initialEditId);
+      if (slideToEdit) {
+        handleStartEdit(slideToEdit);
+        if (onClearInitialEditId) onClearInitialEditId();
+      }
+    }
+  }, [initialEditId, slides]);
 
   const handleStartEdit = (slide: SlideItem) => {
     setEditingId(slide.id);

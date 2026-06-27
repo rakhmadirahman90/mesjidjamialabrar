@@ -60,6 +60,9 @@ interface JadwalHubProps {
   onDeleteLog: (id: string) => void;
   onAddPrayer?: (prayer: Omit<PrayerTime, 'id'>) => void;
   onDeletePrayer?: (id: string) => void;
+  initialSubTab?: 'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log' | 'routine';
+  initialSliderEditId?: string | null;
+  onClearInitialStates?: () => void;
 }
 
 export default function JadwalHub({
@@ -98,9 +101,25 @@ export default function JadwalHub({
   routine,
   onDeleteLog,
   onAddPrayer,
-  onDeletePrayer
+  onDeletePrayer,
+  initialSubTab,
+  initialSliderEditId: propInitialSliderEditId,
+  onClearInitialStates
 }: JadwalHubProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log' | 'routine'>('sholat');
+  const [activeSubTab, setActiveSubTab] = useState<'sholat' | 'kajian' | 'ramadan' | 'jumat' | 'slider' | 'log' | 'routine'>(initialSubTab || 'sholat');
+  const [initialSliderEditId, setInitialSliderEditId] = useState<string | null>(propInitialSliderEditId || null);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveSubTab(initialSubTab);
+    }
+    if (propInitialSliderEditId) {
+      setInitialSliderEditId(propInitialSliderEditId);
+    }
+    if (initialSubTab || propInitialSliderEditId) {
+       if (onClearInitialStates) onClearInitialStates();
+    }
+  }, [initialSubTab, propInitialSliderEditId]);
 
   // Local state for custom prayer schedule creation
   const [showAddForm, setShowAddForm] = useState(false);
@@ -139,13 +158,14 @@ export default function JadwalHub({
     }
   };
 
-
-
   useEffect(() => {
     const handleSubtabChange = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail && detail.tab === 'jadwal' && detail.subtab) {
         setActiveSubTab(detail.subtab);
+        if (detail.subtab === 'slider' && detail.editId) {
+          setInitialSliderEditId(detail.editId);
+        }
       }
     };
     window.addEventListener('change_subtab', handleSubtabChange);
@@ -922,6 +942,8 @@ export default function JadwalHub({
           <SliderManager 
             slides={slides} 
             onAddLog={onAddLog}
+            initialEditId={initialSliderEditId}
+            onClearInitialEditId={() => setInitialSliderEditId(null)}
           />
         </div>
       )}

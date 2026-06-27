@@ -98,6 +98,7 @@ export default function AdminDashboardPortal({
   const [localTime, setLocalTime] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [previewSlide, setPreviewSlide] = useState<any>(null);
+  const [jadwalTarget, setJadwalTarget] = useState<{ subtab: any, editId?: string } | null>(null);
 
   const handleDeleteSlide = async (id: string, title: string) => {
     if (window.confirm(`Hapus slide "${title}"?`)) {
@@ -508,7 +509,10 @@ export default function AdminDashboardPortal({
                       </div>
                     </div>
                     <button 
-                      onClick={() => setActiveTab('jadwal')}
+                      onClick={() => {
+                        setJadwalTarget({ subtab: 'slider' });
+                        setActiveTab('jadwal');
+                      }}
                       className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-600 hover:text-white transition-colors"
                     >
                       Open Editor
@@ -542,11 +546,8 @@ export default function AdminDashboardPortal({
                              <button 
                                onClick={(e) => {
                                  e.stopPropagation();
+                                 setJadwalTarget({ subtab: 'slider', editId: s.id });
                                  setActiveTab('jadwal');
-                                 // We need to tell JadwalHub to open Slider subtab
-                                 window.dispatchEvent(new CustomEvent('change_subtab', { 
-                                   detail: { tab: 'jadwal', subtab: 'slider' } 
-                                 }));
                                }}
                                className="w-8 h-8 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-lg flex items-center justify-center hover:bg-amber-500 hover:border-amber-400 transition-all shadow-xl"
                                title="Edit"
@@ -718,6 +719,9 @@ export default function AdminDashboardPortal({
                     onUpdateJumat={() => {}}
                     ramadan={ramadan}
                     routine={routine}
+                    initialSubTab={jadwalTarget?.subtab}
+                    initialSliderEditId={jadwalTarget?.editId}
+                    onClearInitialStates={() => setJadwalTarget(null)}
                   />
                 </div>
               </div>
