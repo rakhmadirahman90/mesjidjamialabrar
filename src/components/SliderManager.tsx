@@ -7,8 +7,11 @@ import {
   Save, 
   PlusCircle,
   Upload,
-  Loader2
+  Loader2,
+  Eye,
+  X
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { compressImage } from '../lib/imageCompression';
 import { addDocument, updateDocument, deleteDocument } from '../lib/db';
 
@@ -21,6 +24,7 @@ export default function SliderManager({ slides, onAddLog }: SliderManagerProps) 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<SlideItem>>({});
   const [isAdding, setIsAdding] = useState(false);
+  const [previewSlide, setPreviewSlide] = useState<SlideItem | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -288,21 +292,28 @@ export default function SliderManager({ slides, onAddLog }: SliderManagerProps) 
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-4 pt-10 border-t border-primary-800/50">
-            <button 
-              onClick={() => { setIsAdding(false); setEditingId(null); }}
-              className="px-10 py-5 bg-primary-900/50 text-slate-400 rounded-[2rem] text-xs font-black hover:bg-primary-800 hover:text-white transition-all uppercase tracking-[0.2em]"
-            >
-              Cancel Operation
-            </button>
-            <button 
-              onClick={handleSave}
-              className="px-12 py-5 bg-emerald-600 text-white rounded-[2rem] text-xs font-black flex items-center justify-center gap-3 shadow-2xl shadow-emerald-950/40 hover:bg-emerald-500 transition-all active:scale-95 uppercase tracking-[0.2em]"
-            >
-              <Save className="h-5 w-5" />
-              Publish Slider Data
-            </button>
-          </div>
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-10 border-t border-primary-800/50">
+                <button 
+                  onClick={() => { setPreviewSlide({...editForm, id: editingId || 'preview'} as any); }}
+                  className="px-8 py-5 bg-primary-800/30 text-emerald-400 rounded-[2rem] text-xs font-black hover:bg-emerald-500/10 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  Live Preview
+                </button>
+                <button 
+                  onClick={() => { setIsAdding(false); setEditingId(null); }}
+                  className="px-10 py-5 bg-primary-900/50 text-slate-400 rounded-[2rem] text-xs font-black hover:bg-primary-800 hover:text-white transition-all uppercase tracking-[0.2em]"
+                >
+                  Cancel Operation
+                </button>
+                <button 
+                  onClick={handleSave}
+                  className="px-12 py-5 bg-emerald-600 text-white rounded-[2rem] text-xs font-black flex items-center justify-center gap-3 shadow-2xl shadow-emerald-950/40 hover:bg-emerald-500 transition-all active:scale-95 uppercase tracking-[0.2em]"
+                >
+                  <Save className="h-5 w-5" />
+                  Publish Slider Data
+                </button>
+              </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -324,8 +335,15 @@ export default function SliderManager({ slides, onAddLog }: SliderManagerProps) 
 
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
                   <button 
+                    onClick={() => setPreviewSlide(slide)}
+                    className="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl flex items-center justify-center hover:bg-emerald-500 hover:border-emerald-400 transition-all shadow-xl"
+                    title="Preview Slide"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  <button 
                     onClick={() => handleStartEdit(slide)}
-                    className="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:border-emerald-500 transition-all shadow-xl"
+                    className="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl flex items-center justify-center hover:bg-amber-500 hover:border-amber-400 transition-all shadow-xl"
                     title="Edit Slide"
                   >
                     <Edit2 className="h-4 w-4" />
@@ -378,6 +396,91 @@ export default function SliderManager({ slides, onAddLog }: SliderManagerProps) 
                </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Slide Preview Modal */}
+      {previewSlide && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-12">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 bg-primary-950/95 backdrop-blur-2xl" 
+            onClick={() => setPreviewSlide(null)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full max-w-5xl aspect-video rounded-[3rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.9)] border border-white/10"
+          >
+            <img 
+              src={previewSlide.imageUrl} 
+              className="w-full h-full object-cover" 
+              alt="Preview"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary-950/90 via-primary-950/20 to-transparent" />
+            
+            <div className="absolute inset-0 flex flex-col justify-end p-8 lg:p-16 text-left">
+              <div className="max-w-2xl space-y-6">
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className={`px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[10px] font-black uppercase tracking-[0.25em] ${previewSlide.accentColor || 'text-emerald-400'}`}>
+                    {previewSlide.badge || 'Banner Preview'}
+                  </div>
+                </motion.div>
+                
+                <div className="space-y-3">
+                  <motion.h2 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase font-display leading-[0.9]"
+                  >
+                    {previewSlide.title}
+                  </motion.h2>
+                  <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-sm lg:text-xl font-bold text-slate-400 uppercase tracking-widest"
+                  >
+                    {previewSlide.subtitle}
+                  </motion.p>
+                </div>
+
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="text-slate-400/80 text-xs lg:text-base max-w-lg leading-relaxed font-medium"
+                >
+                  {previewSlide.description}
+                </motion.p>
+
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="pt-4"
+                >
+                  <button className="px-10 py-4 bg-white text-primary-950 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl">
+                    {previewSlide.actionText}
+                  </button>
+                </motion.div>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setPreviewSlide(null)}
+              className="absolute top-8 right-8 w-14 h-14 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-2xl flex items-center justify-center hover:bg-rose-600 transition-all"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </motion.div>
         </div>
       )}
     </div>
