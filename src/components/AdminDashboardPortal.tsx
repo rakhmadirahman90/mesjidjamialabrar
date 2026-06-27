@@ -31,6 +31,7 @@ import GaleriMasjid from './GaleriMasjid';
 import KontakMasjid from './KontakMasjid';
 import { AdminDashboardPortalProps } from '../types';
 import ManajemenPengurusLengkap from './ManajemenPengurusLengkap';
+import EditorProfilMasjid from './EditorProfilMasjid';
 
 export default function AdminDashboardPortal({
   onLogout,
@@ -85,7 +86,11 @@ export default function AdminDashboardPortal({
   campaigns,
   onDonationSuccess,
   triggerAudioPlayback,
-  detailedBoard
+  detailedBoard,
+  mosqueSettings,
+  transactions = [],
+  congregants = [],
+  assets = []
 }: AdminDashboardPortalProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'beranda' | 'profil' | 'jadwal' | 'galeri' | 'donasi' | 'keuangan' | 'inventaris' | 'kontak' | 'keamanan'>('overview');
   const [localTime, setLocalTime] = useState(new Date());
@@ -94,6 +99,27 @@ export default function AdminDashboardPortal({
   // Stats calculation
   const totalInfaq = (campaigns || []).reduce((acc, curr) => acc + ((curr && curr.raised) || 0), 0);
   const activeCampaignsCount = (campaigns || []).length;
+  
+  // Calculate Monthly Income
+  const currentMonth = localTime.getMonth();
+  const currentYear = localTime.getFullYear();
+  const monthlyIncome = (transactions || []).reduce((acc, tx) => {
+    const txDate = new Date(tx.date);
+    if (tx.type === 'debit' && txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear) {
+      return acc + (tx.amount || 0);
+    }
+    return acc;
+  }, 0);
+
+  // Jamaah Summary
+  const totalJamaah = (congregants || []).length;
+  const activeJamaah = (congregants || []).filter(c => c.attendanceStatus === 'Aktif Jamaah').length;
+
+  // Inventory Summary
+  const totalAssets = (assets || []).reduce((acc, asset) => acc + (asset.quantity || 0), 0);
+  const goodAssets = (assets || []).filter(a => a.condition === 'Baik' || a.condition === 'Sangat Baik').length;
+  const damagedAssets = (assets || []).filter(a => a.condition === 'Rusak Ringan' || a.condition === 'Rusak Berat').length;
+
   const recentLogs = (logs || []).slice(0, 10);
 
   useEffect(() => {
@@ -103,15 +129,15 @@ export default function AdminDashboardPortal({
 
   const menuItems = [
     { id: 'overview', label: 'Dashboard Overview', shortLabel: 'Beranda', icon: <Layers className="h-4.5 w-4.5" />, mobileIcon: <Layers className="h-5 w-5" />, badge: null },
-    { id: 'beranda', label: 'Broadcast & Media', shortLabel: 'Media', icon: <Megaphone className="h-4.5 w-4.5" />, mobileIcon: <Megaphone className="h-5 w-5" />, badge: showAnnouncement ? 'Aktif' : null },
+    { id: 'beranda', label: 'Manajemen Beranda', shortLabel: 'Media', icon: <Megaphone className="h-4.5 w-4.5" />, mobileIcon: <Megaphone className="h-5 w-5" />, badge: showAnnouncement ? 'Aktif' : null },
     { id: 'profil', label: 'Profil & Jamaah', shortLabel: 'Profil', icon: <Users className="h-4.5 w-4.5" />, mobileIcon: <Users className="h-5 w-5" />, badge: null },
     { id: 'jadwal', label: 'Jadwal & Syiar', shortLabel: 'Jadwal', icon: <Calendar className="h-4.5 w-4.5" />, mobileIcon: <Calendar className="h-5 w-5" />, badge: '5 Waktu' },
-    { id: 'galeri', label: 'Dokumentasi Galeri', shortLabel: 'Galeri', icon: <ImageIcon className="h-4.5 w-4.5" />, mobileIcon: <ImageIcon className="h-5 w-5" />, badge: null },
-    { id: 'donasi', label: 'Zakat, Infaq & Donatur', shortLabel: 'Donasi', icon: <Heart className="h-4.5 w-4.5" />, mobileIcon: <Heart className="h-5 w-5" />, badge: `${activeCampaignsCount} Kategori` },
-    { id: 'keuangan', label: 'Kas & Infaq', shortLabel: 'Keuangan', icon: <TrendingUp className="h-4.5 w-4.5" />, mobileIcon: <TrendingUp className="h-5 w-5" />, badge: null },
-    { id: 'inventaris', label: 'Aset Inventaris', shortLabel: 'Aset', icon: <Package className="h-4.5 w-4.5" />, mobileIcon: <Package className="h-5 w-5" />, badge: null },
-    { id: 'kontak', label: 'Direct Messages', shortLabel: 'Kontak', icon: <Phone className="h-4.5 w-4.5" />, mobileIcon: <Phone className="h-5 w-5" />, badge: null },
-    { id: 'keamanan', label: 'Sistem & Security', shortLabel: 'Sistem', icon: <ShieldCheck className="h-4.5 w-4.5" />, mobileIcon: <ShieldCheck className="h-5 w-5" />, badge: null },
+    { id: 'galeri', label: 'Galeri Foto', shortLabel: 'Galeri', icon: <ImageIcon className="h-4.5 w-4.5" />, mobileIcon: <ImageIcon className="h-5 w-5" />, badge: null },
+    { id: 'donasi', label: 'Program Donasi', shortLabel: 'Donasi', icon: <Heart className="h-4.5 w-4.5" />, mobileIcon: <Heart className="h-5 w-5" />, badge: `${activeCampaignsCount} Program` },
+    { id: 'keuangan', label: 'Laporan Keuangan', shortLabel: 'Keuangan', icon: <TrendingUp className="h-4.5 w-4.5" />, mobileIcon: <TrendingUp className="h-5 w-5" />, badge: null },
+    { id: 'inventaris', label: 'Inventaris & Aset', shortLabel: 'Aset', icon: <Package className="h-4.5 w-4.5" />, mobileIcon: <Package className="h-5 w-5" />, badge: null },
+    { id: 'kontak', label: 'Kontak & Pesan', shortLabel: 'Kontak', icon: <Phone className="h-4.5 w-4.5" />, mobileIcon: <Phone className="h-5 w-5" />, badge: null },
+    { id: 'keamanan', label: 'Sistem & Keamanan', shortLabel: 'Sistem', icon: <ShieldCheck className="h-4.5 w-4.5" />, mobileIcon: <ShieldCheck className="h-5 w-5" />, badge: null },
   ] as const;
 
   return (
@@ -263,29 +289,66 @@ export default function AdminDashboardPortal({
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
-                    💲
+                    💰
                   </div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Infaq & Donasi Digital</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5 break-all">Rp {totalInfaq.toLocaleString('id-ID')}</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Akumulasi aktif terdaftar.</p>
+                  <p className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Pemasukan Bulan Ini</p>
+                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5 break-all">Rp {monthlyIncome.toLocaleString('id-ID')}</p>
+                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Total donasi {localTime.toLocaleDateString('id-ID', { month: 'long' })}.</p>
                 </div>
 
                 <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
-                  <p className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Kategori Donasi</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{activeCampaignsCount} Program</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Bantuan sedekah produktif.</p>
+                  <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
+                    👥
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-black text-blue-400 uppercase tracking-widest truncate">Jamaah Terdaftar</p>
+                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{totalJamaah} Orang</p>
+                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">{activeJamaah} jamaah aktif berkegiatan.</p>
                 </div>
 
                 <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
-                  <p className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Jadwal Shalat</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">5 Waktu</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Terintegrasi otomatis.</p>
+                  <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
+                    📦
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">Aset Inventaris</p>
+                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{totalAssets} Unit</p>
+                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">{goodAssets} kondisi baik, {damagedAssets} rusak.</p>
                 </div>
 
                 <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
-                  <p className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Aktivitas Hari Ini</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{logs.length} Log</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Log terdaftar hari ini.</p>
+                  <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
+                    📢
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] font-black text-rose-400 uppercase tracking-widest truncate">Program Donasi</p>
+                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5">{activeCampaignsCount} Kategori</p>
+                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Total donasi terkumpul Rp {totalInfaq.toLocaleString('id-ID')}.</p>
+                </div>
+              </div>
+
+              {/* Management Shortcuts Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="md:col-span-3 lg:col-span-4 bg-[#03150d] border border-emerald-500/10 p-4 rounded-2xl">
+                  <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-emerald-400 mb-3 px-1">Akses Cepat Pengelolaan Landing Page</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {[
+                      { id: 'beranda', label: 'Media Beranda', icon: <Megaphone className="h-4 w-4" />, color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+                      { id: 'profil', label: 'Profil Masjid', icon: <Users className="h-4 w-4" />, color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+                      { id: 'jadwal', label: 'Jadwal Shalat', icon: <Calendar className="h-4 w-4" />, color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+                      { id: 'donasi', label: 'Program Donasi', icon: <Heart className="h-4 w-4" />, color: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
+                      { id: 'keuangan', label: 'Laporan Kas', icon: <TrendingUp className="h-4 w-4" />, color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20' },
+                      { id: 'galeri', label: 'Galeri Foto', icon: <ImageIcon className="h-4 w-4" />, color: 'bg-sky-500/10 text-sky-500 border-sky-500/20' },
+                      { id: 'inventaris', label: 'Aset Masjid', icon: <Package className="h-4 w-4" />, color: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
+                      { id: 'kontak', label: 'Kontak & Inbox', icon: <Phone className="h-4 w-4" />, color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
+                    ].map(item => (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveTab(item.id as any)}
+                        className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all hover:scale-[1.03] active:scale-95 group ${item.color}`}
+                      >
+                        <div className="mb-2 group-hover:animate-bounce">{item.icon}</div>
+                        <span className="text-[10px] font-black uppercase tracking-tight">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -538,13 +601,20 @@ export default function AdminDashboardPortal({
                 {/* Section Sejarah, Visi Misi, Pengurus */}
                 <div className="p-3 xs:p-4 sm:p-5 bg-[#020d08] border border-emerald-500/10 rounded-2xl text-left space-y-4">
                   <div className="border-b border-emerald-500/10 pb-2">
-                    <h4 className="text-[11px] font-black text-amber-400 uppercase tracking-wider">● Edit Tentang & Struktur Yayasan Masjid</h4>
-                    <p className="text-[10px] text-slate-400 font-medium">Gunakan modul interaktif di bawah ini untuk melihat pratinjau data teks (Pengurus, Sejarah, Visi Misi).</p>
+                    <h4 className="text-[11px] font-black text-amber-400 uppercase tracking-wider">● Manajemen Konten Profil & Sejarah</h4>
+                    <p className="text-[10px] text-slate-400 font-medium">Perbarui teks informasi umum, sejarah, visi misi, dan daftar tanya jawab masjid.</p>
                   </div>
                   
                   <div className="p-1.5 bg-slate-950/20 border border-emerald-500/5 rounded-xl">
-                    <span className="text-[9px] font-bold text-amber-500 uppercase bg-amber-500/10 border border-amber-550/10 px-2 py-0.5 rounded-full inline-block mb-3">Live Sandbox View</span>
-                    <InfoMasjid activeSubTab="info_umum" detailedBoard={detailedBoard} />
+                    <EditorProfilMasjid 
+                      mosqueSettings={mosqueSettings}
+                      onAddLog={addLog}
+                    />
+                  </div>
+
+                  <div className="border-t border-emerald-500/10 pt-4 mt-2">
+                    <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider mb-2">Pratinjau Sandbox Landing Profil</h4>
+                    <InfoMasjid activeSubTab="info_umum" detailedBoard={detailedBoard} mosqueSettings={mosqueSettings} />
                   </div>
                 </div>
               </div>

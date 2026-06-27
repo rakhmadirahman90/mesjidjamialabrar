@@ -222,6 +222,10 @@ export interface AdminDashboardPortalProps {
   onDonationSuccess: (title: string, msg: string, amount: number) => void;
   triggerAudioPlayback: () => void;
   detailedBoard: DetailedBoardMember[];
+  mosqueSettings?: any;
+  transactions?: Transaction[];
+  congregants?: Congregant[];
+  assets?: MosqueAsset[];
 }
 
 // 12. Detailed Board Member Interface

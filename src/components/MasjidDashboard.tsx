@@ -129,30 +129,30 @@ export default function MasjidDashboard({
     { 
       id: 'jadwal', 
       title: 'Jadwal & Agenda', 
-      desc: 'Penjadwalan shalat & kegiatan masjid harian.', 
+      desc: 'Penjadwalan shalat & kegiatan harian masjid dengan presisi tinggi.', 
       icon: <Calendar className="w-6 h-6" />, 
-      color: 'bg-indigo-50 text-indigo-600'
+      color: 'bg-emerald-50 text-emerald-600'
     },
     { 
       id: 'donasi', 
       title: 'Sedekah Digital', 
-      desc: 'Saluran donasi aman dan transparan.', 
+      desc: 'Saluran donasi aman, cepat, dan transparan untuk umat.', 
       icon: <Heart className="w-6 h-6" />, 
       color: 'bg-rose-50 text-rose-600'
     },
     { 
       id: 'keuangan', 
       title: 'Laporan Kas', 
-      desc: 'Transparansi laporan keuangan realtime.', 
+      desc: 'Transparansi penuh laporan keuangan masjid secara realtime.', 
       icon: <TrendingUp className="w-6 h-6" />, 
-      color: 'bg-emerald-50 text-emerald-600'
+      color: 'bg-blue-50 text-blue-600'
     },
     { 
       id: 'profil', 
       title: 'Profil Masjid', 
-      desc: 'Sejarah, visi-misi, dan struktur pengurus.', 
+      desc: 'Sejarah, visi-misi, dan struktur khidmat takmir Al Abrar.', 
       icon: <Database className="w-6 h-6" />, 
-      color: 'bg-slate-50 text-slate-600'
+      color: 'bg-amber-50 text-amber-600'
     },
   ];
 
@@ -248,34 +248,43 @@ export default function MasjidDashboard({
                   const isActive = targetName === fp.name;
   
                   return (
-                    <button
+                    <motion.button
                       key={fp.id}
+                      whileHover={{ y: -6, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => onNavigate('jadwal')}
-                      className={`group transition-all duration-500 flex flex-col justify-between items-center rounded-2xl sm:rounded-3xl p-4 sm:p-5 min-h-[125px] sm:min-h-[145px] hover:-translate-y-1 ${
+                      className={`group transition-all duration-500 flex flex-col justify-between items-center rounded-2xl sm:rounded-3xl p-5 sm:p-7 min-h-[140px] sm:min-h-[160px] relative overflow-hidden ${
                         isActive 
-                          ? 'bg-gradient-to-b from-amber-500 via-amber-600 to-yellow-600 border-0 shadow-[0_15px_30px_rgba(245,158,11,0.35)] scale-[1.03] z-10' 
-                          : 'bg-[#06241a]/60 backdrop-blur-md border border-white/5 hover:border-white/12 text-white'
+                          ? 'bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 border-0 shadow-[0_25px_50px_rgba(245,158,11,0.4)] scale-[1.05] z-10' 
+                          : 'bg-emerald-950/40 backdrop-blur-md border border-white/5 hover:border-emerald-500/30'
                       }`}
                     >
+                      {/* Visual Aura for active card */}
+                      {isActive && (
+                        <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"></div>
+                      )}
+
                       {/* Icon aligned at top */}
-                      <div className="mb-2">
+                      <div className={`mb-3 transition-transform duration-500 group-hover:scale-110 ${isActive ? 'text-white drop-shadow-sm' : 'text-emerald-400'}`}>
                         {getPrayerIcon(fp.id, isActive)}
                       </div>
   
                       {/* Prayer key label centered */}
-                      <span className={`text-[8px] sm:text-[10px] font-black uppercase tracking-[0.25em] mb-2 ${
-                        isActive ? 'text-white' : 'text-emerald-200/50 group-hover:text-emerald-100'
-                      }`}>
-                        {fp.label}
-                      </span>
-  
-                      {/* Display exact sholat time at bottom */}
-                      <span className={`font-black font-mono tracking-tight text-center ${
-                        isActive ? 'text-white text-xl sm:text-2xl drop-shadow-md' : 'text-white text-lg sm:text-xl'
-                      }`}>
-                        {displayTime}
-                      </span>
-                    </button>
+                      <div className="space-y-1">
+                        <span className={`block text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] ${
+                          isActive ? 'text-white' : 'text-emerald-200/50 group-hover:text-emerald-300'
+                        }`}>
+                          {fp.label}
+                        </span>
+    
+                        {/* Display exact sholat time at bottom */}
+                        <span className={`block font-black font-mono tracking-tighter text-center leading-none ${
+                          isActive ? 'text-white text-2xl sm:text-3xl drop-shadow-lg' : 'text-white text-xl sm:text-2xl'
+                        }`}>
+                          {displayTime}
+                        </span>
+                      </div>
+                    </motion.button>
                   );
                 })}
               </div>
@@ -291,55 +300,59 @@ export default function MasjidDashboard({
       </div>
 
       {/* Main Services Section */}
-      <section className="space-y-6">
-        <h3 className="text-2xl font-black text-slate-900 tracking-tight px-1">Layanan Prioritas</h3>
+      <section className="space-y-10">
+        <div className="flex flex-col items-center text-center space-y-2">
+          <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight px-1">Layanan Prioritas</h3>
+          <p className="text-slate-500 text-sm font-medium">Akses cepat ke program utama dan informasi krusial Masjid Jami Al Abrar</p>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {mainServices.map((service, idx) => (
             <motion.button
               key={service.id}
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               whileHover={{ 
-                y: -10, 
-                scale: 1.025,
-                boxShadow: "0 25px 60px -15px rgba(0, 0, 0, 0.08)",
-                borderColor: "rgba(16, 185, 129, 0.25)"
+                y: -12, 
+                scale: 1.02,
+                boxShadow: "0 40px 80px -20px rgba(0, 0, 0, 0.12)",
+                borderColor: "rgba(16, 185, 129, 0.2)"
               }}
-              whileTap={{ 
-                scale: 0.95,
-                y: -2,
-                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.03)"
-              }}
+              whileTap={{ scale: 0.98 }}
               transition={{ 
                 type: "spring",
                 stiffness: 400,
-                damping: 24,
-                delay: 0.08 * idx 
+                damping: 30,
+                delay: 0.05 * idx 
               }}
               onClick={() => onNavigate(service.id)}
-              className="group bg-white border border-slate-100/90 rounded-[2.2rem] p-8 text-left transition-colors duration-300 flex flex-col justify-between h-full min-h-[340px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-[0_12px_30px_rgba(0,0,0,0.025)]"
+              className="group bg-white border border-slate-150 rounded-[2.5rem] p-8 text-left transition-all duration-300 flex flex-col justify-between h-full min-h-[360px] shadow-sm relative overflow-hidden"
             >
-              <div className="flex flex-col items-start w-full">
-                {/* Golden Circle Icon Container */}
-                <div className="w-14 h-14 rounded-full bg-[#FAF2E8] border border-[#F4EBE3] text-[#A47E3B] flex items-center justify-center mb-6 shrink-0 transition-transform duration-300 group-hover:scale-110">
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                {service.icon}
+              </div>
+
+              <div className="flex flex-col items-start w-full relative z-10">
+                {/* Icon Container */}
+                <div className={`w-16 h-16 rounded-3xl ${service.color} flex items-center justify-center mb-8 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500`}>
                   {service.icon}
                 </div>
                 
                 {/* Title */}
-                <h4 className="font-extrabold text-xl text-slate-900 tracking-tight mb-2 group-hover:text-emerald-800 transition-colors duration-200">
+                <h4 className="font-black text-2xl text-slate-900 tracking-tight mb-3">
                   {service.title}
                 </h4>
                 
                 {/* Description */}
-                <p className="text-xs sm:text-[13px] text-slate-500 font-medium leading-relaxed mb-6">
+                <p className="text-sm text-slate-500 font-medium leading-relaxed mb-8">
                   {service.desc}
                 </p>
               </div>
 
-              {/* Pill Button "PILIH LAYANAN" exactly like requested image */}
-              <div className="w-full mt-auto">
-                <div className="w-full py-3.5 bg-[#008F6A] group-hover:bg-[#007C5B] text-white font-black text-[11px] tracking-[0.2em] rounded-full uppercase text-center transition-all duration-300 shadow-md shadow-emerald-600/10">
+              {/* Pill Button */}
+              <div className="w-full mt-auto relative z-10">
+                <div className="w-full py-4 bg-emerald-600 group-hover:bg-emerald-500 text-white font-black text-[11px] tracking-[0.25em] rounded-2xl uppercase text-center transition-all duration-300 shadow-lg shadow-emerald-600/20">
                   PILIH LAYANAN
                 </div>
               </div>

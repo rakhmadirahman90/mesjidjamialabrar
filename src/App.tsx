@@ -6,6 +6,7 @@ import {
   Heart,
   TrendingUp,
   Package,
+  MapPin,
   Calendar,
   Image as ImageIcon,
   Phone,
@@ -159,6 +160,10 @@ export default function App() {
   const [routine, setRoutine] = useState<RoutineEntry[]>([]);
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
   const [detailedBoard, setDetailedBoard] = useState<DetailedBoardMember[]>([]);
+  const [mosqueSettings, setMosqueSettings] = useState<any>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [assets, setAssets] = useState<any[]>([]);
+  const [congregants, setCongregants] = useState<any[]>([]);
 
   // High-Level Integrated Navigation Hub Tab selection
   const [activeTab, setActiveTab] = useState<'beranda'|'profil'|'jadwal'|'donasi'|'keuangan'|'inventaris'|'jamaah'|'tentang'|'admin'|'galeri'|'kontak'>('beranda');
@@ -247,6 +252,7 @@ export default function App() {
   useEffect(() => {
     const unsubConfig = subscribeToDocument<{ announcement: string, adminPin: string, prayers: PrayerTime[], showAnnouncement?: boolean }>('settings', 'config', (data) => {
       if (data) {
+        setMosqueSettings(data);
         if (data.announcement) {
           setAnnouncement(data.announcement);
           setAnnouncementInput(data.announcement);
@@ -313,11 +319,12 @@ export default function App() {
     });
 
     // Additional dummy data seeding checks
-    const unsubTx = subscribeToCollection('financial_transactions', (data) => {
+    const unsubTx = subscribeToCollection<any>('financial_transactions', (data) => {
+      setTransactions(data);
       if (data.length === 0) {
         DUMMY_TRANSACTIONS.forEach(t => addDocument('financial_transactions', t));
       }
-    });
+    }, 'date', 'desc');
 
     const unsubDonors = subscribeToCollection('permanent_donors', (data: any) => {
       if (!data || data.length === 0) {
@@ -340,7 +347,8 @@ export default function App() {
       }
     });
 
-    const unsubAssets = subscribeToCollection('mosque_assets', (data: any) => {
+    const unsubAssets = subscribeToCollection<any>('mosque_assets', (data: any) => {
+      setAssets(data);
       if (!data || data.length === 0) {
         DUMMY_ASSETS.forEach(a => addDocument('mosque_assets', a));
       } else {
@@ -357,7 +365,8 @@ export default function App() {
       }
     });
 
-    const unsubCon = subscribeToCollection('mosque_congregants', (data: any) => {
+    const unsubCon = subscribeToCollection<any>('mosque_congregants', (data: any) => {
+      setCongregants(data);
       if (!data || data.length === 0) {
         DUMMY_CONGREGANTS.forEach(c => addDocument('mosque_congregants', c));
       } else {
@@ -1137,6 +1146,10 @@ export default function App() {
           }}
           triggerAudioPlayback={triggerAudioPlayback}
           detailedBoard={detailedBoard}
+          mosqueSettings={mosqueSettings}
+          transactions={transactions}
+          congregants={congregants}
+          assets={assets}
         />
         <ProfessionalToasts logs={activeToasts} onRemove={removeToast} />
         <ConfirmationModal 
@@ -1572,7 +1585,7 @@ export default function App() {
 
 
       {/* Main Container */}
-      <main className="flex-1 max-w-[1440px] w-full mx-auto p-3 sm:p-5 lg:px-8 xl:px-12 space-y-4 sm:space-y-5 pb-12 sm:pb-16" id="main_content">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-10 space-y-8 sm:space-y-12 pb-24" id="main_content">
         
         {/* Banner Running Text / Pengumuman - Integrated beneath headers */}
         {showAnnouncement && (
@@ -1600,9 +1613,9 @@ export default function App() {
             transition={{ duration: 0.3 }}
           >
             {activeTab === 'beranda' && (
-              <div className="space-y-8 pb-10">
+              <div className="space-y-12 sm:space-y-20 pb-10">
                 {/* Elegant Header Hero */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <ImageSlider slides={slides} onNavigate={setActiveTab} />
                 </div>
 
@@ -1799,15 +1812,71 @@ export default function App() {
 
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md text-emerald-250 border-t border-emerald-900/50 py-4 px-4 z-40" id="footer_section">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between">
-          <p className="text-emerald-400/80 text-[10px] sm:text-xs font-bold">© 2026 Masjid Jami Al Abrar Parepare. All rights reserved.</p>
-          <button 
-            onClick={() => setActiveTab('admin')}
-            className="text-[10px] text-emerald-400 hover:text-amber-300 font-extrabold flex items-center gap-1 bg-white/5 hover:bg-white/10 px-3 py-1 rounded-full border border-emerald-500/10 transition active:scale-95"
-          >
-            <span>🔒 Portal Admin</span>
-          </button>
+      <footer className="bg-slate-900 text-slate-400 py-12 px-4 border-t border-slate-800" id="footer_section">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-2 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-600/20">
+                  <span className="text-2xl">🕌</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white tracking-tight leading-none">AL ABRAR</h3>
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Masjid Jami Digital</span>
+                </div>
+              </div>
+              <p className="text-sm leading-relaxed max-w-md">
+                Pusat peradaban Islam dan pembinaan umat yang berlandaskan Al-Qur'an dan As-Sunnah. Menghadirkan layanan masjid yang transparan, modern, dan inklusif bagi seluruh jamaah.
+              </p>
+              <div className="flex gap-4">
+                {['Facebook', 'Instagram', 'YouTube', 'WhatsApp'].map((social) => (
+                  <button key={social} className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all">
+                    <span className="sr-only">{social}</span>
+                    <div className="w-4 h-4 border border-current rounded-sm opacity-50"></div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-white font-black text-sm uppercase tracking-widest">Tautan Cepat</h4>
+              <ul className="space-y-4 text-sm font-medium">
+                {['Beranda', 'Tentang Kami', 'Program Kerja', 'Layanan Kas'].map((link) => (
+                  <li key={link} className="hover:text-emerald-500 transition-colors cursor-pointer">{link}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-white font-black text-sm uppercase tracking-widest">Kontak Kami</h4>
+              <ul className="space-y-4 text-sm font-medium">
+                <li className="flex items-center gap-3">
+                  <MapPin className="h-4 w-4 text-emerald-500" />
+                  <span>Lapadde, Ujung, Parepare</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="h-4 w-4 text-emerald-500">📞</span>
+                  <span>+62 811 2223 3344</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="h-4 w-4 text-emerald-500">✉️</span>
+                  <span>halo@masjidalabrar.id</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-[11px] font-medium tracking-wide">© 2026 Masjid Jami Al Abrar Parepare. Dikembangkan untuk peradaban Islam digital.</p>
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={() => setActiveTab('admin')}
+                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider transition shadow-lg shadow-emerald-600/20"
+              >
+                <span>Portal Admin</span>
+              </button>
+            </div>
+          </div>
         </div>
       </footer>
 

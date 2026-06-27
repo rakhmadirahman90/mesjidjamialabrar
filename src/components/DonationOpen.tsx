@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { DonationCampaign, Donor } from '../types';
 import { Heart, ShieldCheck, QrCode, CheckCircle, Plus, X, Trash } from 'lucide-react';
 import { subscribeToCollection, subscribeToDocument, addDocument, updateDocument, deleteDocument, clearCollection } from '../lib/db';
@@ -233,52 +234,61 @@ export default function DonationOpen({
               const percent = Math.min(Math.round((c.raised / c.target) * 100), 100);
               const isActive = c.id === selectedCampId;
               return (
-                <div key={c.id} className="relative group">
+                <motion.div 
+                  key={c.id} 
+                  whileHover={{ y: -8 }}
+                  className="relative group"
+                >
                   <button
                     onClick={() => setSelectedCampId(c.id)}
-                    className={`w-full text-left p-4 rounded-2xl border transition duration-150 relative overflow-hidden flex flex-col justify-between h-52 outline-none ${
+                    className={`w-full text-left p-6 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden flex flex-col justify-between h-64 outline-none ${
                       isActive 
-                        ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-2 ring-emerald-600/10'
-                        : 'border-slate-150 bg-white hover:border-slate-200'
+                        ? 'border-emerald-500 bg-emerald-50/50 shadow-2xl shadow-emerald-900/10 ring-4 ring-emerald-500/5'
+                        : 'border-slate-150 bg-white hover:border-slate-300'
                     }`}
                   >
-                    <div className="space-y-1.5 z-10">
-                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
+                    <div className="space-y-3 z-10">
+                      <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-full tracking-widest ${
                         isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
                       }`}>
                         {percent === 100 ? 'Target Tercapai' : 'Donasi Aktif'}
                       </span>
-                      <h4 className="font-extrabold text-xs text-slate-800 line-clamp-2 leading-relaxed pt-1">{c.title}</h4>
-                      <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{c.description}</p>
+                      <h4 className={`text-lg font-black leading-tight tracking-tight ${isActive ? 'text-slate-900' : 'text-slate-700'}`}>
+                        {c.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 font-medium italic line-clamp-2">"{c.description}"</p>
                     </div>
 
-                    <div className="space-y-2 pt-2 z-10">
-                      <div className="flex justify-between items-end text-[10px] font-bold">
-                        <span className="text-slate-400">Terkumpul:</span>
-                        <span className={isActive ? 'text-emerald-700' : 'text-slate-700'}>{percent}%</span>
+                    <div className="space-y-3 z-10 pt-4 border-t border-slate-100/50">
+                      <div className="flex justify-between items-end">
+                        <div className="space-y-0.5">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Terkumpul</span>
+                          <span className={`text-sm font-black font-mono ${isActive ? 'text-emerald-700' : 'text-slate-600'}`}>
+                            Rp {c.raised.toLocaleString('id-ID')}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg">{percent}%</span>
                       </div>
-                      
-                      {/* Visual Progress Bar */}
-                      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all duration-500 ${isActive ? 'bg-emerald-600' : 'bg-slate-400'}`}
-                          style={{ width: `${percent}%` }}
-                        ></div>
-                      </div>
-
-                      <div className="text-[11px] font-mono font-bold text-slate-800">
-                        Rp {c.raised.toLocaleString('id-ID')}
-                        <span className="text-slate-400 font-normal font-sans text-[9px] block">dari target Rp {c.target.toLocaleString('id-ID')}</span>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percent}%` }}
+                          className={`h-full ${percent >= 100 ? 'bg-amber-400' : 'bg-emerald-500'}`}
+                        ></motion.div>
                       </div>
                     </div>
+
+                    {/* Decor */}
+                    <Heart className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-[0.03] transition-transform duration-700 group-hover:scale-125 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
                   </button>
+                  
                   {isAdmin && (
-                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => handleEditCampaign(c)} className="p-1 px-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">EDIT</button>
-                      <button onClick={() => deleteCampaign(c.id)} className="p-1 px-2 bg-white text-slate-400 hover:text-rose-600 rounded-lg shadow-sm border border-slate-100 text-[10px] font-bold">HAPUS</button>
+                    <div className="absolute top-4 right-4 flex gap-2 z-20">
+                      <button onClick={() => handleEditCampaign(c)} className="p-2 bg-white/90 backdrop-blur shadow-sm border border-slate-100 rounded-xl text-emerald-600 hover:bg-emerald-50 transition"><Plus className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => deleteCampaign(c.id)} className="p-2 bg-white/90 backdrop-blur shadow-sm border border-slate-100 rounded-xl text-rose-500 hover:bg-rose-50 transition"><Trash className="h-3.5 w-3.5" /></button>
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
           </div>

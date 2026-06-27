@@ -7,18 +7,22 @@ import {
   Award, 
   Users, 
   Landmark,
-  User
+  User,
+  MapPin,
+  TrendingUp
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { DetailedBoardMember } from '../types';
 
 interface InfoMasjidProps {
   activeSubTab?: 'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap';
   setActiveSubTab?: (sub: 'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap') => void;
   detailedBoard?: DetailedBoardMember[];
+  mosqueSettings?: any;
 }
 
-export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [] }: InfoMasjidProps) {
+export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [], mosqueSettings }: InfoMasjidProps) {
   const [internalSubTab, setInternalSubTab] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap'>('info_umum');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,7 +43,17 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
     return () => window.removeEventListener('change_subtab', handleSubtabChange);
   }, []);
 
-  const faqs = [
+  const historyText = mosqueSettings?.history || `Masjid Jami Al Abrar didirikan pertama kali pada tahun 1961 sebagai sebuah tempat ibadah berupa mushalla kecil sederhana. Diinisiasi oleh tokoh adat setempat, takmir perdana, serta dukungan tulus para pemilik lahan wakaf di wilayah Kelurahan Lapadde, Parepare.`;
+  const visionText = mosqueSettings?.vision || `Terwujudnya Masjid Al Abrar sebagai pusat ibadah yang suci, makmur, mandiri, dan berdaya guna dalam mendidik jamaah yang bertakwa dan berakhlakul karimah.`;
+  const misionList = mosqueSettings?.mision || [
+    { title: 'Tertib & Nyaman', text: 'Menyelenggarakan kegiatan ibadah fardhu 5 waktu dan ibadah sunnah secara tertib, khusyuk, dan nyaman.' },
+    { title: 'Pembinaan Akhlak', text: 'Meningkatkan pembinaan aqidah, ibadah, dan akhlak melalui program kajian keagamaan rutin serta madrasah dhuha.' },
+    { title: 'Transparansi Penuh', text: 'Mengelola keuangan, aset kas, dan inventaris milik masjid secara akuntabel, transparan, serta profesional.' },
+    { title: 'Pemberdayaan Ekonomi', text: 'Mengembangkan program pengetasan kemiskinan dan ketahanan pangan berbasis infaq, sedekah, dan zakat syariah.' },
+    { title: 'Pembinaan Pemuda', text: 'Memfasilitasi pemberdayaan potensi pemuda Remaja Masjid (PRISMA) sebagai kader penerus dakwah masa depan.' },
+    { title: 'Pelayanan Sosial', text: 'Menghadirkan sarana ambulans siaga, bantuan darurat dhuafa, dan bakti sosial masyarakat Parepare.' }
+  ];
+  const faqs = mosqueSettings?.faqs || [
     {
       q: "Bagaimana cara berdonasi secara digital?",
       a: "Anda dapat masuk ke menu 'Donasi Digital', pilih program yang ingin didukung, lalu lakukan pembayaran via QRIS otomatis atau transfer ke rekening BSI resmi masjid."
@@ -65,18 +79,40 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
       {activeTab === 'info_umum' && (
         <div className="space-y-8">
           {/* Main Info Header */}
-          <section className="text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700">
-              <Info className="h-4 w-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Pusat Informasi Digital Al Abrar</span>
+          <section className="text-center space-y-12">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700">
+                <Info className="h-4 w-4" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Pusat Informasi Digital Al Abrar</span>
+              </div>
+              <h2 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-tight uppercase font-display">
+                Latar Belakang <br />
+                <span className="text-emerald-600">Digitalisasi Masjid.</span>
+              </h2>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-2xl mx-auto font-medium">
+                Digitalisasi Masjid Jami Al Abrar Parepare dilatarbelakangi oleh visi luhur Pengurus Takmir untuk menghadirkan tata kelola rumah ibadah yang modern, transparan, akuntabel, dan berorientasi pada peningkatan layanan keumatan.
+              </p>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight uppercase font-display">
-              Latar Belakang <br />
-              <span className="text-emerald-600">Digitalisasi Masjid.</span>
-            </h2>
-            <p className="text-slate-500 text-sm leading-relaxed max-w-2xl mx-auto font-medium">
-              Digitalisasi Masjid Jami Al Abrar Parepare dilatarbelakangi oleh visi luhur Pengurus Takmir untuk menghadirkan tata kelola rumah ibadah yang modern, transparan, akuntabel, dan berorientasi pada peningkatan layanan keumatan serta kemudahan akses informasi bagi seluruh jamaah secara realtime.
-            </p>
+
+            {/* Identitas Utama Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto px-4">
+              {[
+                { label: 'Tahun Berdiri', value: '1961', icon: <Landmark className="w-5 h-5" />, color: 'bg-amber-50 text-amber-600' },
+                { label: 'Kapasitas', value: '± 800 Jamaah', icon: <Users className="w-5 h-5" />, color: 'bg-blue-50 text-blue-600' },
+                { label: 'Status Tanah', value: 'Wakaf Sah', icon: <Award className="w-5 h-5" />, color: 'bg-emerald-50 text-emerald-600' },
+                { label: 'Lokasi', value: 'Lapadde, Parepare', icon: <MapPin className="w-5 h-5" />, color: 'bg-rose-50 text-rose-600' },
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-150 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all group">
+                  <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    {item.icon}
+                  </div>
+                  <div className="text-center">
+                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{item.label}</span>
+                    <span className="block text-sm font-black text-slate-800">{item.value}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
 
           {/* Detailed Background Context Card */}
@@ -143,7 +179,7 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
             </div>
 
             <div className="grid grid-cols-1 gap-3 text-left">
-              {faqs.map((faq, idx) => (
+              {faqs.map((faq: any, idx: number) => (
                 <div 
                   key={idx}
                   className={`bg-white border rounded-3xl overflow-hidden transition-all duration-300 ${
@@ -187,19 +223,8 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
             </p>
           </div>
 
-          <div className="bg-white rounded-[2rem] p-8 border border-slate-200/85 shadow-sm space-y-6 leading-relaxed text-sm text-slate-600">
-            <p className="font-medium text-slate-800 text-base leading-relaxed">
-              Masjid Jami Al Abrar didirikan pertama kali pada tahun <strong className="text-emerald-700 font-extrabold">1961</strong> sebagai sebuah tempat ibadah berupa mushalla kecil sederhana. Diinisiasi oleh tokoh adat setempat, takmir perdana, serta dukungan tulus para pemilik lahan wakaf di wilayah Kelurahan Lapadde, Parepare.
-            </p>
-            <p>
-              Tujuan awal dari pendirian mushalla ini adalah untuk mempermudah jamaah sekitar menunaikan ibadah shalat fardhu 5 waktu secara berjamaah tanpa harus menempuh jarak jauh ke wilayah perkotaan Parepare. Dengan pesatnya perkembangan perumahan dan pertambahan penduduk di Lapadde, pada tahun <strong className="text-slate-800">1998</strong>, mushalla ini diputuskan oleh warga untuk direnovasi total dan ditingkatkan statusnya secara resmi menjadi <strong className="text-emerald-700 font-extrabold">Masjid Jami Al Abrar</strong> yang sanggup menggelar Shalat Jumat perdana.
-            </p>
-            <p>
-              Pada tahun <strong className="text-slate-800">2012</strong>, menyadari luapan jamaah shalat Jumat yang terus membludak hingga meluber ke jalan raya, panitia pembangunan takmir merancang perluasan agung. Berkat gotong-royong swadaya jamaah yang luar biasa, dikonstruksi bangunan beton berarsitektur modern dua lantai yang sangat kokoh dan sejuk.
-            </p>
-            <p>
-              Kini, di usianya yang telah matang, Masjid Jami Al Abrar berdiri gagah dilengkapi menara pemancar adzan, pendingin ruangan (AC) yang sejuk, sistem audio akustik digital, ruang sekretariat, perpustakaan keagamaan, serta layanan ambulans gratis 24 jam untuk melayani seluruh umat di kota Parepare, khususnya kawasan Lapadde.
-            </p>
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-200/85 shadow-sm space-y-6 leading-relaxed text-sm text-slate-600 whitespace-pre-wrap">
+            {historyText}
           </div>
 
           {/* Timeline Milestones */}
@@ -208,43 +233,72 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
               ⌛ Milestones & Garis Waktu Perkembangan
             </h3>
             
-            <div className="relative border-l-2 border-emerald-100 ml-4 space-y-8 pl-6">
+            <div className="relative border-l-4 border-emerald-50 ml-4 space-y-12 pl-10 py-4">
               {[
                 {
                   year: '1961',
                   title: 'Pendirian Mushalla Perdana',
-                  desc: 'Mushalla kayu bersahaja dibangun secara swadaya di atas tanah wakaf perdana untuk shalat fardhu berjamaah.'
+                  desc: 'Mushalla kayu bersahaja dibangun secara swadaya di atas tanah wakaf perdana untuk shalat fardhu berjamaah.',
+                  icon: <Landmark className="w-5 h-5" />
                 },
                 {
                   year: '1998',
                   title: 'Peningkatan Status Jami',
-                  desc: 'Konstruksi ditingkatkan menjadi bangunan semipermanen dengan perluasan ruang agar memuat shalat Jumat agung.'
+                  desc: 'Konstruksi ditingkatkan menjadi bangunan semipermanen dengan perluasan ruang agar memuat shalat Jumat agung.',
+                  icon: <Users className="w-5 h-5" />
                 },
                 {
                   year: '2012',
                   title: 'Megaproyek Renovasi 2 Lantai',
-                  desc: 'Peletakan batu pertama pembangunan gedung megah beton berlantai dua guna meningkatkan daya tampung hingga 1.200 jamaah.'
+                  desc: 'Peletakan batu pertama pembangunan gedung megah beton berlantai dua guna meningkatkan daya tampung hingga 1.200 jamaah.',
+                  icon: <Landmark className="w-5 h-5" />
                 },
                 {
                   year: '2019',
                   title: 'Pembangunan Menara & AC',
-                  desc: 'Penyelesaian struktur menara masjid setinggi 21 meter, serta pemasangan AC terpadu dan tempat wudhu stainless otomatis.'
+                  desc: 'Penyelesaian struktur menara masjid setinggi 21 meter, serta pemasangan AC terpadu dan tempat wudhu stainless otomatis.',
+                  icon: <Info className="w-5 h-5" />
                 },
                 {
-                  year: '2024 - Sekarang',
+                  year: '2024',
                   title: 'Era Digitalisasi Cerdas',
-                  desc: 'Integrasi sistem notifikasi digital, alarm penyiaran adzan otomatis, monitor keuangan realtime, dan portal informasi jamaah digital.'
+                  desc: 'Integrasi sistem notifikasi digital, alarm penyiaran adzan otomatis, monitor keuangan realtime, dan portal informasi jamaah digital.',
+                  icon: <TrendingUp className="w-5 h-5" />
                 }
               ].map((m, idx) => (
-                <div key={idx} className="relative group text-left">
-                  <div className="absolute -left-[31px] top-1 bg-white border-2 border-emerald-500 text-emerald-600 font-mono text-xs font-black px-2 py-0.5 rounded-full shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                    {m.year}
+                <motion.div 
+                  key={idx} 
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="relative group text-left"
+                >
+                  {/* Floating Year Badge */}
+                  <div className="absolute -left-[54px] top-0 w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 z-10 group-hover:scale-110 transition-transform">
+                    <span className="text-[10px] font-black rotate-[-90deg] whitespace-nowrap">{m.year}</span>
                   </div>
-                  <div className="bg-white border border-slate-150 rounded-2xl p-5 hover:border-emerald-200 transition-all shadow-sm">
-                    <h4 className="font-extrabold text-slate-900 text-sm tracking-tight mb-1">{m.title}</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">{m.desc}</p>
+                  
+                  {/* Connecting Dot */}
+                  <div className="absolute -left-[45px] top-4 w-4 h-4 rounded-full bg-white border-4 border-emerald-500 shadow-sm z-20 group-hover:scale-125 transition-transform"></div>
+
+                  <div className="bg-white border border-slate-150 rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all group-hover:border-emerald-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                      <div className="space-y-1">
+                        <h4 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-emerald-700 transition-colors">
+                          {m.title}
+                        </h4>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/50">Momen Bersejarah</span>
+                      </div>
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        {m.icon}
+                      </div>
+                    </div>
+                    <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                      {m.desc}
+                    </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </section>
@@ -269,37 +323,45 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
           </div>
 
           {/* Vision card */}
-          <section className="bg-gradient-to-r from-emerald-800 to-emerald-950 text-white rounded-[2.5rem] p-8 sm:p-10 shadow-xl space-y-3 relative overflow-hidden">
-            <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 opacity-10">
-              <Landmark className="w-64 h-64" />
+          <section className="relative group perspective-1000">
+            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-gradient-to-br from-emerald-800 to-emerald-950 text-white rounded-[2.5rem] p-10 sm:p-14 shadow-2xl space-y-6 overflow-hidden">
+              <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                <Landmark className="w-80 h-80" />
+              </div>
+              <div className="relative z-10 space-y-4">
+                <h4 className="text-[11px] font-black tracking-[0.4em] text-emerald-400 uppercase leading-none">VISI UTAMA AL ABRAR</h4>
+                <blockquote className="text-2xl sm:text-4xl font-black leading-tight font-display tracking-tight text-white italic pt-6 border-t border-white/10 max-w-4xl">
+                  "{visionText}"
+                </blockquote>
+              </div>
             </div>
-            <h4 className="text-[10px] sm:text-xs font-black tracking-[0.25em] text-emerald-300 uppercase leading-none">VISI UTAMA</h4>
-            <blockquote className="text-lg sm:text-2xl font-black leading-snug font-display tracking-tight text-white italic pt-2 border-t border-white/10">
-              "Terwujudnya Masjid Al Abrar sebagai pusat ibadah yang suci, makmur, mandiri, dan berdaya guna dalam mendidik jamaah yang bertakwa dan berakhlakul karimah."
-            </blockquote>
           </section>
 
           {/* Mission list */}
-          <section className="space-y-4">
-            <h3 className="text-base font-black uppercase tracking-wider text-slate-800">Misi Pelayanan & Pembinaan Islam</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { title: 'Tertib & Nyaman', text: 'Menyelenggarakan kegiatan ibadah fardhu 5 waktu dan ibadah sunnah secara tertib, khusyuk, dan nyaman.' },
-                { title: 'Pembinaan Akhlak', text: 'Meningkatkan pembinaan aqidah, ibadah, dan akhlak melalui program kajian keagamaan rutin serta madrasah dhuha.' },
-                { title: 'Transparansi Penuh', text: 'Mengelola keuangan, aset kas, dan inventaris milik masjid secara akuntabel, transparan, serta profesional.' },
-                { title: 'Pemberdayaan Ekonomi', text: 'Mengembangkan program pengetasan kemiskinan dan ketahanan pangan berbasis infaq, sedekah, dan zakat syariah.' },
-                { title: 'Pembinaan Pemuda', text: 'Memfasilitasi pemberdayaan potensi pemuda Remaja Masjid (PRISMA) sebagai kader penerus dakwah masa depan.' },
-                { title: 'Pelayanan Sosial', text: 'Menghadirkan sarana ambulans siaga, bantuan darurat dhuafa, dan bakti sosial masyarakat Parepare.' }
-              ].map((m, i) => (
-                <div key={i} className="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-                    <Check className="w-4 h-4 font-bold" />
+          <section className="space-y-8 pt-6">
+            <div className="flex items-center gap-3 px-1">
+              <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+              <h3 className="text-xl font-black uppercase tracking-wider text-slate-900">Misi Pelayanan & Pembinaan Islam</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {misionList.map((m: any, i: number) => (
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white border border-slate-150 rounded-3xl p-8 shadow-sm flex gap-6 hover:border-emerald-200 hover:shadow-md transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <Check className="w-6 h-6 font-bold" />
                   </div>
-                  <div className="space-y-1 min-w-0">
-                    <h4 className="font-extrabold text-slate-900 text-sm tracking-tight">{m.title}</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed">{m.text}</p>
+                  <div className="space-y-2 min-w-0">
+                    <h4 className="font-black text-slate-900 text-lg tracking-tight leading-none">{m.title || `Misi ke-${i+1}`}</h4>
+                    <p className="text-slate-500 text-sm leading-relaxed font-medium">{m.text || m}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </section>
@@ -380,14 +442,21 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                 
                 {/* Grouping by sectionName if available for idarah, imarah, riayah */}
                 {['idarah', 'imarah', 'riayah'].includes(cat.id) ? (
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-8">
                     {Array.from(new Set(filteredMembers.map(m => m.sectionName || 'Struktur Pelaksana'))).map((section, sIdx) => (
-                      <div key={sIdx} className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm space-y-3">
-                        <h4 className={`text-xs font-black uppercase tracking-widest ${cat.colorClass}`}>{section}</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      <div key={sIdx} className="space-y-6">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-1 h-4 rounded-full ${cat.borderClass.replace('border-', 'bg-')}`}></div>
+                          <h4 className={`text-sm font-black uppercase tracking-[0.2em] ${cat.colorClass}`}>{section}</h4>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                           {filteredMembers.filter(m => (m.sectionName || 'Struktur Pelaksana') === section).map((m, mIdx) => (
-                            <div key={mIdx} className="flex flex-col items-center text-center group">
-                              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100 group-hover:border-emerald-500 transition-colors duration-300 shadow-sm mb-2">
+                            <motion.div 
+                              key={mIdx} 
+                              whileHover={{ y: -8 }}
+                              className="flex flex-col items-center text-center group bg-white p-6 rounded-[2rem] border border-slate-150 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all"
+                            >
+                              <div className="w-20 h-20 rounded-3xl overflow-hidden border-2 border-slate-100 group-hover:border-emerald-500 transition-all duration-500 shadow-md mb-4 rotate-3 group-hover:rotate-0">
                                 {m.imageUrl ? (
                                   <img 
                                     src={m.imageUrl} 
@@ -397,23 +466,27 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                                   />
                                 ) : (
                                   <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
-                                    <User className="h-6 w-6" />
+                                    <User className="h-8 w-8" />
                                   </div>
                                 )}
                               </div>
-                              <span className="text-[10px] font-black text-slate-800 leading-tight block truncate w-full">{m.name}</span>
-                              <span className={`text-[8px] font-black uppercase tracking-tighter ${cat.colorClass} mt-0.5 block truncate w-full`}>{m.role}</span>
-                            </div>
+                              <span className="text-xs font-black text-slate-900 leading-tight block mb-1 group-hover:text-emerald-700 transition-colors">{m.name}</span>
+                              <span className={`text-[9px] font-black uppercase tracking-wider ${cat.colorClass} opacity-60 group-hover:opacity-100 transition-opacity`}>{m.role}</span>
+                            </motion.div>
                           ))}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                     {filteredMembers.map((m, idx) => (
-                      <div key={idx} className="bg-white border rounded-2xl p-4 shadow-sm flex flex-col items-center text-center group hover:shadow-md transition-shadow duration-300">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100 group-hover:border-blue-500 transition-colors duration-300 shadow-sm mb-2">
+                      <motion.div 
+                        key={idx} 
+                        whileHover={{ y: -8 }}
+                        className="bg-white border border-slate-150 rounded-[2rem] p-6 shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:shadow-blue-900/5 transition-all"
+                      >
+                        <div className="w-20 h-20 rounded-3xl overflow-hidden border-2 border-slate-100 group-hover:border-blue-500 transition-all duration-500 shadow-md mb-4 -rotate-3 group-hover:rotate-0">
                           {m.imageUrl ? (
                             <img 
                               src={m.imageUrl} 
@@ -423,13 +496,13 @@ export default function InfoMasjid({ activeSubTab: propSubTab, detailedBoard = [
                             />
                           ) : (
                             <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
-                              <User className="h-6 w-6" />
+                              <User className="h-8 w-8" />
                             </div>
                           )}
                         </div>
-                        <span className={`text-[8px] font-black tracking-wider ${cat.colorClass} uppercase font-mono mb-1 truncate w-full`}>{m.role}</span>
-                        <span className="text-[10px] font-black text-slate-800 leading-tight truncate w-full">{m.name}</span>
-                      </div>
+                        <span className={`text-[9px] font-black tracking-widest ${cat.colorClass} uppercase font-mono mb-1.5 opacity-60 group-hover:opacity-100 transition-opacity`}>{m.role}</span>
+                        <span className="text-xs font-black text-slate-900 leading-tight group-hover:text-blue-700 transition-colors">{m.name}</span>
+                      </motion.div>
                     ))}
                   </div>
                 )}
