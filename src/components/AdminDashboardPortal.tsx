@@ -88,7 +88,6 @@ export default function AdminDashboardPortal({
   triggerAudioPlayback,
   detailedBoard,
   mosqueSettings,
-  transactions = [],
   congregants = [],
   assets = []
 }: AdminDashboardPortalProps) {
@@ -100,17 +99,6 @@ export default function AdminDashboardPortal({
   const totalInfaq = (campaigns || []).reduce((acc, curr) => acc + ((curr && curr.raised) || 0), 0);
   const activeCampaignsCount = (campaigns || []).length;
   
-  // Calculate Monthly Income
-  const currentMonth = localTime.getMonth();
-  const currentYear = localTime.getFullYear();
-  const monthlyIncome = (transactions || []).reduce((acc, tx) => {
-    const txDate = new Date(tx.date);
-    if (tx.type === 'debit' && txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear) {
-      return acc + (tx.amount || 0);
-    }
-    return acc;
-  }, 0);
-
   // Jamaah Summary
   const totalJamaah = (congregants || []).length;
   const activeJamaah = (congregants || []).filter(c => c.attendanceStatus === 'Aktif Jamaah').length;
@@ -286,16 +274,7 @@ export default function AdminDashboardPortal({
           {activeTab === 'overview' && (
             <div className="space-y-6">
               {/* Quick statistics cards widgets in Bento Grid Style */}
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
-                    💰
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Pemasukan Bulan Ini</p>
-                  <p className="text-sm xs:text-base sm:text-2xl font-black text-white mt-1 sm:mt-1.5 break-all">Rp {monthlyIncome.toLocaleString('id-ID')}</p>
-                  <p className="text-[8px] sm:text-[9px] text-slate-450 mt-1 leading-normal font-medium line-clamp-1">Total donasi {localTime.toLocaleDateString('id-ID', { month: 'long' })}.</p>
-                </div>
-
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div className="bg-[#03150d] border border-emerald-500/10 p-3 sm:p-5 rounded-2xl text-left shadow-lg relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-3 opacity-10 text-xs hidden sm:block">
                     👥
@@ -334,7 +313,6 @@ export default function AdminDashboardPortal({
                       { id: 'profil', label: 'Profil Masjid', icon: <Users className="h-4 w-4" />, color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
                       { id: 'jadwal', label: 'Jadwal Shalat', icon: <Calendar className="h-4 w-4" />, color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
                       { id: 'donasi', label: 'Program Donasi', icon: <Heart className="h-4 w-4" />, color: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
-                      { id: 'keuangan', label: 'Laporan Kas', icon: <TrendingUp className="h-4 w-4" />, color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20' },
                       { id: 'galeri', label: 'Galeri Foto', icon: <ImageIcon className="h-4 w-4" />, color: 'bg-sky-500/10 text-sky-500 border-sky-500/20' },
                       { id: 'inventaris', label: 'Aset Masjid', icon: <Package className="h-4 w-4" />, color: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
                       { id: 'kontak', label: 'Kontak & Inbox', icon: <Phone className="h-4 w-4" />, color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },

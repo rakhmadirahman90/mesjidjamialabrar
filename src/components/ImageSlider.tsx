@@ -91,7 +91,7 @@ export default function ImageSlider({
       <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -translate-y-20 -translate-x-20"></div>
       
       {/* Primary Slide Window */}
-      <div className="relative h-[520px] sm:h-[580px] lg:h-[650px] w-full overflow-hidden">
+      <div className="relative h-[480px] sm:h-[540px] lg:h-[600px] w-full overflow-hidden">
         
         {/* Slide Image Background Layer */}
         <AnimatePresence mode="wait">
@@ -221,7 +221,7 @@ export default function ImageSlider({
       </div>
 
       {/* Under-slider visual pagination bar and telemetry status */}
-      <div className="bg-slate-950 border-t border-slate-900 p-4 flex items-center justify-between gap-4">
+      <div className="bg-slate-950 border-t border-slate-900 p-1.5 sm:p-2.5 flex items-center justify-between gap-4">
         
         {/* Standard Info Pairings */}
         <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-500 font-mono">

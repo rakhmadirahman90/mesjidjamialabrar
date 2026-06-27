@@ -223,7 +223,6 @@ export interface AdminDashboardPortalProps {
   triggerAudioPlayback: () => void;
   detailedBoard: DetailedBoardMember[];
   mosqueSettings?: any;
-  transactions?: Transaction[];
   congregants?: Congregant[];
   assets?: MosqueAsset[];
 }

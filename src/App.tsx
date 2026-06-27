@@ -6,7 +6,6 @@ import {
   Heart,
   TrendingUp,
   Package,
-  MapPin,
   Calendar,
   Image as ImageIcon,
   Phone,
@@ -161,7 +160,6 @@ export default function App() {
   const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
   const [detailedBoard, setDetailedBoard] = useState<DetailedBoardMember[]>([]);
   const [mosqueSettings, setMosqueSettings] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
   const [assets, setAssets] = useState<any[]>([]);
   const [congregants, setCongregants] = useState<any[]>([]);
 
@@ -319,13 +317,6 @@ export default function App() {
     });
 
     // Additional dummy data seeding checks
-    const unsubTx = subscribeToCollection<any>('financial_transactions', (data) => {
-      setTransactions(data);
-      if (data.length === 0) {
-        DUMMY_TRANSACTIONS.forEach(t => addDocument('financial_transactions', t));
-      }
-    }, 'date', 'desc');
-
     const unsubDonors = subscribeToCollection('permanent_donors', (data: any) => {
       if (!data || data.length === 0) {
         DUMMY_PERMANENT_DONORS.forEach(d => {
@@ -406,7 +397,6 @@ export default function App() {
       unsubRamadan();
       unsubRoutine();
       unsubCampaigns();
-      unsubTx();
       unsubDonors();
       unsubAssets();
       unsubCon();
@@ -1147,7 +1137,6 @@ export default function App() {
           triggerAudioPlayback={triggerAudioPlayback}
           detailedBoard={detailedBoard}
           mosqueSettings={mosqueSettings}
-          transactions={transactions}
           congregants={congregants}
           assets={assets}
         />
@@ -1172,8 +1161,8 @@ export default function App() {
       
       {/* Floating Glass Navbar Capsule mimicking the premium Istiqlal UI/UX */}
       {activeTab !== 'admin' && (
-      <header className="sticky top-1 sm:top-2 z-50 w-full max-w-[1400px] mx-auto px-1.5 sm:px-6 lg:px-12 select-none overflow-visible" id="header_navbar">
-          <div className="bg-[#0b1f17]/95 backdrop-blur-md border border-emerald-500/20 rounded-xl sm:rounded-full px-2.5 py-1.5 sm:px-4 sm:py-1.5 shadow-[0_15px_40px_rgba(4,47,31,0.3)] flex items-center justify-between gap-1 text-white transition-all duration-300 overflow-visible">
+      <header className="sticky top-0 sm:top-1 z-50 w-full max-w-[1400px] mx-auto px-1 sm:px-4 lg:px-8 select-none overflow-visible" id="header_navbar">
+          <div className="bg-[#0b1f17]/95 backdrop-blur-md border border-emerald-500/20 rounded-xl sm:rounded-full px-2 py-1 sm:px-4 sm:py-1 shadow-[0_12px_30px_rgba(4,47,31,0.25)] flex items-center justify-between gap-1 text-white transition-all duration-300 overflow-visible">
             
             {/* Brand Left Silhouette Logo Area */}
             <div 
@@ -1198,7 +1187,7 @@ export default function App() {
             </div>
 
           {/* Desktop Core Navigation Links (Modern typography, beautifully spaced) */}
-          <nav className="hidden md:flex items-center justify-center gap-1 xl:gap-2 text-xs font-semibold tracking-wide font-sans text-slate-300">
+          <nav className="hidden md:flex items-center justify-center gap-1.5 lg:gap-3 xl:gap-4 text-xs font-semibold tracking-wide font-sans text-slate-300">
             {[
               { id: 'beranda', label: 'Beranda', hasSub: false },
               { id: 'profil', label: 'Profil', hasSub: true },
@@ -1226,15 +1215,15 @@ export default function App() {
                         setActiveDropdown(null);
                       }
                     }}
-                    className={`flex items-center gap-1 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition-all duration-300 relative outline-none whitespace-nowrap overflow-visible select-none ${
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all duration-300 relative outline-none whitespace-nowrap overflow-visible select-none font-bold tracking-tight ${
                       isActive
-                        ? 'text-emerald-400 font-extrabold'
-                        : 'text-slate-200/95 hover:text-white hover:bg-white/5'
+                        ? 'text-emerald-400 font-extrabold bg-emerald-500/5 shadow-[inset_0_0_10px_rgba(16,185,129,0.1)]'
+                        : 'text-slate-200/90 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <span>{tab.label}</span>
+                    <span className="text-[11px] sm:text-[12px]">{tab.label}</span>
                     {tab.hasSub && (
-                      <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${activeDropdown === tab.id ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${activeDropdown === tab.id ? 'rotate-180' : ''} ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
                     )}
                     {isActive && (
                       <motion.span
@@ -1515,8 +1504,8 @@ export default function App() {
 
       {/* Category Submenu Pill Row (When a desktop tab has submenus, float beneath the sticky navbar in gorgeous dark-emerald gold glass wrapper) */}
       {submenusMap[activeTab] && (
-        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-2 select-none z-30 relative animate-fade-in">
-          <div className="bg-[#031d12]/90 backdrop-blur-md px-4 py-2.5 sm:py-3 border border-emerald-500/15 shadow-[0_15px_35px_rgba(4,47,31,0.25)] rounded-2xl flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-1 select-none z-30 relative animate-fade-in">
+          <div className="bg-[#031d12]/90 backdrop-blur-md px-3 py-1.5 sm:py-2 border border-emerald-500/15 shadow-[0_10px_25px_rgba(4,47,31,0.2)] rounded-xl flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth">
             <span className="text-[9px] font-black text-emerald-400/60 uppercase tracking-widest shrink-0 hidden xl:inline-block border-r border-emerald-500/10 pr-3.5 mr-0.5">Kategori:</span>
             <div className="flex gap-2 min-w-max">
               {submenusMap[activeTab]
@@ -1551,8 +1540,8 @@ export default function App() {
 
       {/* Premium Editorial Header Banner for Non-Home tabs (mimicking the clean, institutional banner backdrop) */}
       {activeTab !== 'beranda' && (
-        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-4 select-none relative animate-fade-in z-10">
-          <div className="relative h-28 sm:h-36 bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-950 text-white rounded-3xl flex items-end px-6 sm:px-10 pb-5 sm:pb-6 overflow-hidden shadow-lg border border-emerald-900/40">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 mt-2 select-none relative animate-fade-in z-10">
+          <div className="relative h-24 sm:h-32 bg-gradient-to-tr from-emerald-950 via-emerald-900 to-slate-950 text-white rounded-2xl flex items-end px-5 sm:px-8 pb-4 sm:pb-5 overflow-hidden shadow-lg border border-emerald-900/40">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_50%,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent pointer-events-none"></div>
             <div className="absolute -bottom-8 -right-8 w-44 h-44 sm:w-64 sm:h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
@@ -1585,11 +1574,11 @@ export default function App() {
 
 
       {/* Main Container */}
-      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-10 space-y-8 sm:space-y-12 pb-24" id="main_content">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-3.5 space-y-2.5 sm:space-y-4 pb-20" id="main_content">
         
         {/* Banner Running Text / Pengumuman - Integrated beneath headers */}
         {showAnnouncement && (
-          <div className="bg-emerald-950 border border-emerald-900 rounded-2xl py-2 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden shadow-inner font-sans">
+          <div className="bg-emerald-950 border border-emerald-900 rounded-2xl py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden shadow-inner font-sans">
             <span className="bg-amber-400 text-emerald-950 text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 sm:py-1 rounded-md shrink-0 tracking-wider flex items-center gap-1 shadow-sm">
               📢 PENGUMUMAN
             </span>
@@ -1613,9 +1602,9 @@ export default function App() {
             transition={{ duration: 0.3 }}
           >
             {activeTab === 'beranda' && (
-              <div className="space-y-12 sm:space-y-20 pb-10">
+              <div className="space-y-1.5 sm:space-y-3 pb-6">
                 {/* Elegant Header Hero */}
-                <div className="space-y-6">
+                <div className="space-y-0.5">
                   <ImageSlider slides={slides} onNavigate={setActiveTab} />
                 </div>
 
@@ -1812,71 +1801,9 @@ export default function App() {
 
       </main>
 
-      <footer className="bg-slate-900 text-slate-400 py-12 px-4 border-t border-slate-800" id="footer_section">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1 md:col-span-2 space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-600/20">
-                  <span className="text-2xl">🕌</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-white tracking-tight leading-none">AL ABRAR</h3>
-                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Masjid Jami Digital</span>
-                </div>
-              </div>
-              <p className="text-sm leading-relaxed max-w-md">
-                Pusat peradaban Islam dan pembinaan umat yang berlandaskan Al-Qur'an dan As-Sunnah. Menghadirkan layanan masjid yang transparan, modern, dan inklusif bagi seluruh jamaah.
-              </p>
-              <div className="flex gap-4">
-                {['Facebook', 'Instagram', 'YouTube', 'WhatsApp'].map((social) => (
-                  <button key={social} className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all">
-                    <span className="sr-only">{social}</span>
-                    <div className="w-4 h-4 border border-current rounded-sm opacity-50"></div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <h4 className="text-white font-black text-sm uppercase tracking-widest">Tautan Cepat</h4>
-              <ul className="space-y-4 text-sm font-medium">
-                {['Beranda', 'Tentang Kami', 'Program Kerja', 'Layanan Kas'].map((link) => (
-                  <li key={link} className="hover:text-emerald-500 transition-colors cursor-pointer">{link}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-6">
-              <h4 className="text-white font-black text-sm uppercase tracking-widest">Kontak Kami</h4>
-              <ul className="space-y-4 text-sm font-medium">
-                <li className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-emerald-500" />
-                  <span>Lapadde, Ujung, Parepare</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 text-emerald-500">📞</span>
-                  <span>+62 811 2223 3344</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 text-emerald-500">✉️</span>
-                  <span>halo@masjidalabrar.id</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-[11px] font-medium tracking-wide">© 2026 Masjid Jami Al Abrar Parepare. Dikembangkan untuk peradaban Islam digital.</p>
-            <div className="flex items-center gap-6">
-              <button 
-                onClick={() => setActiveTab('admin')}
-                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-wider transition shadow-lg shadow-emerald-600/20"
-              >
-                <span>Portal Admin</span>
-              </button>
-            </div>
-          </div>
+      <footer className="bg-[#0b1f17] text-emerald-400/60 py-4 px-4 border-t border-emerald-500/10" id="footer_section">
+        <div className="max-w-[1440px] mx-auto text-center">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em]">@2026 Masjid Jami Al Abrar Parepare</p>
         </div>
       </footer>
 

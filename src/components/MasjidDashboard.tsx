@@ -1,19 +1,15 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Database,
   Calendar, 
-  TrendingUp, 
   Heart, 
-  MapPin,
   Sun,
   CloudSun,
   Moon,
   CloudMoon
 } from 'lucide-react';
 import { PrayerTime } from '../types';
-import HijriConverterWidget from './HijriConverterWidget';
-import MasjidStatistics from './MasjidStatistics';
 
 interface MasjidDashboardProps {
   prayers: PrayerTime[];
@@ -129,28 +125,21 @@ export default function MasjidDashboard({
     { 
       id: 'jadwal', 
       title: 'Jadwal & Agenda', 
-      desc: 'Penjadwalan shalat & kegiatan harian masjid dengan presisi tinggi.', 
+      desc: 'Informasi waktu shalat, pengajian rutin, dan agenda kegiatan masjid lainnya.', 
       icon: <Calendar className="w-6 h-6" />, 
       color: 'bg-emerald-50 text-emerald-600'
     },
     { 
       id: 'donasi', 
       title: 'Sedekah Digital', 
-      desc: 'Saluran donasi aman, cepat, dan transparan untuk umat.', 
+      desc: 'Saluran donasi aman, transparan, dan realtime untuk kemakmuran masjid.', 
       icon: <Heart className="w-6 h-6" />, 
       color: 'bg-rose-50 text-rose-600'
     },
     { 
-      id: 'keuangan', 
-      title: 'Laporan Kas', 
-      desc: 'Transparansi penuh laporan keuangan masjid secara realtime.', 
-      icon: <TrendingUp className="w-6 h-6" />, 
-      color: 'bg-blue-50 text-blue-600'
-    },
-    { 
       id: 'profil', 
-      title: 'Profil Masjid', 
-      desc: 'Sejarah, visi-misi, dan struktur khidmat takmir Al Abrar.', 
+      title: 'Tentang Masjid', 
+      desc: 'Mengenal sejarah, visi misi, serta struktur pengurus Masjid Al Abrar.', 
       icon: <Database className="w-6 h-6" />, 
       color: 'bg-amber-50 text-amber-600'
     },
@@ -190,123 +179,125 @@ export default function MasjidDashboard({
 
 
   return (
-    <div className="w-full py-2 sm:py-4 space-y-6 sm:space-y-8">
-      {/* Waktu Sholat Wilayah Parepare - Perfect reconstruction of Image 3 */}
-      <div className="w-full relative select-none">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full bg-[#031d14] rounded-[2.5rem] py-12 px-6 overflow-hidden flex flex-col items-center justify-center text-center shadow-2xl border border-[#0d3c2a] relative"
-        >
-          {/* Elegant repeating Islamic geometric patterns backdrop */}
-          <div className="absolute inset-0 opacity-[0.035] pointer-events-none" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M30 0l30 30-30 30L0 30zm0 10L10 30l20 20 20-20z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-            backgroundRepeat: 'repeat'
-          }}></div>
-          
-          {/* Golden radial background overlay aura */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[35rem] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-
-          <div className="relative z-10 w-full flex flex-col items-center">
-            
-            {/* Title with yellow gold glow line */}
-            <h2 className="text-xl sm:text-3xl lg:text-5xl font-black text-white tracking-wide font-display uppercase px-2">
-              Waktu Sholat wilayah Parepare
-            </h2>
-            <div className="w-16 sm:w-24 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent bg-amber-500 mx-auto mt-2 sm:mt-2.5 mb-4 sm:mb-5 rounded-full shadow-[0_0_8px_#d4af37]"></div>
- 
-            {/* Location marker info pill - Custom Cimahi / Parepare reference */}
-            <div className="flex items-center gap-2 text-emerald-200/70 text-[10px] sm:text-sm font-black tracking-widest uppercase mb-5 sm:mb-6 bg-emerald-950/40 border border-emerald-500/10 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
-              <MapPin className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Parepare</span>
-            </div>
- 
-            {/* Capsule Ticking CountDown Badge */}
-            <div className="bg-[#0b3c2a]/60 border border-emerald-500/15 backdrop-blur-md rounded-2xl sm:rounded-[2.5rem] px-5 sm:px-12 py-3 sm:py-5 max-w-xs sm:max-w-sm w-full mx-auto shadow-inner mb-5 sm:mb-6 flex flex-col items-center">
-              <span className="text-[9px] sm:text-[10px] font-black tracking-[0.25em] text-[#abccbe] uppercase mb-0.5 sm:mb-1">
-                MENUJU {targetName}
-              </span>
-              <div className="text-2xl sm:text-4.5xl font-black tracking-widest font-mono text-white">
-                {timeLeft}
-              </div>
-            </div>
- 
-            {/* Dates: Gregorian and Hijri aligned */}
-            <p className="text-emerald-100/60 text-[10px] sm:text-xs font-black tracking-wider uppercase mb-0.5 sm:mb-1">
-              {currentDateFormatted}
-            </p>
-            <p className="text-amber-400 text-base sm:text-xl font-black tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-              {hijriFormatted}
-            </p>
- 
-            {/* Prayer Cards Grid Horizontally with fluid swipe navigation on Mobile viewports */}
-            <div className="w-full overflow-x-auto no-scrollbar py-2 -my-2 mt-8 sm:mt-11">
-              <div className="grid grid-cols-5 gap-3 sm:gap-6 min-w-[640px] sm:min-w-0 w-full px-4 sm:px-0 relative">
-                {FIVE_PRAYERS.map((fp) => {
-                  const prayerValue = (prayers || []).find(p => p.id === fp.id);
-                  const displayTime = prayerValue ? prayerValue.time : '00:00';
-                  const isActive = targetName === fp.name;
-  
-                  return (
-                    <motion.button
-                      key={fp.id}
-                      whileHover={{ y: -6, scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => onNavigate('jadwal')}
-                      className={`group transition-all duration-500 flex flex-col justify-between items-center rounded-2xl sm:rounded-3xl p-5 sm:p-7 min-h-[140px] sm:min-h-[160px] relative overflow-hidden ${
-                        isActive 
-                          ? 'bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 border-0 shadow-[0_25px_50px_rgba(245,158,11,0.4)] scale-[1.05] z-10' 
-                          : 'bg-emerald-950/40 backdrop-blur-md border border-white/5 hover:border-emerald-500/30'
-                      }`}
-                    >
-                      {/* Visual Aura for active card */}
-                      {isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"></div>
-                      )}
-
-                      {/* Icon aligned at top */}
-                      <div className={`mb-3 transition-transform duration-500 group-hover:scale-110 ${isActive ? 'text-white drop-shadow-sm' : 'text-emerald-400'}`}>
-                        {getPrayerIcon(fp.id, isActive)}
-                      </div>
-  
-                      {/* Prayer key label centered */}
-                      <div className="space-y-1">
-                        <span className={`block text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isActive ? 'text-white' : 'text-emerald-200/50 group-hover:text-emerald-300'
-                        }`}>
-                          {fp.label}
-                        </span>
-    
-                        {/* Display exact sholat time at bottom */}
-                        <span className={`block font-black font-mono tracking-tighter text-center leading-none ${
-                          isActive ? 'text-white text-2xl sm:text-3xl drop-shadow-lg' : 'text-white text-xl sm:text-2xl'
-                        }`}>
-                          {displayTime}
-                        </span>
-                      </div>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* Small scroll helper guide for mobile viewers */}
-            <div className="block sm:hidden text-emerald-400/60 font-medium text-[9px] tracking-widest uppercase mt-3 animate-pulse bg-emerald-950/20 border border-emerald-500/5 rounded-full px-3.5 py-1">
-              Geser secara horizontal untuk waktu lainnya ⇄
-            </div>
-
+    <div className="w-full py-0.5 sm:py-1 space-y-1 sm:space-y-2">
+      {/* Hero Informational Grid - Moved to Top */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5 pt-0.5">
+        {/* Live Video Streaming Section - Spans 2 columns */}
+        <section className="space-y-1.5 lg:col-span-2">
+          <h3 className="text-lg font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
+          <div className="bg-[#031d14] rounded-[1.8rem] p-1 sm:p-2 border border-emerald-500/10 shadow-xl overflow-hidden group">
+             <div className="relative pt-[50%] sm:pt-[45%] rounded-[1.4rem] overflow-hidden bg-emerald-950 flex items-center justify-center border border-white/5 shadow-inner">
+               <div className="absolute inset-0 flex flex-col items-center justify-center text-emerald-400/30 group-hover:text-emerald-400/50 transition-colors">
+                 <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2 border border-emerald-500/20 group-hover:scale-110 transition-transform duration-700">
+                   <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-current border-b-[6px] border-b-transparent ml-1"></div>
+                 </div>
+                 <span className="text-[8px] font-black uppercase tracking-[0.3em]">Channel Masjid Jami Al Abrar</span>
+               </div>
+               
+               {/* Live Badge */}
+               <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 bg-rose-600 px-2 py-0.5 rounded-full text-[6px] font-black text-white tracking-widest uppercase animate-pulse shadow-lg shadow-rose-600/30">
+                 <span className="w-1 h-1 rounded-full bg-white"></span>
+                 OFFLINE
+               </div>
+             </div>
+             <div className="flex items-center justify-between px-2.5 py-1 sm:py-1.5">
+               <div className="flex flex-col">
+                 <p className="text-[7px] text-emerald-500/60 font-black uppercase tracking-[0.2em] mb-0.5">Media Informasi</p>
+                 <p className="text-xs sm:text-sm font-black text-white tracking-tight">Kajian Rutin & Shalat Berjamaah</p>
+               </div>
+               <div className="flex items-center gap-1 px-2 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/10">
+                 <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
+                 <span className="text-[7px] font-black text-emerald-400 tracking-widest uppercase">Streaming</span>
+               </div>
+             </div>
           </div>
-        </motion.div>
+        </section>
+
+        {/* Sholat Schedule Card */}
+        <section className="space-y-1.5">
+          <h3 className="text-lg font-black text-slate-900 tracking-tight px-1">Waktu Shalat</h3>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="bg-emerald-600 rounded-[1.8rem] p-3.5 sm:p-4.5 h-[calc(100%-2.25rem)] flex flex-col text-white shadow-xl shadow-emerald-900/20 relative overflow-hidden group"
+          >
+            {/* Background Decorations */}
+            <div className="absolute top-0 right-0 p-5 opacity-10 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+              <Sun className="w-20 h-20" />
+            </div>
+
+            <div className="relative z-10 mb-3">
+              <div className="flex items-center justify-between mb-0.5">
+                <p className="text-[8px] font-black tracking-[0.2em] text-emerald-100 uppercase">Parepare, Sulsel</p>
+                <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/20 rounded-full border border-white/10">
+                  <div className="w-1 h-1 rounded-full bg-amber-400 animate-pulse"></div>
+                  <span className="text-[8px] font-black tracking-widest uppercase">{targetName}</span>
+                </div>
+              </div>
+              <h4 className="text-xl font-black tracking-tight leading-tight">{hijriFormatted}</h4>
+              <p className="text-emerald-100/70 text-[8px] font-bold uppercase tracking-widest">{currentDateFormatted}</p>
+            </div>
+
+            {/* Prayer List Vertical - Tighter Spacing */}
+            <div className="relative z-10 space-y-1 mb-3">
+              {FIVE_PRAYERS.map((fp) => {
+                const prayerValue = (prayers || []).find(p => p.id === fp.id);
+                const displayTime = prayerValue ? prayerValue.time : '--:--';
+                const isActive = targetName === fp.name;
+
+                return (
+                  <div 
+                    key={fp.id}
+                    className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-white text-emerald-600 shadow-md scale-[1.02] border-0' 
+                        : 'bg-emerald-700/30 border border-white/5 hover:bg-emerald-700/40'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={isActive ? 'text-emerald-600' : 'text-emerald-300'}>
+                        {React.cloneElement(getPrayerIcon(fp.id, isActive) as React.ReactElement, { className: "w-3.5 h-3.5" })}
+                      </div>
+                      <span className={`text-[10px] font-black tracking-widest uppercase ${isActive ? 'text-emerald-700' : 'text-emerald-100'}`}>
+                        {fp.label}
+                      </span>
+                    </div>
+                    <span className={`font-mono text-xs font-black ${isActive ? 'text-emerald-700' : 'text-white'}`}>
+                      {displayTime}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Countdown Banner at bottom */}
+            <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/10 rounded-xl p-2 flex items-center justify-between mt-auto">
+              <div className="flex flex-col">
+                <span className="text-[7px] font-black tracking-[0.2em] text-emerald-100 uppercase leading-none mb-1">Menuju {targetName}</span>
+                <span className="text-base font-black tracking-tighter leading-none">{timeLeft}</span>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => onNavigate('jadwal')}
+                className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md"
+              >
+                <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+              </motion.button>
+            </div>
+          </motion.div>
+        </section>
       </div>
 
-      {/* Main Services Section */}
-      <section className="space-y-10">
-        <div className="flex flex-col items-center text-center space-y-2">
-          <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight px-1">Layanan Prioritas</h3>
-          <p className="text-slate-500 text-sm font-medium">Akses cepat ke program utama dan informasi krusial Masjid Jami Al Abrar</p>
+      {/* Main Services Section - Moved below Hero */}
+      <section className="space-y-3 pt-0.5">
+        <div className="flex flex-col items-center text-center space-y-0.5">
+          <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight px-1">Layanan Prioritas</h3>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium">Akses cepat ke program utama dan informasi krusial Masjid Jami Al Abrar</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4">
           {mainServices.map((service, idx) => (
             <motion.button
               key={service.id}
@@ -314,20 +305,20 @@ export default function MasjidDashboard({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               whileHover={{ 
-                y: -12, 
-                scale: 1.02,
-                boxShadow: "0 40px 80px -20px rgba(0, 0, 0, 0.12)",
-                borderColor: "rgba(16, 185, 129, 0.2)"
+                y: -6, 
+                scale: 1.01,
+                boxShadow: "0 20px 40px -8px rgba(0, 0, 0, 0.08)",
+                borderColor: "rgba(16, 185, 129, 0.12)"
               }}
               whileTap={{ scale: 0.98 }}
               transition={{ 
                 type: "spring",
                 stiffness: 400,
                 damping: 30,
-                delay: 0.05 * idx 
+                delay: 0.04 * idx 
               }}
               onClick={() => onNavigate(service.id)}
-              className="group bg-white border border-slate-150 rounded-[2.5rem] p-8 text-left transition-all duration-300 flex flex-col justify-between h-full min-h-[360px] shadow-sm relative overflow-hidden"
+              className="group bg-white border border-slate-150 rounded-[1.8rem] p-4 sm:p-6 text-left transition-all duration-300 flex flex-col justify-between h-full min-h-[220px] shadow-sm relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 {service.icon}
@@ -335,24 +326,24 @@ export default function MasjidDashboard({
 
               <div className="flex flex-col items-start w-full relative z-10">
                 {/* Icon Container */}
-                <div className={`w-16 h-16 rounded-3xl ${service.color} flex items-center justify-center mb-8 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500`}>
-                  {service.icon}
+                <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl ${service.color} flex items-center justify-center mb-3 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500`}>
+                  {React.cloneElement(service.icon as React.ReactElement, { className: "w-4.5 h-4.5 sm:w-5 sm:h-5" })}
                 </div>
                 
                 {/* Title */}
-                <h4 className="font-black text-2xl text-slate-900 tracking-tight mb-3">
+                <h4 className="font-black text-lg sm:text-xl text-slate-900 tracking-tight mb-1.5">
                   {service.title}
                 </h4>
                 
                 {/* Description */}
-                <p className="text-sm text-slate-500 font-medium leading-relaxed mb-8">
+                <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-relaxed mb-3">
                   {service.desc}
                 </p>
               </div>
 
               {/* Pill Button */}
               <div className="w-full mt-auto relative z-10">
-                <div className="w-full py-4 bg-emerald-600 group-hover:bg-emerald-500 text-white font-black text-[11px] tracking-[0.25em] rounded-2xl uppercase text-center transition-all duration-300 shadow-lg shadow-emerald-600/20">
+                <div className="w-full py-2.5 bg-emerald-600 group-hover:bg-emerald-500 text-white font-black text-[10px] tracking-[0.2em] rounded-xl uppercase text-center transition-all duration-300 shadow-md shadow-emerald-600/10">
                   PILIH LAYANAN
                 </div>
               </div>
@@ -361,33 +352,6 @@ export default function MasjidDashboard({
         </div>
       </section>
 
-      {/* Interactive Features Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
-        {/* Live Video Streaming Section */}
-        <section className="space-y-4">
-          <h3 className="text-xl font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
-          <div className="bg-slate-950 rounded-3xl p-2 sm:p-3 border border-slate-800 shadow-xl h-[calc(100%-2.5rem)]">
-             <div className="relative pt-[56.25%] rounded-2xl overflow-hidden bg-slate-900 flex items-center justify-center">
-               <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
-                 <span className="text-4xl mb-2">▶</span>
-                 <span className="text-xs font-bold uppercase tracking-wider">Video Placeholder</span>
-               </div>
-             </div>
-             <p className="text-[10px] text-slate-400 font-mono p-3 uppercase tracking-widest text-center">
-               Status: Offline / Standby
-             </p>
-          </div>
-        </section>
-
-        {/* Hijri Converter Section */}
-        <section className="space-y-4">
-          <h3 className="text-xl font-black text-slate-900 tracking-tight px-1">Penanggalan Islam</h3>
-          <HijriConverterWidget />
-        </section>
-      </div>
-
-      {/* Visual Statistics Cards */}
-      <MasjidStatistics />
 
     </div>
   );
