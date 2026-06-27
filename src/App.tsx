@@ -449,6 +449,8 @@ export default function App() {
     } catch (e) {
       console.warn('LocalStorage clear failed');
     }
+    window.history.pushState({}, '', '/');
+    setActiveTab('beranda');
     addLog('Akses Admin Ditutup', 'Sesi admin berhasil ditutup dengan aman.', 'system');
   };
 
