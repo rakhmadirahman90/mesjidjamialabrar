@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction, PermanentDonor } from '../types';
-import { TrendingUp, TrendingDown, Wallet, PlusCircle, ClipboardCheck, Users, Search, Trash2, Edit2, X, Save } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, PlusCircle, ClipboardCheck, Users, Search, Trash2, Edit2, X, Save, Calculator } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { subscribeToCollection, addDocument, updateDocument, deleteDocument } from '../lib/db';
 import { parseNumber } from '../lib/utils';
 import { DUMMY_TRANSACTIONS, DUMMY_PERMANENT_DONORS } from '../data/dummyData';
+import KalkulatorQurban from './KalkulatorQurban';
 
 export default function KeuanganMasjid({ 
   isAdmin, 
@@ -17,7 +18,7 @@ export default function KeuanganMasjid({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   // Active view layout tab switch
-  const [activeSubTab, setActiveSubTab] = useState<'kas_utama' | 'donatur_tetap'>('kas_utama');
+  const [activeSubTab, setActiveSubTab] = useState<'kas_utama' | 'donatur_tetap' | 'tabungan_qurban'>('kas_utama');
 
   useEffect(() => {
     const handleSubtabChange = (e: Event) => {
@@ -290,6 +291,17 @@ export default function KeuanganMasjid({
         >
           <Users className="w-4 h-4" />
           Data Donatur Tetap
+        </button>
+        <button
+          onClick={() => setActiveSubTab('tabungan_qurban')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 ${
+            activeSubTab === 'tabungan_qurban'
+              ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
+              : 'bg-emerald-950/20 text-slate-400 hover:bg-emerald-950/40 hover:text-slate-200 border border-emerald-500/10'
+          }`}
+        >
+          <Calculator className="w-4 h-4" />
+          Kalkulator Tabungan Qurban
         </button>
       </div>
       
@@ -649,6 +661,10 @@ export default function KeuanganMasjid({
               </div>
 
             </div>
+          </div>
+        ) : activeSubTab === 'tabungan_qurban' ? (
+          <div className="col-span-12">
+            <KalkulatorQurban onAddLog={onAddLog} />
           </div>
         ) : (
           /* ========================================================================= */

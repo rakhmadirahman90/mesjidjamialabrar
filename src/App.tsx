@@ -170,6 +170,7 @@ export default function App() {
   const [curTentangSub, setCurTentangSub] = useState<'info_umum' | 'sejarah' | 'visi_misi' | 'pengurus_lengkap' | 'jamaah'>('info_umum');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [mobileExpandedTab, setMobileExpandedTab] = useState<string | null>(null);
 
   useEffect(() => {
     const handleSubtabSync = (e: Event) => {
@@ -1036,9 +1037,7 @@ export default function App() {
       { label: 'Waktu Shalat', key: 'sholat', icon: '🕌', desc: 'Jadwal adzan 5 waktu Parepare' },
       { label: 'Kajian & Ta\'lim', key: 'kajian', icon: '📖', desc: 'Program & kajian rutin keagamaan' },
       { label: 'Khutbah Jum\'at', key: 'jumat', icon: '🎙️', desc: 'Jadwal khotib & muadzin Jum’at' },
-      { label: 'Agenda Ramadan', key: 'ramadan', icon: '🌙', desc: 'Tarawih, takjil & i\'tikaf masjid' },
-      { label: 'Banner Media', key: 'slider', icon: '📢', desc: 'Kelola media visual banner', adminOnly: true },
-      { label: 'Log Aktivitas', key: 'log', icon: '📜', desc: 'Riwayat sistem adzan', adminOnly: true }
+      { label: 'Agenda Ramadan', key: 'ramadan', icon: '🌙', desc: 'Tarawih, takjil & i\'tikaf masjid' }
     ],
     profil: [
       { label: 'Tentang', key: 'info_umum', icon: 'ℹ️', desc: 'Pusat Informasi Umum & Tanya Jawab (FAQ)' },
@@ -1059,6 +1058,11 @@ export default function App() {
 
   const handleSubtabClick = (tabId: string, subtabKey: string) => {
     setActiveTab(tabId as any);
+    if (tabId === 'jadwal') setCurJadwalSub(subtabKey as any);
+    if (tabId === 'keuangan') setCurKeuanganSub(subtabKey as any);
+    if (tabId === 'donasi') setCurDonasiSub(subtabKey as any);
+    if (tabId === 'profil') setCurTentangSub(subtabKey as any);
+
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('change_subtab', {
         detail: {
@@ -1070,11 +1074,91 @@ export default function App() {
     setActiveDropdown(null);
   };
 
+  if (activeTab === 'admin' && isAdmin) {
+    return (
+      <div className="min-h-screen bg-[#020b06] text-slate-100 flex flex-col font-sans select-none overflow-x-hidden">
+        <AdminDashboardPortal
+          onLogout={handleAdminLogout}
+          announcement={announcement}
+          announcementInput={announcementInput}
+          setAnnouncementInput={setAnnouncementInput}
+          showAnnouncement={showAnnouncement}
+          onUpdateAnnouncement={handleUpdateAnnouncement}
+          onToggleAnnouncement={handleToggleAnnouncement}
+          adminPin={adminPin}
+          showPinChange={showPinChange}
+          setShowPinChange={setShowPinChange}
+          newPinValue={newPinValue}
+          setNewPinValue={setNewPinValue}
+          onPinChange={handlePinChange}
+          onResetDefaults={handleResetDefaults}
+          onResetAllData={handleResetAllData}
+          seedDummyData={seedDummyData}
+          onClearLogs={() => {
+            const ids = (logs || []).map(l => (l as any).id).filter(Boolean);
+            clearCollection('activity_logs', ids);
+          }}
+          addLog={addLog}
+          logs={logs}
+          prayers={prayers}
+          nextDetails={nextDetails}
+          notificationPermission={notificationPermission}
+          selectedAudio={selectedAudio}
+          isMuted={isMuted}
+          volume={volume}
+          isAudioPlaying={isAudioPlaying}
+          testNotificationTimeLeft={testNotificationTimeLeft}
+          showConfigInfo={showConfigInfo}
+          editingPrayer={editingPrayer}
+          editTimeValue={editTimeValue}
+          onSetShowConfigInfo={setShowConfigInfo}
+          onTriggerQuickTest={triggerQuickTest}
+          onRequestNotificationPermission={requestNotificationPermission}
+          onSetSelectedAudio={setSelectedAudio}
+          onSetIsMuted={setIsMuted}
+          onSetVolume={setVolume}
+          onToggleSoundPlay={toggleSoundPlay}
+          onStartEditing={startEditing}
+          onSetEditTimeValue={setEditTimeValue}
+          onSavePrayerEdit={savePrayerEdit}
+          onCancelEdit={() => setEditingPrayer(null)}
+          onDeleteLog={deleteLog}
+          onAddPrayer={handleAddPrayer}
+          onDeletePrayer={handleDeletePrayer}
+          slides={slides}
+          kajian={kajian}
+          jumat={jumat}
+          ramadan={ramadan}
+          routine={routine}
+          campaigns={campaigns}
+          onDonationSuccess={(title, msg, _amount) => {
+            addLog(title, msg, 'success');
+            triggerAudioPlayback();
+          }}
+          triggerAudioPlayback={triggerAudioPlayback}
+          detailedBoard={detailedBoard}
+        />
+        <ProfessionalToasts logs={activeToasts} onRemove={removeToast} />
+        <ConfirmationModal 
+          isOpen={showPinConfirm}
+          title="Ganti PIN"
+          message="Anda yakin akan mengganti PIN akses Admin? Pastikan Anda mengingat PIN baru ini untuk menghindari terkunci dari fitur Admin."
+          onConfirm={() => {
+              handlePinChange(newPinValue);
+              setShowPinConfirm(false);
+              setShowPinChange(false);
+          }}
+          onCancel={() => setShowPinConfirm(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
       {/* Floating Glass Navbar Capsule mimicking the premium Istiqlal UI/UX */}
-      {(activeTab === 'beranda' || !isAdmin) && (
+      {activeTab !== 'admin' && (
       <header className="sticky top-1 sm:top-2 z-50 w-full max-w-[1400px] mx-auto px-1.5 sm:px-6 lg:px-12 select-none overflow-visible" id="header_navbar">
           <div className="bg-[#0b1f17]/95 backdrop-blur-md border border-emerald-500/20 rounded-xl sm:rounded-full px-2.5 py-1.5 sm:px-4 sm:py-1.5 shadow-[0_15px_40px_rgba(4,47,31,0.3)] flex items-center justify-between gap-1 text-white transition-all duration-300 overflow-visible">
             
@@ -1100,8 +1184,8 @@ export default function App() {
               </div>
             </div>
 
-          {/* Desktop Core Navigation Links (Uppercased, spacing elegant) */}
-          <nav className={`hidden md:flex items-center justify-center gap-0.5 lg:gap-1 tracking-widest text-[10px] lg:text-[11px] font-black font-sans uppercase`}>
+          {/* Desktop Core Navigation Links (Modern typography, beautifully spaced) */}
+          <nav className="hidden md:flex items-center justify-center gap-1 xl:gap-2 text-xs font-semibold tracking-wide font-sans text-slate-300">
             {[
               { id: 'beranda', label: 'Beranda', hasSub: false },
               { id: 'profil', label: 'Profil', hasSub: true },
@@ -1131,8 +1215,8 @@ export default function App() {
                     }}
                     className={`flex items-center gap-1 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition-all duration-300 relative outline-none whitespace-nowrap overflow-visible select-none ${
                       isActive
-                        ? 'text-emerald-400 font-black'
-                        : 'text-slate-300/80 hover:text-white'
+                        ? 'text-emerald-400 font-extrabold'
+                        : 'text-slate-200/95 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     <span>{tab.label}</span>
@@ -1244,42 +1328,172 @@ export default function App() {
           </div>
         </div>
 
-        {/* Compact Mobile Scrollable Menu under the brand capsule */}
+        {/* Modern Interactive Mobile Navigation Drawer */}
         <AnimatePresence>
           {showMobileMenu && (
-            <motion.div 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="md:hidden bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl mt-1 overflow-hidden shadow-2xl"
-            >
-              <div className="p-2 grid grid-cols-2 gap-1.5">
-                {[
-                  { id: 'beranda', label: 'Beranda', icon: <Home className="h-3.5 w-3.5" /> },
-                  { id: 'profil', label: 'Profil', icon: <Building className="h-3.5 w-3.5" /> },
-                  { id: 'jadwal', label: 'Jadwal', icon: <Calendar className="h-3.5 w-3.5" /> },
-                  { id: 'galeri', label: 'Galeri', icon: <ImageIcon className="h-3.5 w-3.5" /> },
-                  { id: 'keuangan', label: 'Laporan', icon: <TrendingUp className="h-3.5 w-3.5" /> },
-                  { id: 'donasi', label: 'Donasi', icon: <Heart className="h-3.5 w-3.5" /> },
-                  { id: 'inventaris', label: 'Inventaris', icon: <Package className="h-3.5 w-3.5" /> },
-                  { id: 'kontak', label: 'Kontak', icon: <Phone className="h-3.5 w-3.5" /> },
-                ].map((tab) => (
+            <>
+              {/* Backdrop Overlay with blur */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowMobileMenu(false)}
+                className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-55 md:hidden"
+              />
+
+              {/* Slider Drawer Panel */}
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="fixed top-0 right-0 h-full w-[300px] sm:w-[350px] bg-[#05130d] border-l border-emerald-500/20 z-55 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col justify-between text-white md:hidden select-none"
+              >
+                {/* Header with branding and close icon */}
+                <div className="p-5 border-b border-white/5 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5 text-left">
+                    <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center">
+                      <Landmark className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-widest leading-none">Navigasi</h4>
+                      <span className="text-[10px] font-bold text-slate-350 tracking-wide mt-0.5 block">Jami Al Abrar</span>
+                    </div>
+                  </div>
                   <button
-                    key={tab.id}
+                    onClick={() => setShowMobileMenu(false)}
+                    className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition active:scale-90"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Nav Links Body */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+                  {[
+                    { id: 'beranda', label: 'Beranda', icon: <Home className="h-4 w-4" />, hasSub: false },
+                    { id: 'profil', label: 'Profil Jami Al Abrar', icon: <Building className="h-4 w-4" />, hasSub: true },
+                    { id: 'jadwal', label: 'Jadwal & Syiar', icon: <Calendar className="h-4 w-4" />, hasSub: true },
+                    { id: 'galeri', label: 'Galeri Dokumentasi', icon: <ImageIcon className="h-4 w-4" />, hasSub: false },
+                    { id: 'keuangan', label: 'Laporan Keuangan', icon: <TrendingUp className="h-4 w-4" />, hasSub: true },
+                    { id: 'donasi', label: 'Portal Donasi', icon: <Heart className="h-4 w-4" />, hasSub: true },
+                    { id: 'inventaris', label: 'Inventaris Aset', icon: <Package className="h-4 w-4" />, hasSub: false },
+                    { id: 'kontak', label: 'Kontak Masjid', icon: <Phone className="h-4 w-4" />, hasSub: false },
+                  ].map((tab) => {
+                    const isTabActive = activeTab === tab.id;
+                    const isExpanded = mobileExpandedTab === tab.id;
+
+                    return (
+                      <div key={tab.id} className="space-y-1">
+                        {tab.hasSub ? (
+                          /* Accordion trigger for items with submenus */
+                          <div>
+                            <button
+                              onClick={() => setMobileExpandedTab(isExpanded ? null : tab.id)}
+                              className={`w-full flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all ${
+                                isTabActive 
+                                  ? 'bg-emerald-800/20 text-emerald-400 border border-emerald-500/20' 
+                                  : 'hover:bg-white/5 text-slate-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className={isTabActive ? 'text-emerald-400' : 'text-slate-400'}>{tab.icon}</span>
+                                <span className="text-left">{tab.label}</span>
+                              </div>
+                              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {/* Collapsible Submenu list */}
+                            <AnimatePresence initial={false}>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="overflow-hidden pl-4 pr-1 pt-1 flex flex-col gap-1 border-l border-emerald-500/10 ml-5"
+                                >
+                                  {submenusMap[tab.id]
+                                    ?.filter(sub => !sub.adminOnly || isAdmin)
+                                    .map((sub) => {
+                                      const isSubSelected = tab.id === 'jadwal' ? curJadwalSub === sub.key
+                                        : tab.id === 'keuangan' ? curKeuanganSub === sub.key
+                                        : tab.id === 'donasi' ? curDonasiSub === sub.key
+                                        : tab.id === 'profil' ? curTentangSub === sub.key
+                                        : false;
+
+                                      return (
+                                        <button
+                                          key={sub.key}
+                                          onClick={() => {
+                                            handleSubtabClick(tab.id, sub.key);
+                                            setShowMobileMenu(false);
+                                          }}
+                                          className={`w-full flex items-center gap-2.5 p-2 rounded-lg text-[11px] font-semibold transition-all text-left ${
+                                            isSubSelected
+                                              ? 'bg-emerald-600/20 text-white border-l-2 border-emerald-400'
+                                              : 'hover:bg-white/5 text-slate-400 hover:text-white'
+                                          }`}
+                                        >
+                                          <span className="text-xs shrink-0">{sub.icon}</span>
+                                          <span className="truncate">{sub.label}</span>
+                                        </button>
+                                      );
+                                    })}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        ) : (
+                          /* Direct Link button for items without submenus */
+                          <button
+                            onClick={() => {
+                              setActiveTab(tab.id as any);
+                              setShowMobileMenu(false);
+                            }}
+                            className={`w-full flex items-center gap-3 p-3 rounded-xl text-xs font-bold transition-all text-left ${
+                              isTabActive 
+                                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50' 
+                                : 'hover:bg-white/5 text-slate-300'
+                            }`}
+                          >
+                            <span className={isTabActive ? 'text-white' : 'text-slate-400'}>{tab.icon}</span>
+                            <span>{tab.label}</span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Footer with clock and quick action */}
+                <div className="p-5 border-t border-white/5 bg-[#030d09] space-y-4">
+                  {/* Digital Clock */}
+                  <div className="flex justify-between items-center bg-white/5 rounded-xl px-4 py-2.5 border border-white/5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Waktu Lokal</span>
+                    <span className="text-xs font-black text-amber-300 font-mono">
+                      {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WITA
+                    </span>
+                  </div>
+
+                  {/* Sedekah Quick CTA Button */}
+                  <button
                     onClick={() => {
-                      setActiveTab(tab.id as any);
+                      setActiveTab('donasi');
                       setShowMobileMenu(false);
                     }}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                      activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 bg-white/5'
-                    }`}
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-black tracking-widest uppercase transition-all shadow-lg flex items-center justify-center gap-2"
                   >
-                    {tab.icon}
-                    <span>{tab.label}</span>
+                    <Heart className="h-3.5 w-3.5 fill-current" />
+                    <span>Infaq & Sedekah</span>
                   </button>
-                ))}
-              </div>
-            </motion.div>
+
+                  <div className="text-center text-[8px] text-slate-500 font-bold">
+                    © 2026 MASJID JAMI AL ABRAR PAREPARE
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </header>
@@ -1585,75 +1799,17 @@ export default function App() {
 
       </main>
 
-    {activeTab === 'admin' && isAdmin ? (
-      <AdminDashboardPortal
-        onLogout={handleAdminLogout}
-        announcement={announcement}
-        announcementInput={announcementInput}
-        setAnnouncementInput={setAnnouncementInput}
-        showAnnouncement={showAnnouncement}
-        onUpdateAnnouncement={handleUpdateAnnouncement}
-        onToggleAnnouncement={handleToggleAnnouncement}
-        adminPin={adminPin}
-        showPinChange={showPinChange}
-        setShowPinChange={setShowPinChange}
-        newPinValue={newPinValue}
-        setNewPinValue={setNewPinValue}
-        onPinChange={handlePinChange}
-        onResetDefaults={handleResetDefaults}
-        onResetAllData={handleResetAllData}
-        seedDummyData={seedDummyData}
-        onClearLogs={() => {
-          const ids = (logs || []).map(l => (l as any).id).filter(Boolean);
-          clearCollection('activity_logs', ids);
-        }}
-        addLog={addLog}
-        logs={logs}
-        prayers={prayers}
-        nextDetails={nextDetails}
-        notificationPermission={notificationPermission}
-        selectedAudio={selectedAudio}
-        isMuted={isMuted}
-        volume={volume}
-        isAudioPlaying={isAudioPlaying}
-        testNotificationTimeLeft={testNotificationTimeLeft}
-        showConfigInfo={showConfigInfo}
-        editingPrayer={editingPrayer}
-        editTimeValue={editTimeValue}
-        onSetShowConfigInfo={setShowConfigInfo}
-        onTriggerQuickTest={triggerQuickTest}
-        onRequestNotificationPermission={requestNotificationPermission}
-        onSetSelectedAudio={setSelectedAudio}
-        onSetIsMuted={setIsMuted}
-        onSetVolume={setVolume}
-        onToggleSoundPlay={toggleSoundPlay}
-        onStartEditing={startEditing}
-        onSetEditTimeValue={setEditTimeValue}
-        onSavePrayerEdit={savePrayerEdit}
-        onCancelEdit={() => setEditingPrayer(null)}
-        onDeleteLog={deleteLog}
-        onAddPrayer={handleAddPrayer}
-        onDeletePrayer={handleDeletePrayer}
-        slides={slides}
-        kajian={kajian}
-        jumat={jumat}
-        ramadan={ramadan}
-        routine={routine}
-        campaigns={campaigns}
-        onDonationSuccess={(title, msg, _amount) => {
-          addLog(title, msg, 'success');
-          triggerAudioPlayback();
-        }}
-        triggerAudioPlayback={triggerAudioPlayback}
-        detailedBoard={detailedBoard}
-      />
-    ) : (
       <footer className="fixed bottom-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md text-emerald-250 border-t border-emerald-900/50 py-4 px-4 z-40" id="footer_section">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-center">
-          <p className="text-emerald-400/80 text-[10px] sm:text-xs font-bold">© 2026 Masjid Jami Al Abrar. All rights reserved.</p>
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between">
+          <p className="text-emerald-400/80 text-[10px] sm:text-xs font-bold">© 2026 Masjid Jami Al Abrar Parepare. All rights reserved.</p>
+          <button 
+            onClick={() => setActiveTab('admin')}
+            className="text-[10px] text-emerald-400 hover:text-amber-300 font-extrabold flex items-center gap-1 bg-white/5 hover:bg-white/10 px-3 py-1 rounded-full border border-emerald-500/10 transition active:scale-95"
+          >
+            <span>🔒 Portal Admin</span>
+          </button>
         </div>
       </footer>
-    )}
 
     {/* Professional Floating Notifications */}
     <ProfessionalToasts logs={activeToasts} onRemove={removeToast} />

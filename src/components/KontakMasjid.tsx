@@ -8,9 +8,22 @@ import {
   Send, 
   CheckCircle, 
   Trash2, 
-  ChevronDown 
+  ChevronDown,
+  Compass,
+  Settings,
+  Layers
 } from 'lucide-react';
 import { addDocument, subscribeToCollection, deleteDocument } from '../lib/db';
+import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+
+const API_KEY =
+  process.env.GOOGLE_MAPS_PLATFORM_KEY ||
+  (import.meta as any).env?.VITE_GOOGLE_MAPS_PLATFORM_KEY ||
+  (globalThis as any).GOOGLE_MAPS_PLATFORM_KEY ||
+  '';
+const hasValidKey = Boolean(API_KEY) && API_KEY !== 'YOUR_API_KEY';
+
+const MOSQUE_POSITION = { lat: -4.004052, lng: 119.643329 };
 
 interface KontakMasjidProps {
   isAdmin?: boolean;
@@ -27,6 +40,10 @@ interface ContactMessage {
 }
 
 export default function KontakMasjid({ isAdmin = false }: KontakMasjidProps) {
+  // Interactive Google Maps state
+  const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(true);
+  const [mapTab, setMapTab] = useState<'standard' | 'tutorial'>('standard');
+
   // Form input states
   const [formData, setFormData] = useState({
     name: '',
@@ -480,27 +497,216 @@ export default function KontakMasjid({ isAdmin = false }: KontakMasjidProps) {
         </div>
       )}
 
-      {/* Embedded Maps Section: Full Width & Professional */}
+      {/* Interactive Google Maps Platform Section */}
       <div className="w-full space-y-4">
-        <div className="text-left">
-          <h3 className="text-lg font-black text-[#031d14] uppercase tracking-wide">
-            Peta Lokasi Google Maps
-          </h3>
-          <p className="text-xs text-slate-500 font-medium">Jelajahi petunjuk arah dan lokasi geografis Masjid Jami Al Abrar Kota Parepare.</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
+          <div className="space-y-1">
+            <h3 className="text-lg font-black text-[#031d14] uppercase tracking-wide flex items-center gap-2">
+              <Compass className="h-5 w-5 text-emerald-700" /> Peta Lokasi Interaktif
+            </h3>
+            <p className="text-xs text-slate-500 font-medium">Jelajahi petunjuk arah dan lokasi geografis Masjid Jami Al Abrar Kota Parepare.</p>
+          </div>
+
+          {/* Toggle Tab if API key is not configured */}
+          {!hasValidKey && (
+            <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200/60 self-start sm:self-center">
+              <button
+                type="button"
+                onClick={() => setMapTab('standard')}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition cursor-pointer ${
+                  mapTab === 'standard'
+                    ? 'bg-[#034d38] text-white shadow'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Peta Standar
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapTab('tutorial')}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition flex items-center gap-1 cursor-pointer ${
+                  mapTab === 'tutorial'
+                    ? 'bg-[#034d38] text-white shadow'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Settings className="w-3 h-3 text-amber-400" /> Setup Kunci API
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="w-full h-[400px] sm:h-[480px] rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl relative bg-slate-100">
-          <iframe 
-            width="100%" 
-            height="100%" 
-            frameBorder="0" 
-            style={{ border: 0 }} 
-            src="https://maps.google.com/maps?q=Masjid%20Jami%20Al%20Abrar%20Lapadde%20Parepare&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-            allowFullScreen 
-            loading="lazy" 
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Lokasi Masjid Jami Al Abrar"
-          ></iframe>
+        {/* Map Display Container */}
+        <div className="w-full h-[400px] sm:h-[480px] rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl relative bg-slate-100 flex flex-col">
+          {hasValidKey ? (
+            /* Fully Interactive Google Maps API Experience */
+            <APIProvider apiKey={API_KEY} version="weekly">
+              <Map
+                defaultCenter={MOSQUE_POSITION}
+                defaultZoom={16}
+                mapId="DEMO_MAP_ID"
+                internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
+                style={{ width: '100%', height: '100%' }}
+                gestureHandling={'cooperative'}
+                disableDefaultUI={false}
+              >
+                <AdvancedMarker
+                  position={MOSQUE_POSITION}
+                  onClick={() => setIsInfoWindowOpen(true)}
+                  title="Masjid Jami Al Abrar"
+                >
+                  <Pin background="#034d38" glyphColor="#fbbf24" borderColor="#022c22" />
+                </AdvancedMarker>
+
+                {isInfoWindowOpen && (
+                  <InfoWindow
+                    position={MOSQUE_POSITION}
+                    onCloseClick={() => setIsInfoWindowOpen(false)}
+                  >
+                    <div className="p-2 text-slate-800 text-xs font-sans max-w-[220px] text-left">
+                      <h4 className="font-extrabold text-[#031d14] text-sm mb-1">Masjid Jami Al Abrar</h4>
+                      <p className="text-[11px] text-slate-600 leading-relaxed mb-2">
+                        Jl. Jenderal Ahmad Yani Km. 5, Kel. Lapadde, Kec. Ujung, Kota Parepare, Sulawesi Selatan.
+                      </p>
+                      <a
+                        href="https://maps.google.com/?q=Masjid%20Jami%20Al%20Abrar%20Lapadde%20Parepare"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        referrerPolicy="no-referrer"
+                        className="inline-flex items-center gap-1 text-[10px] font-black text-[#008967] hover:text-[#007356] underline uppercase"
+                      >
+                        Petunjuk Arah ➔
+                      </a>
+                    </div>
+                  </InfoWindow>
+                )}
+              </Map>
+            </APIProvider>
+          ) : mapTab === 'standard' ? (
+            /* Fallback Standard Iframe Map with Upgrade Invitation Banner */
+            <div className="w-full h-full relative flex flex-col">
+              {/* Upgrade Banner Overlay */}
+              <div className="absolute top-3 left-3 right-3 z-10 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-emerald-500/15 shadow-lg flex items-center justify-between text-left gap-3 animate-fade-in">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-emerald-50 text-emerald-800 rounded-lg hidden sm:block">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-[11px] font-extrabold text-emerald-950 uppercase tracking-wide">Peta Interaktif Tersedia! ✨</h5>
+                    <p className="text-[10px] text-slate-500 font-medium">Tambahkan API Key untuk mengaktifkan rendering 3D, Custom Marker, dan detail interaktif.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMapTab('tutorial')}
+                  className="px-3 py-1.5 bg-[#034d38] hover:bg-[#023e2c] text-white text-[9px] font-black rounded-xl uppercase transition shrink-0 shadow-sm cursor-pointer"
+                >
+                  Aktifkan
+                </button>
+              </div>
+
+              {/* Standard Iframe */}
+              <iframe 
+                width="100%" 
+                height="100%" 
+                frameBorder="0" 
+                style={{ border: 0 }} 
+                src="https://maps.google.com/maps?q=Masjid%20Jami%20Al%20Abrar%20Lapadde%20Parepare&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+                allowFullScreen 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Lokasi Masjid Jami Al Abrar"
+                className="w-full h-full"
+              ></iframe>
+            </div>
+          ) : (
+            /* Visual Tutorial for Adding the API Key */
+            <div className="w-full h-full p-6 sm:p-8 bg-[#021c13] text-white flex flex-col justify-between overflow-y-auto text-left">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-amber-400/10 text-amber-400 rounded-xl">
+                    <Settings className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white uppercase tracking-wider font-mono">Setup Google Maps Platform</h4>
+                    <p className="text-[10px] text-slate-400 font-semibold">Aktifkan integrasi peta interaktif premium hanya dalam beberapa detik</p>
+                  </div>
+                </div>
+
+                <hr className="border-emerald-800/50" />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                  
+                  {/* Step 1 & 2 */}
+                  <div className="space-y-3.5">
+                    <div className="flex gap-3 items-start">
+                      <span className="w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xs font-black shrink-0">1</span>
+                      <div className="space-y-0.5">
+                        <h5 className="text-xs font-black text-slate-200 uppercase tracking-wide">Dapatkan API Key</h5>
+                        <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                          Dapatkan kunci API resmi Anda di{' '}
+                          <a 
+                            href="https://console.cloud.google.com/google/maps-apis/start?utm_campaign=gmp-code-assist-ais" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            referrerPolicy="no-referrer"
+                            className="text-amber-400 hover:underline font-bold"
+                          >
+                            Google Cloud Console
+                          </a>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 items-start">
+                      <span className="w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xs font-black shrink-0">2</span>
+                      <div className="space-y-0.5">
+                        <h5 className="text-xs font-black text-slate-200 uppercase tracking-wide">Buka Settings</h5>
+                        <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                          Klik ikon <strong>Gigi Roda (Settings ⚙️)</strong> di sudut kanan atas menu AI Studio Anda.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 3 & 4 */}
+                  <div className="space-y-3.5">
+                    <div className="flex gap-3 items-start">
+                      <span className="w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xs font-black shrink-0">3</span>
+                      <div className="space-y-0.5">
+                        <h5 className="text-xs font-black text-slate-200 uppercase tracking-wide">Simpan Secrets</h5>
+                        <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                          Pilih submenu <strong>Secrets</strong>, tambahkan variabel bernama <code>GOOGLE_MAPS_PLATFORM_KEY</code>, lalu simpan kunci Anda di sana.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 items-start">
+                      <span className="w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xs font-black shrink-0">4</span>
+                      <div className="space-y-0.5">
+                        <h5 className="text-xs font-black text-slate-200 uppercase tracking-wide">Aktif Otomatis!</h5>
+                        <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                          Aplikasi akan membangun ulang otomatis tanpa harus muat ulang halaman. Peta interaktif 3D instan aktif!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-emerald-800/40 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <span className="text-[10px] text-slate-500 font-medium font-mono">Dukungan: @vis.gl/react-google-maps v1.1</span>
+                <button
+                  type="button"
+                  onClick={() => setMapTab('standard')}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs text-slate-200 hover:text-white font-bold rounded-xl transition uppercase tracking-wide shrink-0 cursor-pointer"
+                >
+                  Kembali ke Peta Standar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

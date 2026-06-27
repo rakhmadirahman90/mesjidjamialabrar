@@ -117,74 +117,93 @@ export default function AdminDashboardPortal({
   return (
     <div className="min-h-screen bg-[#020b06] text-slate-100 flex flex-col xl:flex-row font-sans relative overflow-x-hidden select-none">
       
-      {/* Mobile Header (No Hamburger) */}
-      <div className="xl:hidden bg-[#041d11] border-b border-emerald-950 px-4 py-3 flex items-center justify-between w-full sticky top-0 z-40 shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-          <span className="text-[11px] font-black tracking-widest text-emerald-400 uppercase">ADMIN PORTAL</span>
+      {/* Mobile Header (Sleek Glass capsule design) */}
+      <div className="xl:hidden bg-[#03110a]/90 backdrop-blur-xl border-b border-emerald-500/15 px-4 py-3.5 flex items-center justify-between w-full sticky top-0 z-40 shadow-[0_4px_30px_rgba(0,0,0,0.4)] transition-all">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-sm shadow">🕌</div>
+          <div>
+            <span className="text-[11px] font-black tracking-widest text-emerald-400 uppercase block leading-none">AL ABRAR CONTROL</span>
+            <span className="text-[8px] font-bold text-amber-400 tracking-wide block mt-0.5 uppercase">Admin Portal</span>
+          </div>
         </div>
-        <div className="text-[10px] font-mono text-emerald-500">
-          {localTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+        
+        <div className="flex items-center gap-2">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-mono font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>{localTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          <button
+            onClick={onLogout}
+            className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 rounded-full border border-rose-500/20 transition-all duration-200 active:scale-95"
+            title="Keluar dari Panel Admin"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
 
-      {/* Desktop Sidebar Menu */}
+      {/* Desktop Sidebar Menu (Luxurious Glass Control Panel) */}
       <aside className={`
-        hidden xl:flex fixed inset-y-0 left-0 z-50 w-72 bg-[#04150d] border-r border-emerald-500/10 flex-col justify-between p-5 
+        hidden xl:flex fixed inset-y-0 left-0 z-50 w-72 bg-[#03110a]/95 backdrop-blur-2xl border-r border-emerald-500/10 flex-col justify-between p-5 
         xl:sticky xl:top-0 xl:h-screen xl:max-h-screen xl:z-0 overflow-hidden
       `}>
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1.5 sidebar-scrollbar">
-          {/* Main Title Badge */}
-          <div className="text-left py-2 border-b border-emerald-500/10 flex items-center justify-between">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1 sidebar-scrollbar">
+          {/* Main Title Badge with gold touches */}
+          <div className="text-left py-2.5 border-b border-emerald-500/10 flex items-center justify-between">
             <div>
-              <h1 className="text-base font-black tracking-tight text-white uppercase">AL ABRAR CONTROL</h1>
-              <p className="text-[10px] text-emerald-400/85 font-bold tracking-wider mt-0.5">Sistem Administrasi Utama</p>
+              <h1 className="text-sm font-black tracking-widest text-white uppercase">AL ABRAR CONTROL</h1>
+              <p className="text-[10px] text-emerald-400/80 font-bold tracking-wider mt-0.5 uppercase">Administrasi Utama</p>
             </div>
-            <span className="bg-amber-400 text-slate-950 font-black text-[8px] px-2 py-0.5 rounded shadow">LIVE</span>
+            <span className="bg-amber-400/10 border border-amber-400/30 text-amber-300 font-extrabold text-[9px] px-2.5 py-0.5 rounded-full tracking-wide shadow-[0_0_10px_rgba(245,158,11,0.15)] uppercase">LIVE</span>
           </div>
 
-          {/* Active Live Admin Profile Card */}
-          <div className="bg-[#020c07] border border-emerald-500/10 rounded-2xl p-3.5 flex items-center gap-3 shadow-inner">
-            <div className="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-500/35 flex items-center justify-center text-amber-300 text-lg shadow">
+          {/* Active Live Admin Profile Card (Elegant Dark Glass Card) */}
+          <div className="bg-gradient-to-b from-[#041910] to-[#020e09] border border-emerald-500/15 rounded-2xl p-4 flex items-center gap-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-950 to-[#020b06] border border-emerald-500/30 flex items-center justify-center text-amber-300 text-lg shadow-[0_4px_12px_rgba(4,47,31,0.5)]">
               🕌
             </div>
             <div className="text-left">
-              <p className="text-[10px] uppercase font-black text-slate-400 tracking-wider">MEMBER STATUS</p>
-              <p className="text-xs font-black text-white leading-none mt-0.5">Administrator Masjid</p>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="text-[9px] text-emerald-400 font-bold font-mono">AUTHORIZED SESSION</span>
+              <p className="text-[9px] uppercase font-bold text-slate-400 tracking-widest">Sesi Aktif</p>
+              <p className="text-xs font-black text-white leading-none mt-1">Administrator Masjid</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-[8px] text-emerald-400 font-black tracking-wider uppercase">AUTHORIZED ACCESS</span>
               </div>
             </div>
           </div>
 
           {/* Nav Categories */}
-          <nav className="space-y-1">
-            <span className="text-[9px] font-black uppercase text-emerald-400/40 tracking-widest pl-2 block mb-2">MENU ADMIN</span>
+          <nav className="space-y-1.5">
+            <span className="text-[9px] font-black uppercase text-emerald-400/30 tracking-widest pl-2 block mb-2.5">Menu Navigasi</span>
             {menuItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
-                   key={item.id}
+                  key={item.id}
                   onClick={() => {
                     setActiveTab(item.id);
                     setIsSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 outline-none group text-xs ${
+                  className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all duration-300 outline-none group text-xs relative ${
                     isActive
-                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-black shadow-lg shadow-emerald-950/40'
-                      : 'text-slate-300 hover:bg-white/5 active:bg-white/10 hover:text-white'
+                      ? 'bg-emerald-500/10 border border-emerald-500/35 text-emerald-300 font-extrabold shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_4px_20px_rgba(4,47,31,0.25)]'
+                      : 'text-slate-300 hover:text-white hover:bg-emerald-500/5 hover:border-emerald-500/10 border border-transparent'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 font-bold">
-                    <span className={isActive ? 'text-slate-950' : 'text-emerald-500 group-hover:scale-110 transition'}>
+                  <div className="flex items-center gap-3 font-bold">
+                    {isActive && (
+                      <span className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-amber-400 rounded-r-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                    )}
+                    <span className={`transition-all duration-300 ${isActive ? 'text-amber-300 scale-110' : 'text-emerald-500 group-hover:scale-110'}`}>
                       {item.icon}
                     </span>
-                    <span>{item.label}</span>
+                    <span className={isActive ? 'pl-1 text-white font-black' : ''}>{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${
-                      isActive ? 'bg-slate-950 text-emerald-450' : 'bg-emerald-950 text-emerald-400 border border-emerald-500/10'
+                    <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full tracking-wide ${
+                      isActive 
+                        ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' 
+                        : 'bg-emerald-950/60 text-emerald-400 border border-emerald-500/15'
                     }`}>
                       {item.badge}
                     </span>
@@ -196,16 +215,16 @@ export default function AdminDashboardPortal({
         </div>
 
         {/* Sidebar Footer Logout Button */}
-        <div className="pt-4 border-t border-emerald-500/10 mt-6 space-y-2">
+        <div className="pt-4 border-t border-emerald-500/10 mt-6 space-y-3">
           {/* Real-time Digital Server Time */}
-          <div className="flex items-center justify-between text-[9px] font-mono text-emerald-400/50 px-2 py-1">
+          <div className="flex items-center justify-between text-[9px] font-mono text-emerald-400/40 px-2 font-bold uppercase tracking-wider">
             <span>TIME SYNC: GMT+7</span>
             <span>{localTime.toLocaleTimeString('id-ID')}</span>
           </div>
           
           <button
             onClick={onLogout}
-            className="w-full py-3 bg-red-650/80 hover:bg-red-600 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-lg transition active:scale-95 duration-200"
+            className="w-full py-3 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-transparent text-rose-400 hover:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-lg transition active:scale-95 duration-300"
           >
             <LogOut className="h-4 w-4" />
             Sign Out / Kunci Panel
@@ -773,9 +792,9 @@ export default function AdminDashboardPortal({
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <div className="xl:hidden fixed bottom-0 inset-x-0 z-40 bg-[#04150d]/95 backdrop-blur-xl border-t border-emerald-500/10 pb-safe shadow-[0_-4px_25px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center justify-around px-2 py-1.5">
+      {/* Mobile Bottom Navigation Bar (Elegant Floating Glass Capsule) */}
+      <div className="xl:hidden fixed bottom-4 left-4 right-4 z-40 bg-[#03110a]/90 backdrop-blur-xl border border-emerald-500/20 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.75)] transition-all">
+        <div className="flex items-center justify-around px-2.5 py-2">
           {['overview', 'jadwal', 'keuangan', 'profil'].map(id => {
             const item = menuItems.find(m => m.id === id);
             if (!item) return null;
@@ -784,21 +803,21 @@ export default function AdminDashboardPortal({
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as any)}
-                className={`flex flex-col items-center justify-center w-16 h-14 gap-1 rounded-2xl transition-all duration-300 relative ${
-                  isActive ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                className={`flex flex-col items-center justify-center w-14 h-13 gap-1 rounded-xl transition-all duration-300 relative ${
+                  isActive ? 'text-amber-300' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {isActive && (
-                  <span className="absolute inset-0 bg-emerald-500/10 rounded-2xl transition-opacity duration-300"></span>
+                  <span className="absolute inset-0 bg-emerald-500/10 border border-emerald-500/20 rounded-xl transition-all duration-300"></span>
                 )}
                 <div className={`transition-transform duration-300 z-10 ${isActive ? 'scale-110 mb-0.5' : 'scale-100'}`}>
                   {item.mobileIcon || item.icon}
                 </div>
-                <span className={`text-[9px] font-black tracking-wide z-10 ${isActive ? 'text-emerald-400' : ''}`}>
+                <span className={`text-[9px] font-extrabold tracking-wide z-10 ${isActive ? 'text-white' : 'text-slate-400/80'}`}>
                   {item.shortLabel}
                 </span>
                 {isActive && (
-                  <span className="absolute -bottom-1 w-8 h-1 rounded-t-full bg-emerald-400"></span>
+                  <span className="absolute -bottom-1.5 w-6 h-1 rounded-t-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
                 )}
               </button>
             );
@@ -806,19 +825,19 @@ export default function AdminDashboardPortal({
           
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className={`flex flex-col items-center justify-center w-16 h-14 gap-1 rounded-2xl transition-all duration-300 relative ${
-              isSidebarOpen ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+            className={`flex flex-col items-center justify-center w-14 h-13 gap-1 rounded-xl transition-all duration-300 relative ${
+              isSidebarOpen ? 'text-amber-300' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             {isSidebarOpen && (
-               <span className="absolute inset-0 bg-emerald-500/10 rounded-2xl transition-opacity duration-300"></span>
+               <span className="absolute inset-0 bg-emerald-500/10 border border-emerald-500/20 rounded-xl transition-all duration-300"></span>
             )}
             <div className={`transition-transform duration-300 z-10 ${isSidebarOpen ? 'scale-110 mb-0.5' : 'scale-100'}`}>
               <Menu className="h-5 w-5" />
             </div>
-            <span className={`text-[9px] font-black tracking-wide z-10 ${isSidebarOpen ? 'text-emerald-400' : ''}`}>Lainnya</span>
+            <span className="text-[9px] font-extrabold tracking-wide z-10 text-slate-400/80">Menu</span>
             {isSidebarOpen && (
-               <span className="absolute -bottom-1 w-8 h-1 rounded-t-full bg-emerald-400"></span>
+               <span className="absolute -bottom-1.5 w-6 h-1 rounded-t-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
             )}
           </button>
         </div>
@@ -829,26 +848,33 @@ export default function AdminDashboardPortal({
         className={`xl:hidden fixed inset-0 z-50 flex flex-col justify-end transition-all duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       >
         <div 
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
           onClick={() => setIsSidebarOpen(false)}
         />
         <div 
-          className={`relative bg-[#020b06] border-t border-emerald-500/20 rounded-t-3xl shadow-2xl transition-transform duration-400 transform ease-out-spring ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`}
+          className={`relative bg-[#03110a] border-t border-emerald-500/25 rounded-t-[28px] shadow-[0_-8px_40px_rgba(0,0,0,0.8)] transition-transform duration-300 transform ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`}
           style={{ maxHeight: '85vh' }}
         >
-          <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing" onClick={() => setIsSidebarOpen(false)}>
-            <div className="w-12 h-1.5 bg-emerald-500/30 rounded-full" />
+          {/* Grab Bar */}
+          <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing animate-bounce-slow" onClick={() => setIsSidebarOpen(false)}>
+            <div className="w-12 h-1.5 bg-emerald-500/20 rounded-full" />
           </div>
           
           <div className="px-5 pb-8 pt-2 flex flex-col h-full max-h-[calc(85vh-2rem)] overflow-y-auto no-scrollbar">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xs font-black tracking-widest text-emerald-400 uppercase">MENU ADMINISTRATOR</h3>
-              <button onClick={() => setIsSidebarOpen(false)} className="p-2 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors text-emerald-400 rounded-full">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-xs font-black tracking-widest text-emerald-400 uppercase">KATEGORI ADMINISTRATOR</h3>
+                <p className="text-[8px] text-slate-400 mt-0.5">Kelola data dan fungsionalitas masjid</p>
+              </div>
+              <button 
+                onClick={() => setIsSidebarOpen(false)} 
+                className="p-2 bg-emerald-500/15 hover:bg-emerald-500/20 transition-colors text-emerald-400 rounded-full border border-emerald-500/10"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
             
-            <div className="grid grid-cols-4 gap-y-6 gap-x-2">
+            <div className="grid grid-cols-3 gap-3">
               {menuItems.map(item => {
                 const isActive = activeTab === item.id;
                 return (
@@ -858,29 +884,33 @@ export default function AdminDashboardPortal({
                       setActiveTab(item.id as any);
                       setIsSidebarOpen(false);
                     }}
-                    className={`flex flex-col items-center gap-2 group relative`}
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl group relative border transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-gradient-to-br from-[#062417] to-[#03110a] border-emerald-500/40 text-amber-300 shadow-[0_4px_20px_rgba(16,185,129,0.15)] scale-102' 
+                        : 'bg-[#020b06]/60 border-emerald-500/5 text-slate-300 hover:bg-[#041910] hover:text-emerald-400'
+                    }`}
                   >
-                    <div className={`w-14 h-14 rounded-[18px] flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-slate-950 shadow-[0_0_15px_rgba(52,211,153,0.3)] scale-105' : 'bg-[#041d11] border border-emerald-500/10 text-slate-300 group-hover:bg-[#062617] group-hover:text-emerald-400'}`}>
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-amber-400/10 text-amber-300' : 'bg-emerald-950/40 border border-emerald-500/15 text-emerald-400 group-hover:scale-110'}`}>
                       {item.mobileIcon || item.icon}
                     </div>
-                    <span className={`text-[10px] font-bold text-center leading-tight ${isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                    <span className={`text-[10px] font-black mt-2 text-center leading-tight transition-colors ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
                       {item.shortLabel}
                     </span>
                     {item.badge && (
-                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 rounded-full border-[2px] border-[#020b06]" />
+                      <span className="absolute top-2 right-2 w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)] border border-[#03110a]" />
                     )}
                   </button>
                 )
               })}
             </div>
 
-            <div className="mt-10 pt-5 border-t border-emerald-500/10">
+            <div className="mt-8 pt-5 border-t border-emerald-500/10">
               <button
                 onClick={() => {
                   setIsSidebarOpen(false);
                   onLogout();
                 }}
-                className="w-full py-4 bg-rose-600/90 hover:bg-rose-500 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 shadow-lg transition active:scale-95 uppercase tracking-wider"
+                className="w-full py-3.5 bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-transparent text-rose-400 hover:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2.5 shadow-lg transition duration-300 active:scale-95 uppercase tracking-wider"
               >
                 <LogOut className="h-4 w-4" />
                 Sign Out / Kunci Panel

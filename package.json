@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/google.maps": "^3.65.2",
+    "@vis.gl/react-google-maps": "^1.8.3",
     "browser-image-compression": "^2.0.2",
     "firebase": "^12.15.0",
     "lucide-react": "^0.344.0",
