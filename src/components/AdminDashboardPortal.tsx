@@ -20,7 +20,10 @@ import {
   Settings,
   QrCode,
   Music,
-  Coins
+  Coins,
+  Eye,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -94,6 +97,19 @@ export default function AdminDashboardPortal({
   const [activeTab, setActiveTab] = useState<'overview' | 'beranda' | 'profil' | 'jadwal' | 'galeri' | 'donasi' | 'keuangan' | 'inventaris' | 'kontak' | 'keamanan'>('overview');
   const [localTime, setLocalTime] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [previewSlide, setPreviewSlide] = useState<any>(null);
+
+  const handleDeleteSlide = async (id: string, title: string) => {
+    if (window.confirm(`Hapus slide "${title}"?`)) {
+      try {
+        const { deleteDocument } = await import('../lib/db');
+        await deleteDocument('slides', id);
+        addLog('Slide Dihapus', `Slide "${title}" telah dihapus permanent.`, 'success');
+      } catch (err) {
+        addLog('Error', 'Gagal menghapus slide.', 'alert');
+      }
+    }
+  };
 
   // Stats calculation
   const totalInfaq = (campaigns || []).reduce((acc, curr) => acc + ((curr && curr.raised) || 0), 0);
@@ -510,6 +526,45 @@ export default function AdminDashboardPortal({
                       slides.map((s, i) => (
                         <div key={s.id || i} className="group relative aspect-video rounded-[2rem] overflow-hidden border border-primary-800/50 bg-black shadow-2xl">
                           <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" referrerPolicy="no-referrer" />
+                          
+                          {/* Hover Actions */}
+                          <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500 z-10">
+                             <button 
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setPreviewSlide(s);
+                               }}
+                               className="w-8 h-8 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-lg flex items-center justify-center hover:bg-emerald-500 hover:border-emerald-400 transition-all shadow-xl"
+                               title="Preview"
+                             >
+                               <Eye className="w-3.5 h-3.5" />
+                             </button>
+                             <button 
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setActiveTab('jadwal');
+                                 // We need to tell JadwalHub to open Slider subtab
+                                 window.dispatchEvent(new CustomEvent('change_subtab', { 
+                                   detail: { tab: 'jadwal', subtab: 'slider' } 
+                                 }));
+                               }}
+                               className="w-8 h-8 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-lg flex items-center justify-center hover:bg-amber-500 hover:border-amber-400 transition-all shadow-xl"
+                               title="Edit"
+                             >
+                               <Edit2 className="w-3.5 h-3.5" />
+                             </button>
+                             <button 
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleDeleteSlide(s.id, s.title);
+                               }}
+                               className="w-8 h-8 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-lg flex items-center justify-center hover:bg-rose-600 hover:border-rose-500 transition-all shadow-xl"
+                               title="Delete"
+                             >
+                               <Trash2 className="w-3.5 h-3.5" />
+                             </button>
+                          </div>
+
                           <div className="absolute inset-0 bg-gradient-to-t from-primary-950 via-primary-950/20 to-transparent p-5 flex flex-col justify-end">
                             <span className="absolute top-4 left-4 text-[8px] font-black text-amber-500 bg-primary-950/80 px-2.5 py-1 rounded-full border border-amber-500/20 backdrop-blur-md uppercase tracking-widest">
                               Slide {s.order || i + 1}
@@ -1014,6 +1069,91 @@ export default function AdminDashboardPortal({
           </div>
         </div>
       </div>
+
+      {/* Slide Preview Modal */}
+      {previewSlide && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-12">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 bg-primary-950/95 backdrop-blur-2xl" 
+            onClick={() => setPreviewSlide(null)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full max-w-5xl aspect-video rounded-[3rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.9)] border border-white/10"
+          >
+            <img 
+              src={previewSlide.imageUrl} 
+              className="w-full h-full object-cover" 
+              alt="Preview"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary-950/90 via-primary-950/20 to-transparent" />
+            
+            <div className="absolute inset-0 flex flex-col justify-end p-8 lg:p-16 text-left">
+              <div className="max-w-2xl space-y-6">
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className={`px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[10px] font-black uppercase tracking-[0.25em] ${previewSlide.accentColor || 'text-emerald-400'}`}>
+                    {previewSlide.badge || 'Banner Preview'}
+                  </div>
+                </motion.div>
+                
+                <div className="space-y-3">
+                  <motion.h2 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase font-display leading-[0.9]"
+                  >
+                    {previewSlide.title}
+                  </motion.h2>
+                  <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-sm lg:text-xl font-bold text-slate-400 uppercase tracking-widest"
+                  >
+                    {previewSlide.subtitle}
+                  </motion.p>
+                </div>
+
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="text-slate-400/80 text-xs lg:text-base max-w-lg leading-relaxed font-medium"
+                >
+                  {previewSlide.description}
+                </motion.p>
+
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="pt-4"
+                >
+                  <button className="px-10 py-4 bg-white text-primary-950 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl">
+                    {previewSlide.actionText}
+                  </button>
+                </motion.div>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setPreviewSlide(null)}
+              className="absolute top-8 right-8 w-14 h-14 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-2xl flex items-center justify-center hover:bg-rose-600 transition-all"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </motion.div>
+        </div>
+      )}
 
     </div>
   );
