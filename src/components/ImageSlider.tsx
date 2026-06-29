@@ -28,10 +28,12 @@ const IconMap: Record<string, React.ReactNode> = {
 
 export default function ImageSlider({
   slides,
-  onNavigate
+  onNavigate,
+  hideText = false
 }: {
   slides: SlideItem[];
   onNavigate: (tab: any) => void;
+  hideText?: boolean;
 }) {
   const [current, setCurrent] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -122,11 +124,15 @@ export default function ImageSlider({
           
           {/* Top Line Action Header */}
           <div className="flex items-center justify-between">
-            <span className={`px-3 py-1 flex items-center gap-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest ${activeSlide.badgeColor || 'bg-slate-500/20 text-slate-350 border border-slate-500/30'} uppercase text-left`}>
-              {IconMap[activeSlide.badgeIcon || 'Info'] || <Info className="h-3.5 w-3.5" />}
-              <span>{activeSlide.badge || 'Informasi'}</span>
-            </span>
-
+            {!hideText ? (
+              <span className={`px-3 py-1 flex items-center gap-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest ${activeSlide.badgeColor || 'bg-slate-500/20 text-slate-350 border border-slate-500/30'} uppercase text-left`}>
+                {IconMap[activeSlide.badgeIcon || 'Info'] || <Info className="h-3.5 w-3.5" />}
+                <span>{activeSlide.badge || 'Informasi'}</span>
+              </span>
+            ) : (
+              <div />
+            )}
+ 
             {/* Live Autoplay play/pause controller */}
             <button
               onClick={togglePlay}
@@ -136,70 +142,72 @@ export default function ImageSlider({
               {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
             </button>
           </div>
-
+ 
           {/* Middle Body Layout */}
-          <div className="space-y-4 max-w-3xl mt-auto pb-6 sm:pb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-[2px] bg-amber-400"></div>
-              <span className="text-[10px] sm:text-xs font-black tracking-[0.25em] text-amber-400 uppercase font-sans">
-                {activeSlide.subtitle}
-              </span>
+          {!hideText && (
+            <div className="space-y-4 max-w-3xl mt-auto pb-6 sm:pb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-[2px] bg-amber-400"></div>
+                <span className="text-[10px] sm:text-xs font-black tracking-[0.25em] text-amber-400 uppercase font-sans">
+                  {activeSlide.subtitle}
+                </span>
+              </div>
+              
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeSlide.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.35 }}
+                  className="space-y-3 sm:space-y-4 text-left"
+                >
+                  <h2 className="text-2xl sm:text-5xl lg:text-7xl font-serif font-black text-white tracking-tight leading-[1.1] pt-1">
+                    {activeSlide.title}
+                  </h2>
+                  
+                  {/* Premium quote accent strip mimicking the Istiqlal design */}
+                  <div className="text-sm sm:text-2xl lg:text-3xl tracking-tight leading-snug font-serif font-semibold italic">
+                    <span className="text-primary-400 block sm:inline">Menyinari Negeri, </span>
+                    <span className="text-accent-gold block sm:inline mt-0.5 sm:mt-0">Menjaga Harmoni.</span>
+                  </div>
+ 
+                  <p className="text-slate-200/90 text-[11px] sm:text-sm md:text-base leading-relaxed max-w-2xl font-light line-clamp-3 sm:line-clamp-none">
+                    {activeSlide.description}
+                  </p>
+ 
+                  {/* Highly-styled call to action buttons directly within the Hero Slide layout */}
+                  <div className="pt-1.5 flex flex-wrap gap-2.5 sm:gap-4 items-center">
+                    <button
+                      onClick={() => {
+                        const target = document.getElementById('main_content_anchor');
+                        if (target) {
+                          target.scrollIntoView({ behavior: 'smooth' });
+                        }
+                        if (activeSlide.actionTab) {
+                          onNavigate(activeSlide.actionTab);
+                        }
+                      }}
+                      className="bg-primary-600 hover:bg-primary-500 text-white rounded-full px-4.5 py-2.5 sm:px-6 sm:py-3 text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wider shadow-lg transform active:scale-95 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer border border-primary-500/10"
+                    >
+                      <span>{activeSlide.actionText || 'Eksplorasi Layanan'}</span>
+                      <span>→</span>
+                    </button>
+ 
+                    <button
+                      onClick={() => setShowTourModal(activeSlide)}
+                      className="bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full px-4 py-2.5 sm:px-5 sm:py-3 text-[10px] sm:text-xs md:text-sm font-extrabold uppercase tracking-wider backdrop-blur-sm shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse shrink-0" />
+                      <span>Detail Informasi</span>
+                    </button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+ 
             </div>
-            
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeSlide.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35 }}
-                className="space-y-3 sm:space-y-4 text-left"
-              >
-                <h2 className="text-2xl sm:text-5xl lg:text-7xl font-serif font-black text-white tracking-tight leading-[1.1] pt-1">
-                  {activeSlide.title}
-                </h2>
-                
-                {/* Premium quote accent strip mimicking the Istiqlal design */}
-                <div className="text-sm sm:text-2xl lg:text-3xl tracking-tight leading-snug font-serif font-semibold italic">
-                  <span className="text-primary-400 block sm:inline">Menyinari Negeri, </span>
-                  <span className="text-accent-gold block sm:inline mt-0.5 sm:mt-0">Menjaga Harmoni.</span>
-                </div>
-
-                <p className="text-slate-200/90 text-[11px] sm:text-sm md:text-base leading-relaxed max-w-2xl font-light line-clamp-3 sm:line-clamp-none">
-                  {activeSlide.description}
-                </p>
-
-                {/* Highly-styled call to action buttons directly within the Hero Slide layout */}
-                <div className="pt-1.5 flex flex-wrap gap-2.5 sm:gap-4 items-center">
-                  <button
-                    onClick={() => {
-                      const target = document.getElementById('main_content_anchor');
-                      if (target) {
-                        target.scrollIntoView({ behavior: 'smooth' });
-                      }
-                      if (activeSlide.actionTab) {
-                        onNavigate(activeSlide.actionTab);
-                      }
-                    }}
-                    className="bg-primary-600 hover:bg-primary-500 text-white rounded-full px-4.5 py-2.5 sm:px-6 sm:py-3 text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wider shadow-lg transform active:scale-95 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer border border-primary-500/10"
-                  >
-                    <span>{activeSlide.actionText || 'Eksplorasi Layanan'}</span>
-                    <span>→</span>
-                  </button>
-
-                  <button
-                    onClick={() => setShowTourModal(activeSlide)}
-                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full px-4 py-2.5 sm:px-5 sm:py-3 text-[10px] sm:text-xs md:text-sm font-extrabold uppercase tracking-wider backdrop-blur-sm shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse shrink-0" />
-                    <span>Detail Informasi</span>
-                  </button>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-          </div>
-
+          )}
+ 
         </div>
 
         {/* Carousel Arrow Navigation Controls */}

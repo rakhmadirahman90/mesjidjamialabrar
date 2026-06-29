@@ -1621,13 +1621,19 @@ export default function App() {
               <div className="space-y-1.5 sm:space-y-3 pb-6">
                 {/* Elegant Header Hero */}
                 <div className="space-y-0.5">
-                  <ImageSlider slides={slides} onNavigate={setActiveTab} />
+                  <ImageSlider 
+                    slides={slides} 
+                    onNavigate={setActiveTab} 
+                    hideText={mosqueSettings?.hideSliderText}
+                  />
                 </div>
 
                 <MasjidDashboard 
                   prayers={prayers}
                   nextDetails={nextDetails}
                   onNavigate={setActiveTab}
+                  liveStreamUrl={mosqueSettings?.liveStreamUrl}
+                  liveStreamTitle={mosqueSettings?.liveStreamTitle}
                 />
               </div>
             )}

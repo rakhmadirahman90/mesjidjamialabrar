@@ -7,7 +7,9 @@ import {
   Sun,
   CloudSun,
   Moon,
-  CloudMoon
+  CloudMoon,
+  Play,
+  Volume2
 } from 'lucide-react';
 import { PrayerTime } from '../types';
 
@@ -15,12 +17,45 @@ interface MasjidDashboardProps {
   prayers: PrayerTime[];
   nextDetails: any;
   onNavigate: (tab: any) => void;
+  liveStreamUrl?: string;
+  liveStreamTitle?: string;
+}
+
+function getYouTubeEmbedUrl(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    if (url.includes('embed/live_stream')) {
+      return url;
+    }
+    
+    let videoId = '';
+    if (url.includes('youtube.com/watch')) {
+      const urlObj = new URL(url);
+      videoId = urlObj.searchParams.get('v') || '';
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split(/[?#]/)[0] || '';
+    } else if (url.includes('youtube.com/embed/')) {
+      videoId = url.split('youtube.com/embed/')[1]?.split(/[?#]/)[0] || '';
+    } else if (url.match(/^[a-zA-Z0-9_-]{11}$/)) {
+      videoId = url;
+    }
+    
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    }
+  } catch (e) {
+    console.error('Error parsing YouTube URL:', e);
+  }
+  return null;
 }
 
 export default function MasjidDashboard({ 
   prayers, 
-  onNavigate
+  onNavigate,
+  liveStreamUrl,
+  liveStreamTitle
 }: MasjidDashboardProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
   
   // States for ticking countdown and dates
   const [timeLeft, setTimeLeft] = useState('00:00:00');
@@ -186,28 +221,58 @@ export default function MasjidDashboard({
         <section className="space-y-1.5 lg:col-span-2">
           <h3 className="text-lg font-black text-slate-900 tracking-tight px-1">Siaran Langsung</h3>
           <div className="bg-primary-950 rounded-[1.8rem] p-1 sm:p-2 border border-primary-500/10 shadow-xl overflow-hidden group">
-             <div className="relative pt-[50%] sm:pt-[45%] rounded-[1.4rem] overflow-hidden bg-primary-900/50 flex items-center justify-center border border-white/5 shadow-inner">
-               <div className="absolute inset-0 flex flex-col items-center justify-center text-primary-400/30 group-hover:text-primary-400/50 transition-colors">
-                 <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-primary-500/10 flex items-center justify-center mb-2 border border-primary-500/20 group-hover:scale-110 transition-transform duration-700">
-                   <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-current border-b-[6px] border-b-transparent ml-1"></div>
+             <div className="relative pt-[56.25%] rounded-[1.4rem] overflow-hidden bg-primary-900/50 flex items-center justify-center border border-white/5 shadow-inner">
+               {isPlaying && getYouTubeEmbedUrl(liveStreamUrl || 'https://www.youtube.com/watch?v=l588FmSMywY') ? (
+                 <iframe
+                   src={getYouTubeEmbedUrl(liveStreamUrl || 'https://www.youtube.com/watch?v=l588FmSMywY') || ''}
+                   title={liveStreamTitle || 'Kajian Rutin & Shalat Berjamaah'}
+                   className="absolute inset-0 w-full h-full border-0 rounded-[1.4rem]"
+                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                   allowFullScreen
+                 ></iframe>
+               ) : (
+                 <div 
+                   onClick={() => setIsPlaying(true)}
+                   className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-gradient-to-br from-primary-950/90 via-primary-900/60 to-primary-950/90 group-hover:from-primary-950/80 group-hover:via-primary-900/50 group-hover:to-primary-950/80 transition-all duration-300 text-primary-400/90"
+                 >
+                   {/* Decorative background visual - simulating video frame */}
+                   <div className="absolute inset-0 opacity-10 bg-cover bg-center mix-blend-overlay" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=60&w=600')` }}></div>
+
+                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 flex items-center justify-center mb-3 border border-rose-500/30 group-hover:scale-110 group-hover:border-rose-500/50 group-hover:text-rose-400 shadow-xl shadow-rose-950/50 transition-all duration-500 relative z-10">
+                     <Play className="w-6 h-6 fill-current ml-1" />
+                   </div>
+                   
+                   <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-white relative z-10 mb-1">Putar Kajian / Live Streaming</span>
+                   <span className="text-[8px] sm:text-[9px] text-primary-400 font-bold uppercase tracking-wider relative z-10 opacity-70 group-hover:opacity-100 transition-opacity">Klik untuk memutar siaran terbaru</span>
+                   
+                   {/* Live Badge */}
+                   <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 bg-rose-600 px-3 py-1 rounded-full text-[7px] font-black text-white tracking-widest uppercase animate-pulse shadow-lg shadow-rose-600/40 z-10">
+                     <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                     {liveStreamUrl ? 'LIVE' : 'SIARAN'}
+                   </div>
+                   
+                   {/* Overlay info */}
+                   <div className="absolute bottom-3.5 right-3.5 flex items-center gap-1 px-2.5 py-1 bg-black/40 backdrop-blur-md rounded-lg border border-white/5 text-white/60 text-[7px] font-black uppercase tracking-wider z-10">
+                     <Volume2 className="w-3.5 h-3.5" /> AUDIO & VIDEO
+                   </div>
                  </div>
-                 <span className="text-[8px] font-black uppercase tracking-[0.3em]">Channel Masjid Jami Al Abrar</span>
-               </div>
-               
-               {/* Live Badge */}
-               <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 bg-rose-600 px-2 py-0.5 rounded-full text-[6px] font-black text-white tracking-widest uppercase animate-pulse shadow-lg shadow-rose-600/30">
-                 <span className="w-1 h-1 rounded-full bg-white"></span>
-                 OFFLINE
-               </div>
+               )}
              </div>
-             <div className="flex items-center justify-between px-2.5 py-1 sm:py-1.5">
-               <div className="flex flex-col">
-                 <p className="text-[7px] text-primary-500/60 font-black uppercase tracking-[0.2em] mb-0.5">Media Informasi</p>
-                 <p className="text-xs sm:text-sm font-black text-white tracking-tight">Kajian Rutin & Shalat Berjamaah</p>
+             
+             <div className="flex items-center justify-between px-3 py-2 sm:py-2.5">
+               <div className="flex flex-col text-left">
+                 <p className="text-[8px] text-primary-500/60 font-black uppercase tracking-[0.2em] mb-0.5">Media Informasi</p>
+                 <p className="text-xs sm:text-sm font-black text-white tracking-tight">{liveStreamTitle || 'Kajian Rutin & Shalat Berjamaah'}</p>
+                 {liveStreamUrl && (
+                   <span className="text-[9px] text-rose-400 font-semibold mt-0.5 tracking-tight hover:underline flex items-center gap-1">
+                     <span className="w-1 h-1 rounded-full bg-rose-500"></span>
+                     Sumber: {liveStreamUrl.substring(0, 45)}...
+                   </span>
+                 )}
                </div>
-               <div className="flex items-center gap-1 px-2 py-1 bg-primary-500/10 rounded-lg border border-primary-500/10">
-                 <div className="w-1 h-1 rounded-full bg-primary-500"></div>
-                 <span className="text-[7px] font-black text-primary-400 tracking-widest uppercase">Streaming</span>
+               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 rounded-full border border-rose-500/20 shadow-md">
+                 <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+                 <span className="text-[8px] font-black text-rose-400 tracking-widest uppercase">Streaming</span>
                </div>
              </div>
           </div>

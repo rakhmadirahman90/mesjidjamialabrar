@@ -54,6 +54,14 @@
       "icon": "string",
       "description": "string",
       "order": "number"
+    },
+    "settings": {
+      "announcement": "string",
+      "adminPin": "string",
+      "showAnnouncement": "boolean",
+      "liveStreamUrl": "string",
+      "liveStreamTitle": "string",
+      "prayers": "array"
     }
   }
 }

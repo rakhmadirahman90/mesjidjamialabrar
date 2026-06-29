@@ -23,7 +23,8 @@ import {
   Coins,
   Eye,
   Edit2,
-  Trash2
+  Trash2,
+  Video
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -99,6 +100,54 @@ export default function AdminDashboardPortal({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [previewSlide, setPreviewSlide] = useState<any>(null);
   const [jadwalTarget, setJadwalTarget] = useState<{ subtab: any, editId?: string } | null>(null);
+
+  const [streamUrlInput, setStreamUrlInput] = useState(mosqueSettings?.liveStreamUrl || '');
+  const [streamTitleInput, setStreamTitleInput] = useState(mosqueSettings?.liveStreamTitle || '');
+  const [hideSliderText, setHideSliderText] = useState(mosqueSettings?.hideSliderText || false);
+
+  useEffect(() => {
+    if (mosqueSettings) {
+      if (mosqueSettings.liveStreamUrl !== undefined) {
+        setStreamUrlInput(mosqueSettings.liveStreamUrl || '');
+      }
+      if (mosqueSettings.liveStreamTitle !== undefined) {
+        setStreamTitleInput(mosqueSettings.liveStreamTitle || '');
+      }
+      if (mosqueSettings.hideSliderText !== undefined) {
+        setHideSliderText(mosqueSettings.hideSliderText);
+      }
+    }
+  }, [mosqueSettings]);
+
+  const handleToggleHideSliderText = async (enabled: boolean) => {
+    try {
+      const { upsertDocument } = await import('../lib/db');
+      await upsertDocument('settings', 'config', {
+        hideSliderText: enabled
+      });
+      setHideSliderText(enabled);
+      addLog(
+        enabled ? 'Teks Slider Dinonaktifkan' : 'Teks Slider Diaktifkan', 
+        `Teks overlay pada slider berhasil ${enabled ? 'disembunyikan' : 'ditampilkan kembali'}.`, 
+        'success'
+      );
+    } catch (err) {
+      addLog('Error', 'Gagal memperbarui status tampilan teks slider.', 'alert');
+    }
+  };
+
+  const handleSaveStream = async () => {
+    try {
+      const { upsertDocument } = await import('../lib/db');
+      await upsertDocument('settings', 'config', {
+        liveStreamUrl: streamUrlInput,
+        liveStreamTitle: streamTitleInput
+      });
+      addLog('Stream Diperbarui', 'Link streaming kajian terbaru berhasil disimpan.', 'success');
+    } catch (err) {
+      addLog('Error', 'Gagal memperbarui link streaming.', 'alert');
+    }
+  };
 
   const handleDeleteSlide = async (id: string, title: string) => {
     if (window.confirm(`Hapus slide "${title}"?`)) {
@@ -493,6 +542,39 @@ export default function AdminDashboardPortal({
                         </button>
                       </div>
                     </div>
+
+                    {/* Live Streaming Section */}
+                    <div className="p-6 bg-primary-900/20 border border-primary-800/30 rounded-2xl space-y-4">
+                      <div className="text-left">
+                        <h4 className="text-[11px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2">
+                           <Video className="w-4 h-4" />
+                           Link Streaming Kajian
+                        </h4>
+                        <p className="text-[10px] text-slate-400 mt-1">Masukkan link streaming kajian terbaru (YouTube watch/live/embed URL).</p>
+                      </div>
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          placeholder="Contoh: https://www.youtube.com/watch?v=..."
+                          value={streamUrlInput}
+                          onChange={(e) => setStreamUrlInput(e.target.value)}
+                          className="w-full bg-primary-950/80 border border-primary-800 text-white rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-rose-500 focus:outline-none placeholder-slate-600"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Judul / Deskripsi Kajian (opsional)"
+                          value={streamTitleInput}
+                          onChange={(e) => setStreamTitleInput(e.target.value)}
+                          className="w-full bg-primary-950/80 border border-primary-800 text-white rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-rose-500 focus:outline-none placeholder-slate-600"
+                        />
+                        <button
+                          onClick={handleSaveStream}
+                          className="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white border border-rose-500/20 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-rose-600/25"
+                        >
+                          🎥 Simpan Link Streaming
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -517,6 +599,45 @@ export default function AdminDashboardPortal({
                     >
                       Open Editor
                     </button>
+                  </div>
+                  
+                  {/* Slider Text Overlay Visibility Toggle */}
+                  <div className="p-5 bg-primary-900/15 border border-primary-800/30 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
+                    <div className="space-y-0.5">
+                      <h4 className="text-[11px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                        <span>📝 Visibilitas Teks Slider</span>
+                        {hideSliderText ? (
+                          <span className="px-2 py-0.5 text-[8px] bg-rose-500/15 text-rose-400 rounded-full font-sans font-black tracking-normal">NONAKTIF</span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[8px] bg-emerald-500/15 text-emerald-400 rounded-full font-sans font-black tracking-normal">AKTIF</span>
+                        )}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 max-w-sm leading-relaxed">
+                        Sembunyikan semua overlay teks (judul, deskripsi, tombol aksi) pada gambar slider di halaman depan.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 self-start sm:self-center">
+                      <button
+                        onClick={() => handleToggleHideSliderText(false)}
+                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                          !hideSliderText
+                            ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 border border-emerald-500'
+                            : 'bg-primary-950/50 text-slate-400 hover:text-slate-200 border border-primary-800'
+                        }`}
+                      >
+                        Tampilkan Teks
+                      </button>
+                      <button
+                        onClick={() => handleToggleHideSliderText(true)}
+                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                          hideSliderText
+                            ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/25 border border-rose-500'
+                            : 'bg-primary-950/50 text-slate-400 hover:text-slate-200 border border-primary-800'
+                        }`}
+                      >
+                        Sembunyikan Teks
+                      </button>
+                    </div>
                   </div>
                   
                   {/* Preview Slides Grid */}
